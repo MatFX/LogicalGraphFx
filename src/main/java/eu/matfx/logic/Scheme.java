@@ -33,6 +33,33 @@ public class Scheme {
 	}
 	
 	/**
+	 * with this method the logicElement will be set on a specified index. If the position
+	 * <br>taken all elements will be moved. 
+	 * @param indexToSet
+	 * @param logicElement
+	 */
+	public void putElementAtMap(int indexToSet, ALogicElement logicElement)
+	{
+		if(workflowMap.get(indexToSet) != null)
+		{
+			//move action
+			
+			int newIndex = indexToSet++;
+			ALogicElement valueToMove = workflowMap.get(indexToSet);
+			
+			//set the param from method
+			workflowMap.put(indexToSet, logicElement);
+			//hop to the new index with the old value
+			this.putElementAtMap(newIndex, valueToMove);
+		}
+		else
+		{
+			workflowMap.put(indexToSet, logicElement);
+		}
+	}
+	
+	
+	/**
 	 * check the map; only validated maps will be produce legal results 
 	 * @return
 	 */
