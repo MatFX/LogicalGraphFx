@@ -29,6 +29,7 @@ public class Scheme {
 
 	public void deleteElementMap(int index)
 	{
+		//TODO after delete consistency check?
 		workflowMap.remove(index);
 	}
 	
@@ -40,13 +41,12 @@ public class Scheme {
 	 */
 	public void putElementAtMap(int indexToSet, ALogicElement logicElement)
 	{
+	
 		if(workflowMap.get(indexToSet) != null)
 		{
 			//move action
-			
-			int newIndex = indexToSet++;
+			int newIndex = indexToSet + 1;
 			ALogicElement valueToMove = workflowMap.get(indexToSet);
-			
 			//set the param from method
 			workflowMap.put(indexToSet, logicElement);
 			//hop to the new index with the old value
@@ -78,6 +78,11 @@ public class Scheme {
 			index++;
 		}
 		return true;
+	}
+
+	public SortedMap<Integer, ALogicElement> getWorkflowMap() 
+	{
+		return workflowMap;
 	}
 	
 	
