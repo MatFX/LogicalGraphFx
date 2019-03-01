@@ -1,4 +1,4 @@
-package eu.matfx.logic.data.impl;
+package eu.matfx.logic.data.impl.container;
 
 import eu.matfx.logic.data.AInputOutputElement;
 
