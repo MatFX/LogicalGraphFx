@@ -3,6 +3,7 @@ package eu.matfx.gui.main;
 import java.util.List;
 
 import eu.matfx.gui.util.ECommand;
+import eu.matfx.logic.database.SchemeDataStorage;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -188,6 +189,12 @@ public class ContentPane extends Pane
 		//containerComponent.recalcualteCenterPoint();
 		
 		
+		if(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen() >= 0)
+		{
+			//put scheme on screen
+			rebuildView();
+		}
+		
 		
 		
 		
@@ -198,6 +205,15 @@ public class ContentPane extends Pane
 		//	ContentPane.this.setStyle("-fx-background-color: #5691b0;");
 	//	}
 	//
+	}
+
+	private void rebuildView() 
+	{
+		ContentPane.this.setStyle("-fx-background-color: #5691b0;");
+		
+		//TODO more content with positioning and draw of the scheme
+		
+		
 	}
 
 }
