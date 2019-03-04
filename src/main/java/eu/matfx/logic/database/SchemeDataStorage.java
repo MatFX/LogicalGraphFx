@@ -19,7 +19,16 @@ public class SchemeDataStorage
 	public static void initSchemeDataStorage()
 	{
 		instance = new SchemeDataStorage();
+		//import and fill the scheme list
+		instance.schemeList = (SchemeList) XMLAccess.readObjectFromFile(instance.schemeList);
 	}
+	
+	
+	public static SchemeList getSchemeList()
+	{
+		return instance.schemeList;
+	}
+	
 	
 	
 }

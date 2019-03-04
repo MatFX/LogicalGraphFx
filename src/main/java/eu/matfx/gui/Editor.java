@@ -57,7 +57,7 @@ public class Editor extends Application
 			TopPane tbp = new TopPane(primaryStage, command);
 			sceneRoot.setTop(tbp);
 			
-			ContentPane panelsPane = new ContentPane(primaryStage, statusText, xCoords, yCoords);
+			ContentPane panelsPane = new ContentPane(primaryStage, statusText, xCoords, yCoords, command);
 			//panelsPane.initSnapShotContainer();
 			
 			ScrollPaneExtended scrollPane = new ScrollPaneExtended();

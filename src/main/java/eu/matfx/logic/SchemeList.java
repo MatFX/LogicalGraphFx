@@ -6,12 +6,8 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlValue;
 
 import eu.matfx.logic.database.XMLAccess;
 import eu.matfx.logic.interfaces.IFileName;
@@ -31,6 +27,11 @@ public class SchemeList implements IFileName
 	 */
 	@XmlElement(name="Scheme")
 	private List<Scheme> schemeList = null;
+	
+	/**
+	 * index from the active scheme on screen; Integer.MinValue = no active scheme on screen
+	 */
+	private int activeSchemeOnScreen = Integer.MIN_VALUE;
 	
 	public SchemeList()
 	{
@@ -86,6 +87,14 @@ public class SchemeList implements IFileName
 		System.out.println("target " + temp.getPath());
 		
 		return temp.getAbsolutePath();
+	}
+
+	public int getActiveSchemeOnScreen() {
+		return activeSchemeOnScreen;
+	}
+
+	public void setActiveSchemeOnScreen(int activeSchemeOnScreen) {
+		this.activeSchemeOnScreen = activeSchemeOnScreen;
 	}
 
 }

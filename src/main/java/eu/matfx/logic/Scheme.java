@@ -116,5 +116,10 @@ public class Scheme implements Serializable {
 	}
 	
 	
+	public String toString()
+	{
+		return this.getDescriptionName();
+	}
+	
 
 }

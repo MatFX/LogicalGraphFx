@@ -45,6 +45,8 @@ public class SchemaTest {
 		SchemeList schemeList = new SchemeList();
 		
 		schemeList.getSchemeList().add(scheme);
+		
+		schemeList.setActiveSchemeOnScreen(schemeList.getSchemeList().size()-1);
 		System.out.println("Test " + schemeList.getSchemeList().get(0).getWorkflowMap());
 		//write definied xml in file
 		XMLAccess.writeObjectToFile(schemeList);
