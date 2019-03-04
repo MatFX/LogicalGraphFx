@@ -2,9 +2,7 @@ package eu.matfx.logic.data;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 
 
@@ -23,6 +21,12 @@ public abstract class ALogicElement implements Serializable
 	
 	@XmlElement
 	private String classDescription = this.getClass().getSimpleName();
+	
+	/**
+	 * it's not the index of the map. this is the identifier in a seperated Storage module.
+	 * <br>//TODO evtl. noch keine Ahnung
+	 */
+	//private int logicElementIdentifier = 0;
 	
 	
 	/**
