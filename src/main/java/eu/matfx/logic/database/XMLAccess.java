@@ -1,8 +1,6 @@
 package eu.matfx.logic.database;
 
 import java.io.File;
-import java.util.Objects;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;

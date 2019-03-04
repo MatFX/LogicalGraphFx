@@ -52,6 +52,12 @@ public class SchemaTest {
 		//abfrage ob vorhanden?
 		
 		
+		SchemeList readedSchemeList = (SchemeList) XMLAccess.readObjectFromFile(new SchemeList());
+		
+		assertTrue("readed scheme list must be 5 elements", (scheme.getWorkflowMap().size() == 5));
+		
+		
+		
 		
 		
 	}
