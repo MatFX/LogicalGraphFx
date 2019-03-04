@@ -1,6 +1,14 @@
 package eu.matfx.logic;
 
+import java.io.Serializable;
 import java.util.Map.Entry;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -12,14 +20,24 @@ import eu.matfx.logic.data.ALogicElement;
  * @author m.goerlich
  *
  */
-public class Scheme {
+@XmlRootElement(name = "Scheme")
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Scheme implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5282704414480106497L;
+
 	public static final int START_INDEX = 0;
+	
+	private String descriptionName = "";
 	
 	/**
 	 * describes the complete workflow of an event. The first element is ever at index 0 (START_INDEX)
 	 * <br>The indices are continuously without a numerical gap.
 	 */
+	@XmlElement
 	private SortedMap<Integer, ALogicElement> workflowMap = new TreeMap<Integer, ALogicElement>();
 	
 	public void addElementAtMap(ALogicElement logicElement)
@@ -83,6 +101,14 @@ public class Scheme {
 	public SortedMap<Integer, ALogicElement> getWorkflowMap() 
 	{
 		return workflowMap;
+	}
+
+	public String getDescriptionName() {
+		return descriptionName;
+	}
+
+	public void setDescriptionName(String descriptionName) {
+		this.descriptionName = descriptionName;
 	}
 	
 	

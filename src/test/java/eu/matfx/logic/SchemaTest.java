@@ -9,6 +9,7 @@ import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.data.impl.SensorElement;
 import eu.matfx.logic.data.impl.container.AndContainer;
 import eu.matfx.logic.data.impl.container.OrContainer;
+import eu.matfx.logic.database.XMLAccess;
 
 public class SchemaTest {
 
@@ -16,6 +17,7 @@ public class SchemaTest {
 	public void testSchemeMap()
 	{
 		Scheme scheme = new Scheme();
+		scheme.setDescriptionName("Test-Schema");
 		
 		scheme.addElementAtMap(new SensorElement());
 		
@@ -37,6 +39,20 @@ public class SchemaTest {
 		assertTrue("value at index 2 must be OrContainer", (scheme.getWorkflowMap().get(2) instanceof OrContainer));
 		assertTrue("value at index 3 must be AndContainer", (scheme.getWorkflowMap().get(3) instanceof AndContainer));
 		assertTrue("value at index 4 must be FunctionElement", (scheme.getWorkflowMap().get(4) instanceof FunctionElement));
+	
+	
+		
+		SchemeList schemeList = new SchemeList();
+		
+		schemeList.getSchemeList().add(scheme);
+		System.out.println("Test " + schemeList.getSchemeList().get(0).getWorkflowMap());
+		//write definied xml in file
+		XMLAccess.writeObjectToFile(schemeList);
+		
+		//abfrage ob vorhanden?
+		
+		
+		
 		
 	}
 

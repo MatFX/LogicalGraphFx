@@ -4,10 +4,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlList;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlValue;
+
 import eu.matfx.logic.database.XMLAccess;
 import eu.matfx.logic.interfaces.IFileName;
 
-
+@XmlRootElement(name = "Schemelist")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class SchemeList implements IFileName
 {
 	
@@ -19,6 +29,7 @@ public class SchemeList implements IFileName
 	/**
 	 * different defined schemes are in a array list
 	 */
+	@XmlElement(name="Scheme")
 	private List<Scheme> schemeList = null;
 	
 	public SchemeList()
