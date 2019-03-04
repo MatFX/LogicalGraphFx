@@ -5,14 +5,17 @@ import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import eu.matfx.logic.data.ALogicElement;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import eu.matfx.logic.data.ALogicElement;
 
 /**
  * Scheme is the template and representing the graphical instance
@@ -37,8 +40,9 @@ public class Scheme implements Serializable {
 	 * describes the complete workflow of an event. The first element is ever at index 0 (START_INDEX)
 	 * <br>The indices are continuously without a numerical gap.
 	 */
-	@XmlElement
-	private SortedMap<Integer, ALogicElement> workflowMap = new TreeMap<Integer, ALogicElement>();
+	
+	
+	private TreeMap<Integer, ALogicElement> workflowMap = new TreeMap<Integer, ALogicElement>();
 	
 	public void addElementAtMap(ALogicElement logicElement)
 	{
