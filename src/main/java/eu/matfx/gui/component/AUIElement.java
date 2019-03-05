@@ -1,12 +1,13 @@
 package eu.matfx.gui.component;
 
+import eu.matfx.gui.interfaces.IConnectorArea;
 import eu.matfx.gui.interfaces.IMoveComponent;
 import eu.matfx.gui.util.Tools;
 import eu.matfx.logic.data.ALogicElement;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 
-public abstract class AUIElement<T extends ALogicElement> extends Group implements IMoveComponent
+public abstract class AUIElement<T extends ALogicElement> extends Group implements IMoveComponent, IConnectorArea
 {
 	private T aLogicElement;
 	
@@ -92,6 +93,8 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 		
 		return null;
 	}
+	
+	
 	
 	
 

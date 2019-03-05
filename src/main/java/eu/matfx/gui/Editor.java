@@ -46,7 +46,7 @@ public class Editor extends Application
 			//init of storage and other singleton objects
 			SchemeDataStorage.initSchemeDataStorage();
 			
-			
+			command.set(ECommand.NO_COMMAND);
 			
 			
 			
