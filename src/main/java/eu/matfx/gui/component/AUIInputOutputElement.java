@@ -1,39 +1,82 @@
 package eu.matfx.gui.component;
 
+import eu.matfx.gui.component.impl.UILineConnector;
+import eu.matfx.gui.component.parts.CircleComponent;
 import eu.matfx.gui.helper.Coordinate;
+import eu.matfx.gui.interfaces.UILineInputConnector;
+import eu.matfx.gui.interfaces.UILineOutputConnector;
 import eu.matfx.logic.data.ALogicElement;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
-public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUIElement<T> 
+public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUIElement<T> implements UILineOutputConnector, UILineInputConnector
 {
+	private CircleComponent circleRight;
+	
+	private CircleComponent circleLeft;
+	
+	/**
+	 * uiLineConnector; when component is moving give coords to the connector.
+	 */
+	private UILineConnector uiLineOutputConnector;
+	
+	/**
+	 * uiLineConnector; when component is moving give coords to the connector.
+	 */
+	private UILineConnector uiLineInputConnector;
 
 	protected AUIInputOutputElement(T logicElement) {
 		super(logicElement);
-		// TODO Auto-generated constructor stub
+		
+		Rectangle canvas = new Rectangle();
+		canvas.setWidth(150);
+		canvas.setHeight(150);
+		canvas.setArcHeight(15);
+		canvas.setArcWidth(15);
+		canvas.setFill(Color.web("#74aa7400"));
+		DropShadow ds = new DropShadow();
+		ds.setOffsetY(0.1f);
+		ds.setColor(Color.web("#304f30"));
+		
+		circleRight = new CircleComponent(5, 140, 25, Color.web("#304f30"));
+
+	  	circleLeft = new CircleComponent(5, 10, 25, Color.web("#304f30"));
+		
+		Rectangle r = new Rectangle();
+		r.setX(10);
+	    r.setY(10);
+	    r.setWidth(130);
+	    r.setHeight(130);
+	    r.setArcHeight(15);
+		r.setArcWidth(15);
+	    r.setFill(Color.web("#74aa74"));
+	  	r.setEffect(ds);
+	  	
+	    this.getChildren().addAll(canvas, r, circleRight, circleLeft);
 	}
 	
 	@Override
 	public boolean isInputArea(Point2D point) {
-		// TODO Auto-generated method stub
-		return false;
+		return circleLeft.isPointInArea(point);
 	}
 
 	@Override
 	public boolean isOutputArea(Point2D point) {
-		// TODO Auto-generated method stub
-		return false;
+		return circleRight.isPointInArea(point);
 	}
 
 	@Override
 	public Point2D getInputCenterPoint() {
-		// TODO Auto-generated method stub
-		return null;
+		return circleLeft.getCenterPointFromArea();
 	}
 
 	@Override
 	public Point2D getOutputCenterPoint() {
-		// TODO Auto-generated method stub
-		return null;
+		return circleRight.getCenterPointFromArea();
 	}
 
 	@Override
@@ -62,7 +105,8 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 
 	@Override
 	public void recalcualteCenterPoint() {
-		// TODO Auto-generated method stub
+		circleLeft.recalcualteCenterPoint();
+		circleRight.recalcualteCenterPoint();
 		
 	}
 
@@ -71,6 +115,54 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public void setUIOutputConnector(UILineConnector uiLineConnector) {
+		this.uiLineInputConnector = uiLineConnector;
+		
+	}
+
+	@Override
+	public void setUIInputConnector(UILineConnector uiLineConnector) {
+		
+		
+		if(uiLineConnector != null)
+		{	
+			//TODO i dont know	
+			this.uiLineOutputConnector = uiLineConnector;
+			circleLeft.getCenterCoordinate().getX_Property().addListener(new ChangeListener<Number>(){
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					System.out.println("newValue " + newValue.doubleValue());
+					uiLineConnector.setInputX(newValue.doubleValue());
+					
+				}
+				
+			});
+			
+			circleLeft.getCenterCoordinate().getY_Property().addListener(new ChangeListener<Number>(){
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					uiLineConnector.setInputY(newValue.doubleValue());
+					
+				}
+				
+			});
+		}
+		else
+		{
+			//TODO listener as member variable to delete them
+			//circleRight.getCenterCoordinate().getX_Property().dele
+			
+		}
+		
+		
+		//this.uiLineOutputConnector = uiLineConnector;
+		
+	}
+
 
 
 }

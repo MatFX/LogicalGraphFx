@@ -41,12 +41,14 @@ public interface IConnectorArea extends IArea
 	
 	/**
 	 * Gibt den Mittelpunkt des Eingangs zurück. Koordinate bezieht sich auf die Szene
+	 * TODO raus?
 	 * @return
 	 */
 	public Coordinate getInputCenterCoordinate();
 	
 	/**
 	 * Gibt den Mittelpunkt des Eingangs zurück. Koordinate bezieht sich auf die Szene
+	 * * TODO raus?
 	 * @return
 	 */
 	public Coordinate getOutputCenterCoordinate();

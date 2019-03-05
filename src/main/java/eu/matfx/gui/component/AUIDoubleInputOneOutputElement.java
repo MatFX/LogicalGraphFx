@@ -24,18 +24,7 @@ public abstract class AUIDoubleInputOneOutputElement<T extends ALogicElement> ex
 		return false;
 	}
 
-	@Override
-	public Point2D getInputCenterPoint() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Point2D getOutputCenterPoint() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	@Override
 	public Coordinate getInputCenterCoordinate() {
 		// TODO Auto-generated method stub
@@ -68,6 +57,19 @@ public abstract class AUIDoubleInputOneOutputElement<T extends ALogicElement> ex
 
 	@Override
 	public Coordinate getCenterCoordinate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+
+	@Override
+	public Point2D getInputCenterPoint() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Point2D getOutputCenterPoint() {
 		// TODO Auto-generated method stub
 		return null;
 	}

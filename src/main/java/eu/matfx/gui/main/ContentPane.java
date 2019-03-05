@@ -6,8 +6,12 @@ import java.util.Map.Entry;
 
 import java.util.List;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import eu.matfx.gui.component.AUIElement;
+import eu.matfx.gui.component.impl.UILineConnector;
+import eu.matfx.gui.interfaces.UILineInputConnector;
+import eu.matfx.gui.interfaces.UILineOutputConnector;
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.gui.util.UtilFx;
 import eu.matfx.logic.Scheme;
@@ -45,6 +49,8 @@ public class ContentPane extends Pane
 	
 	private double orgSceneX, orgSceneY;
 	private double orgTranslateX, orgTranslateY;
+	
+	private TreeMap<Integer, AUIElement> uiMap = new TreeMap<Integer, AUIElement>();
 
 
 	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command) 
@@ -219,6 +225,8 @@ public class ContentPane extends Pane
 
 	private void rebuildView() 
 	{
+		//with the rebuild the map must be deleted
+		uiMap = new TreeMap<Integer, AUIElement>();
 		ContentPane.this.setStyle("-fx-background-color: #5691b0;");
 		
 		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
@@ -234,16 +242,63 @@ public class ContentPane extends Pane
 				AUIElement createdElement = AUIElement.getInstance(aLogicElement);
 				if(createdElement != null)
 				{
-					System.out.println("created Element " + createdElement.toString());
-				
-					//TODO was ist mit größe und location?
-					ContentPane.this.getChildren().add(createdElement);
-					addMouseListener(createdElement);
+					//in the first draw no line connector!
+					if(!(createdElement instanceof UILineConnector))
+					{
+						System.out.println("created Element " + createdElement.toString());
+					
+					
+						//TODO was ist mit größe und location?
+						ContentPane.this.getChildren().add(createdElement);
+						//TODO positioning
+						//createdElement.moveComponent(1, 1);
+						//createdElement.recalcualteCenterPoint();
+						
+						addMouseListener(createdElement);
+						
+						
+					}
+					uiMap.put(entry.getKey(), createdElement);
+				}
+			}
+			
+			
+			
+			//with the second draw the line connector came on view
+			for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+			{
+				if(entry.getValue() instanceof UILineConnector)
+				{
+					//we need two listener one for the output and one for the input
+					//When any component will change the position the line connector will change the position
+					
+					UILineConnector connector = (UILineConnector)entry.getValue();
+					//no question about the pickup of the value 
+					if(uiMap.get(uiMap.lowerKey(entry.getKey())) instanceof UILineOutputConnector)
+					{
+						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(entry.getKey()))).setUIOutputConnector(connector);
+					}
+					
+					if(uiMap.get(uiMap.higherKey(entry.getKey())) instanceof UILineInputConnector)
+					{
+						((UILineInputConnector)uiMap.get(uiMap.higherKey(entry.getKey()))).setUIInputConnector(connector);
+					}
+					
+			
+					ContentPane.this.getChildren().add(connector);
+					
+					
 					
 					
 					
 				}
+				
+				
+				
+				
 			}
+			
+			
 		}
 	}
 	

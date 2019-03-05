@@ -1,16 +1,25 @@
 package eu.matfx.gui.component;
 
+import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.component.parts.CircleComponent;
 import eu.matfx.gui.helper.Coordinate;
+import eu.matfx.gui.interfaces.UILineOutputConnector;
 import eu.matfx.logic.data.ALogicElement;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public abstract class AUIOutputElement<T extends ALogicElement> extends AUIElement<T> 
+public abstract class AUIOutputElement<T extends ALogicElement> extends AUIElement<T> implements UILineOutputConnector
 {
 	private CircleComponent circleRight;
+	
+	/**
+	 * uiLineConnector; when component is moving give coords to the connector.
+	 */
+	private UILineConnector uiLineOutputConnector;
 
 	protected AUIOutputElement(T logicElement)
 	{
@@ -94,8 +103,14 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	}
 
 	@Override
-	public void recalcualteCenterPoint() {
-		// TODO Auto-generated method stub
+	public void recalcualteCenterPoint() 
+	{
+		circleRight.recalcualteCenterPoint();
+		System.out.println(" " + circleRight.getCenterCoordinate());
+		
+		
+		
+		
 		
 	}
 
@@ -103,6 +118,47 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	public Coordinate getCenterCoordinate() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+
+	@Override
+	public void setUIOutputConnector(UILineConnector uiLineConnector) 
+	{
+		if(uiLineConnector != null)
+		{	
+			//TODO i dont know	
+			this.uiLineOutputConnector = uiLineConnector;
+			circleRight.getCenterCoordinate().getX_Property().addListener(new ChangeListener<Number>(){
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					uiLineConnector.setOutputX(newValue.doubleValue());
+					
+				}
+				
+			});
+			
+			circleRight.getCenterCoordinate().getY_Property().addListener(new ChangeListener<Number>(){
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					uiLineConnector.setOutputY(newValue.doubleValue());
+					
+				}
+				
+			});
+		}
+		else
+		{
+			//TODO listener as member variable to delete them
+			//circleRight.getCenterCoordinate().getX_Property().dele
+			
+		}
+		
+		
+		
+		
+		
 	}
 
 

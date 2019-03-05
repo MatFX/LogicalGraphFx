@@ -26,10 +26,12 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	@Override
 	public void moveComponent(double newTranslateX, double newTranslateY) 
 	{
+	
 		//Neue Koordinate für die komplette GroupComponent
 		this.setTranslateX(newTranslateX);
 		this.setTranslateY(newTranslateY);
-		//recalcualteCenterPoint();
+		//informe the connected ui lines
+		recalcualteCenterPoint();
 	}
 	
 	/**
