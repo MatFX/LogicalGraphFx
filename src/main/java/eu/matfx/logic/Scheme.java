@@ -25,6 +25,7 @@ import java.util.TreeMap;
  */
 @XmlRootElement(name = "Scheme")
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder={"descriptionName", "workflowMap"})
 public class Scheme implements Serializable {
 	
 	/**

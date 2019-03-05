@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
 
 import eu.matfx.logic.data.impl.FunctionElement;
 import eu.matfx.logic.data.impl.LineConnector;
@@ -12,6 +13,8 @@ import eu.matfx.logic.data.impl.container.AndContainer;
 import eu.matfx.logic.data.impl.container.OrContainer;
 import eu.matfx.logic.data.impl.container.RSFlipFlopContainer;
 import eu.matfx.logic.data.impl.container.XorContainer;
+import eu.matfx.logic.helper.DimensionView;
+import eu.matfx.logic.helper.LocationView;
 
 
 
@@ -23,6 +26,7 @@ import eu.matfx.logic.data.impl.container.XorContainer;
  */
 @XmlSeeAlso({AndContainer.class, OrContainer.class, RSFlipFlopContainer.class, XorContainer.class, FunctionElement.class,
 	LineConnector.class, SensorElement.class})
+@XmlType(propOrder={"classDescription", "locationView", "dimensionView"})
 public abstract class ALogicElement implements Serializable
 {
 	/**
@@ -32,23 +36,25 @@ public abstract class ALogicElement implements Serializable
 	
 	@XmlElement
 	private String classDescription = this.getClass().getSimpleName();
+
+	private DimensionView dimensionView = new DimensionView(0, 0);
 	
-	/**
-	 * it's not the index of the map. this is the identifier in a seperated Storage module.
-	 * <br>//TODO evtl. noch keine Ahnung
-	 */
-	//private int logicElementIdentifier = 0;
+	private LocationView locationView = new LocationView(0,0);
 	
-	
-	/**
-	 * every logic element knows the index from the followed element
-	 * TODO weiß ich noch nicht ob benötigt
-	 */
-	protected int nextFollowedElementIndex;
-	
-	public int getNextFollowedElementIndex()
-	{
-		return nextFollowedElementIndex;
+	public DimensionView getDimensionView() {
+		return dimensionView;
+	}
+
+	public void setDimensionView(DimensionView dimensionView) {
+		this.dimensionView = dimensionView;
+	}
+
+	public void setLocationView(LocationView locationView) {
+		this.locationView = locationView;
+	}
+
+	public LocationView getLocationView() {
+		return locationView;
 	}
 
 	

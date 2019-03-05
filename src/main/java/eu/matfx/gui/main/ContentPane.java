@@ -1,8 +1,12 @@
 package eu.matfx.gui.main;
 
-import java.util.List;
+
+import java.util.SortedMap;
 
 import eu.matfx.gui.util.ECommand;
+import eu.matfx.logic.Scheme;
+import eu.matfx.logic.SchemeList;
+import eu.matfx.logic.data.ALogicElement;
 import eu.matfx.logic.database.SchemeDataStorage;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -211,7 +215,21 @@ public class ContentPane extends Pane
 	{
 		ContentPane.this.setStyle("-fx-background-color: #5691b0;");
 		
-		//TODO more content with positioning and draw of the scheme
+		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+		
+		if(schemeObject != null)
+		{
+			SortedMap<Integer, ALogicElement> workflowMap = schemeObject.getWorkflowMap();
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		}
 		
 		
 	}

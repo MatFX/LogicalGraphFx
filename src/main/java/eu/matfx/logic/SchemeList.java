@@ -8,12 +8,14 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import eu.matfx.logic.database.XMLAccess;
 import eu.matfx.logic.interfaces.IFileName;
 
 @XmlRootElement(name = "Schemelist")
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder={"activeSchemeOnScreen", "schemeList"})
 public class SchemeList implements IFileName
 {
 	
