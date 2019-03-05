@@ -1,8 +1,10 @@
 package eu.matfx.gui.main;
 
 
+import java.util.Map.Entry;
 import java.util.SortedMap;
 
+import eu.matfx.gui.component.AUIElement;
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.logic.Scheme;
 import eu.matfx.logic.SchemeList;
@@ -221,6 +223,19 @@ public class ContentPane extends Pane
 		{
 			SortedMap<Integer, ALogicElement> workflowMap = schemeObject.getWorkflowMap();
 			
+			for(Entry<Integer, ALogicElement> entry : workflowMap.entrySet())
+			{
+				ALogicElement aLogicElement = entry.getValue();
+				
+				AUIElement createdElement = AUIElement.getInstance(aLogicElement);
+				if(createdElement != null)
+				{
+					System.out.println("created Element " + createdElement.toString());
+				
+					
+					
+				}
+			}
 			
 			
 			
