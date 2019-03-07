@@ -9,6 +9,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import eu.matfx.gui.component.AUIElement;
+import eu.matfx.gui.component.AUIInputOutputElement;
+import eu.matfx.gui.component.AUIOutputElement;
 import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.interfaces.UILineInputConnector;
 import eu.matfx.gui.interfaces.UILineOutputConnector;
@@ -250,6 +252,8 @@ public class ContentPane extends Pane
 					
 						//TODO was ist mit größe und location?
 						ContentPane.this.getChildren().add(createdElement);
+						createdElement.moveComponent(15, 15);
+						createdElement.recalcualteCenterPoint();
 						//TODO positioning
 						//createdElement.moveComponent(1, 1);
 						//createdElement.recalcualteCenterPoint();
@@ -283,22 +287,9 @@ public class ContentPane extends Pane
 					{
 						((UILineInputConnector)uiMap.get(uiMap.higherKey(entry.getKey()))).setUIInputConnector(connector);
 					}
-					
-			
 					ContentPane.this.getChildren().add(connector);
-					
-					
-					
-					
-					
 				}
-				
-				
-				
-				
 			}
-			
-			
 		}
 	}
 	

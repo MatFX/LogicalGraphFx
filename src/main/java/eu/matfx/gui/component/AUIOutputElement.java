@@ -86,8 +86,7 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 
 	@Override
 	public Coordinate getOutputCenterCoordinate() {
-		// TODO Auto-generated method stub
-		return null;
+		return circleRight.getCenterCoordinate();
 	}
 
 	@Override
@@ -128,6 +127,9 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 		{	
 			//TODO i dont know	
 			this.uiLineOutputConnector = uiLineConnector;
+			
+			uiLineConnector.setOutputX(circleRight.getCenterCoordinate().getX());
+			uiLineConnector.setOutputY(circleRight.getCenterCoordinate().getY());
 			circleRight.getCenterCoordinate().getX_Property().addListener(new ChangeListener<Number>(){
 
 				@Override
@@ -143,10 +145,11 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 				@Override
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 					uiLineConnector.setOutputY(newValue.doubleValue());
-					
 				}
-				
 			});
+			
+			//init of the outputconnector
+			
 		}
 		else
 		{
