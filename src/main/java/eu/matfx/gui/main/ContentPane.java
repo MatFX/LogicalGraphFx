@@ -247,16 +247,13 @@ public class ContentPane extends Pane
 					//in the first draw no line connector!
 					if(!(createdElement instanceof UILineConnector))
 					{
-						System.out.println("created Element " + createdElement.toString());
-					
 					
 						//TODO was ist mit größe und location?
 						ContentPane.this.getChildren().add(createdElement);
-						createdElement.moveComponent(15, 15);
+						
+						//TODO positioning 
+						createdElement.moveComponent(1, 1);
 						createdElement.recalcualteCenterPoint();
-						//TODO positioning
-						//createdElement.moveComponent(1, 1);
-						//createdElement.recalcualteCenterPoint();
 						
 						addMouseListener(createdElement);
 						
