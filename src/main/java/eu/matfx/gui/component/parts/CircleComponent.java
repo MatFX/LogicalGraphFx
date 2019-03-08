@@ -85,7 +85,6 @@ public class CircleComponent extends Group implements IArea
 				UtilFx.getCoordinate(localBounds.getMinY(), localBounds.getMaxY()));
 		centerCoordinate.setX(point2D.getX());
 		centerCoordinate.setY(point2D.getY());
-		System.out.println("centerCoordinate "+ centerCoordinate.getX() + " " + centerCoordinate.getY());
 	}
 	
 	

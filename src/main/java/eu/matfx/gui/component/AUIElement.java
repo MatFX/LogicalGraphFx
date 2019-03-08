@@ -11,6 +11,9 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 {
 	private T aLogicElement;
 	
+	//needed at all ui elemnts?
+	protected boolean isSelected;
+	
 	protected AUIElement(T logicElement)
 	{
 		this.aLogicElement = logicElement;
@@ -46,15 +49,14 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	
 	//TODO move it to the implementation classes
 	@Override
-	public void setSelected(boolean isSelected) {
-		// TODO Auto-generated method stub
-		
+	public void setSelected(boolean isSelected) 
+	{
+		this.isSelected = isSelected;
 	}
 
 	@Override
 	public boolean isSelected() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.isSelected;
 	}
 	
 	

@@ -285,6 +285,8 @@ public class ContentPane extends Pane
 						((UILineInputConnector)uiMap.get(uiMap.higherKey(entry.getKey()))).setUIInputConnector(connector);
 					}
 					ContentPane.this.getChildren().add(connector);
+					addMouseListener(connector);
+					
 				}
 			}
 		}
@@ -327,8 +329,14 @@ public class ContentPane extends Pane
 			        		AUIElement node = (AUIElement) t.getSource();
 			        		Point2D point2d = new Point2D(t.getSceneX(), t.getSceneY());
 			        		
-			        		System.out.println("outputArea " + node.isOutputArea(UtilFx.getPointFromEvent(t)));
-			        		if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
+			        	
+			        		//line connector selected? to delete the line the user must select the line
+			        		if(node instanceof UILineConnector)
+			        		{
+			        			((UILineConnector)node).setSelected(true);
+			        			
+			        		}
+			        		else if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
 			        		{
 			        			Point2D point2D = node.getOutputCenterPoint();
 			        			
@@ -399,7 +407,25 @@ public class ContentPane extends Pane
         		return;
         	
         	AUIElement node = (AUIElement) t.getSource();
-        	if(ContentPane.this.getScene().getCursor() == Cursor.MOVE)
+        	
+         	//if the line connector selected and the mouse is out of a range ...the line will be deleted
+           	if(node instanceof UILineConnector)
+    		{
+           		if(((UILineConnector)node).isSelected() && ((UILineConnector)node).isOuterTolerance(new Point2D(t.getSceneX(), t.getSceneY())))
+           		{
+           			//check the coordinate
+           			
+           			
+           			
+           			
+           		}
+           		
+           		
+    			//((UILineConnector)node).setSelected(false);
+    			
+    			
+    		}
+           	else if(ContentPane.this.getScene().getCursor() == Cursor.MOVE)
         	{
         		//Habe noch keine Ahnung wie ich eine Kollisionsabfrage reinfummel
         		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
@@ -488,12 +514,18 @@ public class ContentPane extends Pane
            @Override
            public void handle(MouseEvent t) 
            {
-           	System.out.println("mouseEvent mouseReleased");
            	//Nur GroupComponent kann hier bearbeitet werden
            	//TODO schauen was am besten später passt
            	if(!(t.getSource() instanceof AUIElement) )
            		return;
            	
+           	
+           	AUIElement node = (AUIElement) t.getSource();
+           	if(node instanceof UILineConnector)
+    		{
+    			((UILineConnector)node).setSelected(false);
+    			
+    		}
            
            	/*
            	if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
