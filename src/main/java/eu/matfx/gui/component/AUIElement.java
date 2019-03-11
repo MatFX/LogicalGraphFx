@@ -46,6 +46,10 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 		return aLogicElement.getClass();
 	}
 	
+	public T getLogicElement()
+	{
+		return this.aLogicElement;
+	}
 	
 	//TODO move it to the implementation classes
 	@Override
@@ -90,13 +94,9 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 			
 			
 		}
-		
-		
-		
-		
-		
 		return null;
 	}
+	
 	
 	
 	

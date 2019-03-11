@@ -58,6 +58,8 @@ public class CircleComponent extends Group implements IArea
 	public boolean isPointInArea(Point2D point) 
 	{
 		Bounds localBounds = circleBase.localToScene(circleBase.getBoundsInLocal());
+		System.out.println("localBounds " + localBounds.toString());
+		System.out.println("            " + point.toString());
 		return UtilFx.isPointInShape(point, localBounds);
 	}
 

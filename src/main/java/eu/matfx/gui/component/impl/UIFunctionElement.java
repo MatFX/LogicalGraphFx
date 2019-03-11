@@ -8,7 +8,6 @@ public class UIFunctionElement extends AUIInputOutputElement<FunctionElement>
 
 	public UIFunctionElement(FunctionElement logicElement) {
 		super(logicElement);
-		// TODO Auto-generated constructor stub
 	}
 
 	

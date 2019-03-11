@@ -54,8 +54,27 @@ public class Scheme implements Serializable {
 	{
 		//TODO after delete consistency check?
 		workflowMap.remove(index);
+		
+		//after remove the map set the indizes new
+		workflowMap = restructureMap(workflowMap);
 	}
 	
+	
+	
+	private TreeMap<Integer, ALogicElement> restructureMap(TreeMap<Integer, ALogicElement> restructMap) 
+	{
+		TreeMap<Integer, ALogicElement> newMap = new TreeMap<Integer, ALogicElement>();
+		
+		int startIndex = 0; 
+		
+		for(Entry<Integer, ALogicElement> entry : restructMap.entrySet())
+		{
+			newMap.put(startIndex, entry.getValue());
+			startIndex++;
+		}
+		return newMap;
+	}
+
 	/**
 	 * with this method the logicElement will be set on a specified index. If the position
 	 * <br>taken all elements will be moved. 
@@ -120,6 +139,16 @@ public class Scheme implements Serializable {
 	public String toString()
 	{
 		return this.getDescriptionName();
+	}
+	
+	public int getIndexFromLogicElement(ALogicElement logicElement)
+	{
+		for(Entry<Integer, ALogicElement> entry : workflowMap.entrySet())
+		{
+			if(entry.getValue() == logicElement)
+				return entry.getKey();
+		}
+		return Integer.MIN_VALUE;
 	}
 	
 

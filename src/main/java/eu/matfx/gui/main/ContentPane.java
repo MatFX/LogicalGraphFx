@@ -12,6 +12,9 @@ import eu.matfx.gui.component.AUIElement;
 import eu.matfx.gui.component.AUIInputOutputElement;
 import eu.matfx.gui.component.AUIOutputElement;
 import eu.matfx.gui.component.impl.UILineConnector;
+import eu.matfx.gui.helper.GenericPair;
+import eu.matfx.gui.helper.TempLine;
+import eu.matfx.gui.interfaces.IConnectorArea;
 import eu.matfx.gui.interfaces.UILineInputConnector;
 import eu.matfx.gui.interfaces.UILineOutputConnector;
 import eu.matfx.gui.util.ECommand;
@@ -19,6 +22,7 @@ import eu.matfx.gui.util.UtilFx;
 import eu.matfx.logic.Scheme;
 import eu.matfx.logic.SchemeList;
 import eu.matfx.logic.data.ALogicElement;
+import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.database.SchemeDataStorage;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -32,9 +36,11 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.PickResult;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 
@@ -54,12 +60,9 @@ public class ContentPane extends Pane
 	private double orgTranslateX, orgTranslateY;
 	
 	private TreeMap<Integer, AUIElement> uiMap = new TreeMap<Integer, AUIElement>();
-
-	//TODO rau test to show the points
-	private Circle transCircle;
 	
-	private Circle mousePointCircle;
-
+	private TempLine tempLine;
+	
 	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command) 
 	{
 		super();
@@ -224,21 +227,7 @@ public class ContentPane extends Pane
 		//Canvas muss mit wegen der Bemalung des Hintergrunds
 		this.getChildren().addAll(canvas);
 		//containerComponent.recalcualteCenterPoint();
-		
-		transCircle = new Circle();
-		transCircle.setRadius(4);
-		transCircle.setFill(Color.BROWN);
-		transCircle.setLayoutX(0);
-		transCircle.setLayoutY(0);
-		
-		mousePointCircle = new Circle();
-		mousePointCircle.setRadius(4);
-		mousePointCircle.setFill(Color.DARKSALMON);
-		mousePointCircle.setLayoutX(0);
-		mousePointCircle.setLayoutY(0);
-		
-		this.getChildren().addAll(transCircle, mousePointCircle);
-		
+	
 		
 		if(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen() >= 0)
 		{
@@ -367,13 +356,22 @@ public class ContentPane extends Pane
 				        		ContentPane.this.getScene().setCursor(Cursor.HAND);
 				        		statusText.set("OutputArea erkannt");
 				        		
-				        		//line = new ConnectorDrawLine(EConnector.OUTPUT_CONNECTOR, point2D.getX(), point2D.getY()-conBounds.getMinY(), point2D.getX(), point2D.getY()-conBounds.getMinY());
-				        		//line.setStrokeWidth(2);
-				        		//line.setStroke(Color.CORAL);
-				        		//ContentPane.this.getChildren().add(line);
-			        			
-			        			
-			        			
+				        		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+				        		
+				        		int startIndex = schemeObject.getIndexFromLogicElement(node.getLogicElement());
+				        		if(startIndex >= 0)
+				        		{
+				        			//build a temp line
+					        		tempLine = new TempLine(startIndex);
+					        		tempLine.setStrokeWidth(3);
+					        		tempLine.setStroke(Color.BLUE);
+					        		tempLine.setStartX(node.getOutputCenterCoordinate().getX());
+					        		tempLine.setStartY(node.getOutputCenterCoordinate().getY());
+					        		tempLine.setEndX(node.getOutputCenterCoordinate().getX());
+					        		tempLine.setEndY(node.getOutputCenterCoordinate().getY());
+					        		ContentPane.this.getChildren().add(tempLine);
+					        	}
+				        	
 			        		}
 			        		else if(node.isMovePossible(t))
 			        		{
@@ -435,18 +433,6 @@ public class ContentPane extends Pane
     		{
            		
            		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-           		//System.out.println(" transferCoord " + transferCoord);
-           		
-           		Point2D point2d = new Point2D(t.getSceneX(), t.getSceneY());
-           		
-           		//System.out.println(" test " + new Point2D(t.getSceneX(), t.getSceneY()));
-           		
-           		
-           		transCircle.setLayoutX(transferCoord.getX());
-           		transCircle.setLayoutY(transferCoord.getY());
-           		
-           		mousePointCircle.setLayoutX(point2d.getX());
-           		mousePointCircle.setLayoutY(point2d.getY());
            		
            		if(((UILineConnector)node).isSelected())
            		{
@@ -493,6 +479,12 @@ public class ContentPane extends Pane
                 
                 node.moveComponent(newTranslateX, newTranslateY);
         	}
+           	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
+           	{
+           		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+           		tempLine.setEndX(transferCoord.getX());
+           		tempLine.setEndY(transferCoord.getY());
+           	}
         	/*
         	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
         	{
@@ -564,23 +556,119 @@ public class ContentPane extends Pane
            		UILineConnector uiNode = ((UILineConnector)node);
            		if(uiNode.isDeletedDesignated())
            		{
-           			//TODO remove from map
+           			
+           			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+           			
+           			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
+           			if(indexFromMap >= 0)
+           				schemeObject.deleteElementMap(indexFromMap);
+           		//TODO umsortierung der ui map!!!
+           			//remove from view
            			ContentPane.this.getChildren().remove(uiNode);
-           			
-           			
-           			
            		}
            		else
            		{
            			uiNode.setSelected(false);
            		}
+           	}
+           	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
+           	{
+           		//draw the line from started point to the cursor point.
            		
-    			
-    			
-    		}
-           
+           		//decision to draw the real line or remove the temp line           		
+           		
+         
+           		
+           		PickResult pickResult = t.getPickResult();
+           		
+          		System.out.println("pickResult " + pickResult.getIntersectedNode());
+           	
+          		System.out.println("nide " + node.toString());
+           	
+          		//List<Node> = ContentPane.this.getChildren().size();
+          		//Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+          		Point2D sceneCoords = new Point2D(t.getSceneX(), t.getSceneY());
+           		
+          		boolean found = false;
+          		GenericPair<Boolean, AUIElement> pair = new GenericPair<Boolean, AUIElement>(false, (AUIElement)null);
+          		for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
+          		{
+          			//ich suche nach einer instanz die einen Eingang besitzt
+          			
+          			Node uiNode =  ContentPane.this.getChildren().get(i);
+          			
+          			//TODO second entry connector is missing
+          			if(uiNode instanceof UILineInputConnector)
+          			{
+          				UILineInputConnector uiLIneInputConnector = (UILineInputConnector)uiNode;
+          				IConnectorArea iConnectorArea = (IConnectorArea)uiNode;
+          				System.out.println("uiLIneInputConnector " + uiLIneInputConnector.getClass());
+          				System.out.println("isInInput            " + iConnectorArea.isInputArea(sceneCoords));
+          			
+          				//TODO 
+          				if(iConnectorArea.isInputArea(sceneCoords))
+          				{
+          					
+          					//pair.setLeft(true);
+          					Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+          					int index = schemeObject.getIndexFromLogicElement(((AUIElement) uiNode).getLogicElement());
+          					if(index >= 0)
+          					{
+          						tempLine.setInputIndex(index);
+          						found = true;
+              					//pair.setRight((AUIElement) uiNode);
+          					}
+          					break;
+          				}
+          			
+          			}
+          		}
+          		
+          		if(found)
+          		{
+          			//build new uiLine/logicline
+          			
+          			System.out.println("tempLine " + tempLine.getOutputIndex() + " " + tempLine.getInputIndex());
+          			
+          			
+          			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+          			schemeObject.putElementAtMap(tempLine.getInputIndex(), new LineConnector());
+          			
+          			//TODO umsortierung der ui map!!!
+          			
+          			
+          			//remove from the view
+          			
+          			//new concrete line on view  
+          			
+          			UILineConnector newLine = new UILineConnector((LineConnector) schemeObject.getWorkflowMap().get(tempLine.getInputIndex()));
+          			
+          			
+          			
+          			/* TODO 
+          			//no question about the pickup of the value 
+					if(uiMap.get(uiMap.lowerKey(tempLine.get)) instanceof UILineOutputConnector)
+					{
+						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(entry.getKey()))).setUIOutputConnector(connector);
+					}
+					
+					if(uiMap.get(uiMap.higherKey(entry.getKey())) instanceof UILineInputConnector)
+					{
+						((UILineInputConnector)uiMap.get(uiMap.higherKey(entry.getKey()))).setUIInputConnector(connector);
+					}
+					ContentPane.this.getChildren().add(connector);
+					addMouseListener(connector);
+          			*/
+          			
+          			
+          			
+          		}
+          		//remove from view
+          		ContentPane.this.getChildren().remove(tempLine);
+          	}
+           	
            	/*
-           	if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
+           	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
            	{
            		//Feststellen wo man zum stehen gekommen ist
            		EConnector eConnector = line.getStartPunkt();
@@ -606,7 +694,7 @@ public class ContentPane extends Pane
            			//ContentPane.this.getChildren().remove(line);
            		
            			//TODO weiß ich noch nicht wie die Verbindung zustande kommt.
-           			/*Object createdObject = targetComponent.getRight().addObjectToEntry(targetComponent.getRight().getEntryObject());
+           			//Object createdObject = targetComponent.getRight().addObjectToEntry(targetComponent.getRight().getEntryObject());
            			//ListCellElement listCellElement = (ListCellElement) createdObject;
            			
            			
