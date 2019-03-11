@@ -23,6 +23,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 	
 	private DropShadow ds;
 
+	private boolean isDeletedDesignated = false;
 
 
 	public UILineConnector(LineConnector logicElement) 
@@ -186,12 +187,16 @@ public class UILineConnector extends AUIElement<LineConnector>
 	
 	public static void main (String[] args)
 	{
+		//
+		//Point2D mousePoint = new Point2D(4, 4);
+		//Point2D startPoint = new Point2D(2, 3);
+		//Point2D endPoint = new Point2D(5, 6);
 		
-		Point2D mousePoint = new Point2D(4, 4);
 		
+		Point2D mousePoint = new Point2D(199, 95);
 		
-		Point2D startPoint = new Point2D(2, 3);
-		Point2D endPoint = new Point2D(5, 6);
+		Point2D startPoint = new Point2D(140, 126);
+		Point2D endPoint = new Point2D(265, 61);
 		
 		double m1 = (startPoint.getY() - endPoint.getY()) / (startPoint.getX() - endPoint.getX());
 		System.out.println("m " + m1);
@@ -207,7 +212,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 		
 		//mousePointY = m2 * mousePointX + b
 		
-		double bO = mousePoint.getY() - (m2 * mousePoint.getY());
+		double bO = mousePoint.getY() - (m2 * mousePoint.getX());
 		System.out.println("bO " + bO);
 		
 		//jetzt gleichsetzen mit Funktionsgleichung
@@ -277,7 +282,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 		
 		//mousePointY = m2 * mousePointX + b
 		
-		double bO = mousePoint.getY() - (m2 * mousePoint.getY());
+		double bO = mousePoint.getY() - (m2 * mousePoint.getX());
 		
 		//jetzt gleichsetzen mit Funktionsgleichung
 		// m2*x + b0 = m1*x + b
@@ -290,7 +295,6 @@ public class UILineConnector extends AUIElement<LineConnector>
 		
 		//abstand zwischen den beiden punkten
 		
-		//double rangeBetweenPoints = Math.sqrt((y - mousePoint.getY()) + (x - mousePoint.getX()));
 		
 		double rangeBetweenPoints = Math.sqrt( Math.pow((mousePoint.getY() - y), 2) + Math.pow(( mousePoint.getX() - x), 2));
 		
@@ -298,16 +302,29 @@ public class UILineConnector extends AUIElement<LineConnector>
 		System.out.println("rangeBetweenPoints " + rangeBetweenPoints);
 		
 		
-		if(rangeBetweenPoints > 50)
-			return false;
+		if(rangeBetweenPoints > 10)
+			return true;
 		
-		
-		
-		
-		
-		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
+
+	public void setDeleteColor() {
+		line.setStroke(Color.RED);
+		ds.setColor(Color.web("#990000AA"));
+		isDeletedDesignated = true;
+	}
+	
+	public boolean isDeletedDesignated()
+	{
+		return this.isDeletedDesignated;
+	}
+
+	public void removeDeleteColor() {
+		line.setStroke(Color.CORAL);
+		ds.setColor(Color.web("#992900AA"));
+		isDeletedDesignated = false;
+	}
+	
 
 
 }

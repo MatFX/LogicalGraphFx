@@ -34,6 +34,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 
@@ -54,6 +55,10 @@ public class ContentPane extends Pane
 	
 	private TreeMap<Integer, AUIElement> uiMap = new TreeMap<Integer, AUIElement>();
 
+	//TODO rau test to show the points
+	private Circle transCircle;
+	
+	private Circle mousePointCircle;
 
 	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command) 
 	{
@@ -211,11 +216,28 @@ public class ContentPane extends Pane
 		this.xCoords = xCoords;
 		this.yCoords = yCoords;
 		
+		
+	
+		
 		//mal testweise einen container hier ablegen?
 
 		//Canvas muss mit wegen der Bemalung des Hintergrunds
 		this.getChildren().addAll(canvas);
 		//containerComponent.recalcualteCenterPoint();
+		
+		transCircle = new Circle();
+		transCircle.setRadius(4);
+		transCircle.setFill(Color.BROWN);
+		transCircle.setLayoutX(0);
+		transCircle.setLayoutY(0);
+		
+		mousePointCircle = new Circle();
+		mousePointCircle.setRadius(4);
+		mousePointCircle.setFill(Color.DARKSALMON);
+		mousePointCircle.setLayoutX(0);
+		mousePointCircle.setLayoutY(0);
+		
+		this.getChildren().addAll(transCircle, mousePointCircle);
 		
 		
 		if(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen() >= 0)
@@ -411,20 +433,36 @@ public class ContentPane extends Pane
          	//if the line connector selected and the mouse is out of a range ...the line will be deleted
            	if(node instanceof UILineConnector)
     		{
-           		if(((UILineConnector)node).isSelected() && ((UILineConnector)node).isOuterTolerance(new Point2D(t.getSceneX(), t.getSceneY())))
+           		
+           		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+           		//System.out.println(" transferCoord " + transferCoord);
+           		
+           		Point2D point2d = new Point2D(t.getSceneX(), t.getSceneY());
+           		
+           		//System.out.println(" test " + new Point2D(t.getSceneX(), t.getSceneY()));
+           		
+           		
+           		transCircle.setLayoutX(transferCoord.getX());
+           		transCircle.setLayoutY(transferCoord.getY());
+           		
+           		mousePointCircle.setLayoutX(point2d.getX());
+           		mousePointCircle.setLayoutY(point2d.getY());
+           		
+           		if(((UILineConnector)node).isSelected())
            		{
-           			//check the coordinate
            			
-           			
-           			
-           			
+           			if(((UILineConnector)node).isOuterTolerance(transferCoord))
+           			{
+           				//show delete color
+           				((UILineConnector)node).setDeleteColor();
+           			}
+           			else
+           			{
+           				//change to normal select color
+           				((UILineConnector)node).removeDeleteColor();
+           			}
            		}
-           		
-           		
-    			//((UILineConnector)node).setSelected(false);
-    			
-    			
-    		}
+           	}
            	else if(ContentPane.this.getScene().getCursor() == Cursor.MOVE)
         	{
         		//Habe noch keine Ahnung wie ich eine Kollisionsabfrage reinfummel
@@ -523,7 +561,21 @@ public class ContentPane extends Pane
            	AUIElement node = (AUIElement) t.getSource();
            	if(node instanceof UILineConnector)
     		{
-    			((UILineConnector)node).setSelected(false);
+           		UILineConnector uiNode = ((UILineConnector)node);
+           		if(uiNode.isDeletedDesignated())
+           		{
+           			//TODO remove from map
+           			ContentPane.this.getChildren().remove(uiNode);
+           			
+           			
+           			
+           		}
+           		else
+           		{
+           			uiNode.setSelected(false);
+           		}
+           		
+    			
     			
     		}
            
