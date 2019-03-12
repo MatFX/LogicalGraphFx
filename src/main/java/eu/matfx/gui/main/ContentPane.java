@@ -556,15 +556,11 @@ public class ContentPane extends Pane
            		UILineConnector uiNode = ((UILineConnector)node);
            		if(uiNode.isDeletedDesignated())
            		{
-           			
            			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-           			
            			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
            			if(indexFromMap >= 0)
            				schemeObject.deleteElementMap(indexFromMap);
-           		//TODO umsortierung der ui map!!!
-           			//remove from view
-           			ContentPane.this.getChildren().remove(uiNode);
+           			deleteUINodeFromView(indexFromMap);
            		}
            		else
            		{
@@ -643,23 +639,28 @@ public class ContentPane extends Pane
           			
           			UILineConnector newLine = new UILineConnector((LineConnector) schemeObject.getWorkflowMap().get(tempLine.getInputIndex()));
           			
+          			newLine.setOutputX(tempLine.getStartX());
+          			newLine.setOutputY(tempLine.getStartY());
           			
+          			newLine.setInputX(tempLine.getEndX());
+          			newLine.setInputY(tempLine.getEndY());
           			
-          			/* TODO 
+          			putUINodeAtMap(tempLine.getInputIndex(), newLine);
+          			
+          			//conect the coordinates from the new line with the input and output ui component
           			//no question about the pickup of the value 
-					if(uiMap.get(uiMap.lowerKey(tempLine.get)) instanceof UILineOutputConnector)
+					if(uiMap.get(uiMap.lowerKey(tempLine.getInputIndex())) instanceof UILineOutputConnector)
 					{
-						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(entry.getKey()))).setUIOutputConnector(connector);
+						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(tempLine.getInputIndex()))).setUIOutputConnector(newLine);
 					}
 					
-					if(uiMap.get(uiMap.higherKey(entry.getKey())) instanceof UILineInputConnector)
+					if(uiMap.get(uiMap.higherKey(tempLine.getInputIndex())) instanceof UILineInputConnector)
 					{
-						((UILineInputConnector)uiMap.get(uiMap.higherKey(entry.getKey()))).setUIInputConnector(connector);
+						((UILineInputConnector)uiMap.get(uiMap.higherKey(tempLine.getInputIndex()))).setUIInputConnector(newLine);
 					}
-					ContentPane.this.getChildren().add(connector);
-					addMouseListener(connector);
-          			*/
-          			
+					addMouseListener(newLine);
+					//add to content
+          			ContentPane.this.getChildren().add(newLine);
           			
           			
           		}
@@ -723,5 +724,48 @@ public class ContentPane extends Pane
             ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
            }
        };
+       
+    private TreeMap<Integer, AUIElement> restructureMap(TreeMap<Integer, AUIElement> restructMap) 
+   	{
+   		TreeMap<Integer, AUIElement> newMap = new TreeMap<Integer, AUIElement>();
+   		
+   		int startIndex = 0; 
+   		
+   		for(Entry<Integer, AUIElement> entry : restructMap.entrySet())
+   		{
+   			newMap.put(startIndex, entry.getValue());
+   			startIndex++;
+   		}
+   		return newMap;
+   	}
+
+    /**
+     * add the ui node with a exact position to the map
+     * @param inputIndex
+     * @param newLine
+     */
+	protected void putUINodeAtMap(int inputIndex, AUIElement auiElement) 
+	{
+		if(uiMap.get(inputIndex) != null)
+		{
+			int newIndex = inputIndex + 1;
+			AUIElement valueToMove = uiMap.get(inputIndex);
+			//set the param from method
+			uiMap.put(inputIndex, auiElement);
+			//hop to the new index with the old value
+			this.putUINodeAtMap(newIndex, valueToMove);
+		}
+		else
+		{
+			uiMap.put(inputIndex, auiElement);
+		}
+	}
+
+	protected void deleteUINodeFromView(int indexFromMap) 
+	{
+		AUIElement uiNode = uiMap.remove(indexFromMap);
+		uiMap = restructureMap(uiMap);
+		ContentPane.this.getChildren().remove(uiNode);
+	}
 
 }
