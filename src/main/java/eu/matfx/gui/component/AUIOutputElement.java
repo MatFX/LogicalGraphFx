@@ -20,6 +20,8 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	 * uiLineConnector; when component is moving give coords to the connector.
 	 */
 	private UILineConnector uiLineOutputConnector;
+	
+	private Rectangle r;
 
 	protected AUIOutputElement(T logicElement)
 	{
@@ -40,7 +42,7 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 		
 		circleRight = new CircleComponent(5, 140, 25, Color.web("#304f30"));
 		
-		Rectangle r = new Rectangle();
+		r = new Rectangle();
 		r.setX(10);
 	    r.setY(10);
 	    r.setWidth(130);
@@ -157,6 +159,27 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 		
 		
 	}
+	
+
+	@Override
+	public void changeCollectionColor() {
+		if(this.isCollected)
+		{
+			DropShadow ds = new DropShadow();
+			ds.setOffsetY(1.0f);
+			ds.setColor(Color.web("#ff3333"));
+		 	r.setEffect(ds);
+		}
+		else
+		{
+			DropShadow ds = new DropShadow();
+			ds.setOffsetY(0.1f);
+			ds.setColor(Color.web("#304f30"));
+		 	r.setEffect(ds);
+		}
+		
+	}
+
 
 
 }

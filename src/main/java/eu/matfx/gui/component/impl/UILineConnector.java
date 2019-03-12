@@ -325,6 +325,16 @@ public class UILineConnector extends AUIElement<LineConnector>
 		isDeletedDesignated = false;
 	}
 	
+	@Override
+	public void collected(boolean isCollected)
+	{
+		//lines need no collect flag; they have the obserable connector to other uiElements
+	}
+
+	@Override
+	public void changeCollectionColor() {
+		//not to use
+	}
 
 
 }

@@ -13,6 +13,7 @@ import eu.matfx.gui.component.AUIInputOutputElement;
 import eu.matfx.gui.component.AUIOutputElement;
 import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.helper.GenericPair;
+import eu.matfx.gui.helper.SelectionRectangle;
 import eu.matfx.gui.helper.TempLine;
 import eu.matfx.gui.interfaces.IConnectorArea;
 import eu.matfx.gui.interfaces.UILineInputConnector;
@@ -30,6 +31,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
@@ -41,6 +43,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 
@@ -62,6 +65,8 @@ public class ContentPane extends Pane
 	private TreeMap<Integer, AUIElement> uiMap = new TreeMap<Integer, AUIElement>();
 	
 	private TempLine tempLine;
+	
+	private SelectionRectangle selectionRect;
 	
 	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command) 
 	{
@@ -226,8 +231,9 @@ public class ContentPane extends Pane
 
 		//Canvas muss mit wegen der Bemalung des Hintergrunds
 		this.getChildren().addAll(canvas);
-		//containerComponent.recalcualteCenterPoint();
-	
+		
+		//canvas needs listener for the selection mechanism
+		addMouseListener(canvas);
 		
 		if(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen() >= 0)
 		{
@@ -330,25 +336,42 @@ public class ContentPane extends Pane
 	        		//Liegt kein Kommando an, dann darf verschoben, skaliert oder neue verbunden werden
 		        	default:
 	        		case NO_COMMAND:
-		        		//Nur GroupComponent kann hier bearbeitet werden
-		            	if(!(t.getSource() instanceof AUIElement))
-		            		return;
-			        	//Eine Mausanfrage wird nur bearbeitet wenn kein Kommando anliegt
-			        	if(command.get() == ECommand.NO_COMMAND)
-			        	{
+	        			
+	        			if(t.getSource() instanceof Canvas)
+	        			{
+	        				Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+	        				System.out.println("clicked auf canvas");
+	        				
+	        				selectionRect = new SelectionRectangle(transferCoord.getX(), transferCoord.getY());
+	        				
+	        				selectionRect.setWidth(1);
+	        				selectionRect.setHeight(1);
+	        				selectionRect.setStrokeWidth(0.5);
+	        				selectionRect.getStrokeDashArray().addAll(2.0,5.0,2.0,5.0);
+	        				//selectionRect.setStrokeDashOffset(0.1);
+	        				selectionRect.setStroke(Color.ANTIQUEWHITE);
+	        				selectionRect.setFill(Color.web("#00000000"));
+	        				
+	        				ContentPane.this.getChildren().add(selectionRect);
+	        			}
+	        			else if(t.getSource() instanceof AUIElement)
+	        			{
+
 			        		//Move nur dann wenn wir uns mit dem Punkt auf der einer gültige Komponent uns befinden
 			        		AUIElement node = (AUIElement) t.getSource();
 			        		Point2D point2d = new Point2D(t.getSceneX(), t.getSceneY());
 			        		
-			        	
+			        		
 			        		//line connector selected? to delete the line the user must select the line
 			        		if(node instanceof UILineConnector)
 			        		{
+			        			System.out.println("uLineConnector ");
 			        			((UILineConnector)node).setSelected(true);
 			        			
 			        		}
 			        		else if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
 			        		{
+			        			System.out.println("isOutputArea");
 			        			Point2D point2D = node.getOutputCenterPoint();
 			        			
 			        			//Abmaße der ContentPane die bei der Startkoordinate berücksichtigt werden müssen.
@@ -375,6 +398,7 @@ public class ContentPane extends Pane
 			        		}
 			        		else if(node.isMovePossible(t))
 			        		{
+			        			System.out.println("ismovePosssible");
 				        		//noch keine Ahnung wie ich das mit der Kollisionsabfrage mache
 				        		ContentPane.this.getScene().setCursor(Cursor.MOVE);
 					        	
@@ -386,15 +410,9 @@ public class ContentPane extends Pane
 					            orgTranslateY = ((Node)(t.getSource())).getTranslateY();
 				                statusText.set("Bewegung erkannt");
 			        		}
-			        		else
-			        		{
-			        			System.out.println(">> else zweig bei clicked");
-			        		}
 			        		
-			        		
-			        		
-			        	}
-		        		break;
+	        			}
+	        			break;
 		        	//Auswahl wurde in der Menüleiste ausgewählt
 		        	/*
 	        		case SELECT:
@@ -417,127 +435,160 @@ public class ContentPane extends Pane
 	};
 	
 	/**
-	 * Dragged und somit die Verschiebung der Komponente auf der Oberfäche
+	 * movement from components on the view
 	 */
 	private EventHandler<MouseEvent> onMouseDraggedEventHandler = new EventHandler<MouseEvent>() 
 	{
  
         @Override
-        public void handle(MouseEvent t) {
+        public void handle(MouseEvent t)
+        {
         	
-        	
-        	//TODO schauen was später besser past
-        	if(!(t.getSource() instanceof AUIElement))
-        		return;
-        	
-        	AUIElement node = (AUIElement) t.getSource();
-        	
-         	//if the line connector selected and the mouse is out of a range ...the line will be deleted
-           	if(node instanceof UILineConnector)
-    		{
-           		
-           		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-           		
-           		if(((UILineConnector)node).isSelected())
-           		{
-           			
-           			if(((UILineConnector)node).isOuterTolerance(transferCoord))
-           			{
-           				//show delete color
-           				((UILineConnector)node).setDeleteColor();
-           			}
-           			else
-           			{
-           				//change to normal select color
-           				((UILineConnector)node).removeDeleteColor();
-           			}
-           		}
-           	}
-           	else if(ContentPane.this.getScene().getCursor() == Cursor.MOVE)
+        	if(t.getSource() instanceof Canvas)
         	{
-        		//Habe noch keine Ahnung wie ich eine Kollisionsabfrage reinfummel
+        		//check ne new coordinate from the mouseevent und change  the orientation or size
         		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
         		
-        		if(transferCoord.getX() < 0)
-        			transferCoord = new Point2D(0, transferCoord.getY());
-        		if(transferCoord.getY() < 0)
-        			transferCoord = new Point2D(transferCoord.getX(), 0);
-        	
-        		double offsetX = transferCoord.getX() - orgSceneX;
-                double offsetY = transferCoord.getY() - orgSceneY;
-              
-                double newTranslateX = orgTranslateX + offsetX;
-                double newTranslateY = orgTranslateY + offsetY;
-                
-                //jetzt noch die Korrektur für den Fall die Komponente wird außerhalb der möglichen darstellebaren Fläche verschoben
-                if(newTranslateX < 0)
-                	newTranslateX = 0;
-            	if(newTranslateY < 0)
-            		newTranslateY = 0;
-            	
-            	//nicht außerhalb setzen lassen
-            	if((newTranslateX + node.getBoundsInLocal().getWidth()) > ContentPane.this.getWidth())
-            		newTranslateX = ContentPane.this.getWidth() -  node.getBoundsInLocal().getWidth(); 
-            	if((newTranslateY + node.getBoundsInLocal().getHeight()) > ContentPane.this.getHeight())
-            		newTranslateY = ContentPane.this.getHeight() - node.getBoundsInLocal().getHeight();
-                
-                node.moveComponent(newTranslateX, newTranslateY);
+        		double w = 1;
+        		double h = 1;
+        		if(selectionRect.getStartX() > transferCoord.getX())
+        		{
+        			//obacht hier startx anpassen
+        			w = selectionRect.getStartX() - transferCoord.getX();
+        			selectionRect.setLayoutX(transferCoord.getX());
+        		}
+        		else
+        		{
+        			w = transferCoord.getX() - selectionRect.getStartX();
+        			selectionRect.setLayoutX(selectionRect.getStartX());
+        		}
+        		
+        		if(selectionRect.getStartY() > transferCoord.getY())
+        		{
+        			h = selectionRect.getStartY() - transferCoord.getY();
+        			selectionRect.setLayoutY(transferCoord.getY());
+        			
+        		}
+        		else
+        		{
+        			h = transferCoord.getY() - selectionRect.getStartY();
+        			selectionRect.setLayoutY(selectionRect.getStartY());
+        		}
+        		
+        		selectionRect.setWidth(w);
+        		selectionRect.setHeight(h);
         	}
-           	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
-           	{
-           		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-           		tempLine.setEndX(transferCoord.getX());
-           		tempLine.setEndY(transferCoord.getY());
-           	}
-        	/*
-        	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
+        	else if(t.getSource() instanceof AUIElement)
         	{
-        		EConnector eConnector = line.getStartPunkt();
-        		//Bei Hand muss vom Ausgangspunkt etwas gezeichnet werden.
-        		
-        		Point2D mousePoint = new Point2D(t.getSceneX(), t.getSceneY());
-        		//Umsetzung ist notwendig wegen der Menüleiste die evtl. noch in der Oberfläche abgelegt ist.
-        		Point2D translated = ContentPane.this.sceneToLocal(mousePoint);
-	        	
-        		//Weitergabe als Info für die Statusleiste
-        		xCoords.set(translated.getX());
-	        	yCoords.set(translated.getY());
-	        	
-	        	ContentPane.this.line.setEndX(translated.getX());
-	        	ContentPane.this.line.setEndY(translated.getY());
-	        
-	        	//Hier noch prüfen ob ablegbar ist
-	        	//Dementsprechend soll die Farbe des Striches geändert werden
-	        	//Bei Y wieder den Wert korrigieren mit den ConBounds
-	        	Bounds conBounds = ContentPane.this.localToScene(ContentPane.this.getLayoutBounds());
-	        	boolean isConnectable = isConnectable(ContentPane.this.line.getEndX(), ContentPane.this.line.getEndY()+conBounds.getMinY(), node, eConnector);
-	        	
-	        	if(isConnectable)
-	        		ContentPane.this.line.setStroke(Color.BLUE);
-	        	else
-	        		ContentPane.this.line.setStroke(Color.CORAL);
-	        
-        	}*/
-        	/*
-        	else if(ContentPane.this.getScene().getCursor() == Cursor.SE_RESIZE)
-        	{
-        		//Transfer auf die parent Koordinate
-        		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-        		Bounds boundsInParent = node.getBoundsInParent();
-        		double newWidth = transferCoord.getX() - boundsInParent.getMinX();
-        		double newHeight = transferCoord.getY() - boundsInParent.getMinY();
-        		
-        		double scaleFactorWidth = newWidth / node.getMinWidth();
-        		double scaleFactorHeight = newHeight / node.getMinHeight();
-        		
-        		if(scaleFactorWidth < 1D)
-        			scaleFactorWidth = 1D;
-        		if(scaleFactorHeight < 1D)
-        			scaleFactorHeight = 1D;
-        		
-        		node.setScale(scaleFactorWidth, scaleFactorHeight);
-         	}*/
-        	//makeNewSnapshot();
+        		AUIElement node = (AUIElement) t.getSource();
+            	
+             	//if the line connector selected and the mouse is out of a range ...the line will be deleted
+               	if(node instanceof UILineConnector)
+        		{
+               		
+               		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+               		
+               		if(((UILineConnector)node).isSelected())
+               		{
+               			
+               			if(((UILineConnector)node).isOuterTolerance(transferCoord))
+               			{
+               				//show delete color
+               				((UILineConnector)node).setDeleteColor();
+               			}
+               			else
+               			{
+               				//change to normal select color
+               				((UILineConnector)node).removeDeleteColor();
+               			}
+               		}
+               	}
+               	else if(ContentPane.this.getScene().getCursor() == Cursor.MOVE)
+            	{
+            		//Habe noch keine Ahnung wie ich eine Kollisionsabfrage reinfummel
+            		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+            		
+            		if(transferCoord.getX() < 0)
+            			transferCoord = new Point2D(0, transferCoord.getY());
+            		if(transferCoord.getY() < 0)
+            			transferCoord = new Point2D(transferCoord.getX(), 0);
+            	
+            		double offsetX = transferCoord.getX() - orgSceneX;
+                    double offsetY = transferCoord.getY() - orgSceneY;
+                  
+                    double newTranslateX = orgTranslateX + offsetX;
+                    double newTranslateY = orgTranslateY + offsetY;
+                    
+                    //jetzt noch die Korrektur für den Fall die Komponente wird außerhalb der möglichen darstellebaren Fläche verschoben
+                    if(newTranslateX < 0)
+                    	newTranslateX = 0;
+                	if(newTranslateY < 0)
+                		newTranslateY = 0;
+                	
+                	//nicht außerhalb setzen lassen
+                	if((newTranslateX + node.getBoundsInLocal().getWidth()) > ContentPane.this.getWidth())
+                		newTranslateX = ContentPane.this.getWidth() -  node.getBoundsInLocal().getWidth(); 
+                	if((newTranslateY + node.getBoundsInLocal().getHeight()) > ContentPane.this.getHeight())
+                		newTranslateY = ContentPane.this.getHeight() - node.getBoundsInLocal().getHeight();
+                    
+                    node.moveComponent(newTranslateX, newTranslateY);
+            	}
+               	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
+               	{
+               		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+               		tempLine.setEndX(transferCoord.getX());
+               		tempLine.setEndY(transferCoord.getY());
+               	}
+            	/*
+            	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
+            	{
+            		EConnector eConnector = line.getStartPunkt();
+            		//Bei Hand muss vom Ausgangspunkt etwas gezeichnet werden.
+            		
+            		Point2D mousePoint = new Point2D(t.getSceneX(), t.getSceneY());
+            		//Umsetzung ist notwendig wegen der Menüleiste die evtl. noch in der Oberfläche abgelegt ist.
+            		Point2D translated = ContentPane.this.sceneToLocal(mousePoint);
+    	        	
+            		//Weitergabe als Info für die Statusleiste
+            		xCoords.set(translated.getX());
+    	        	yCoords.set(translated.getY());
+    	        	
+    	        	ContentPane.this.line.setEndX(translated.getX());
+    	        	ContentPane.this.line.setEndY(translated.getY());
+    	        
+    	        	//Hier noch prüfen ob ablegbar ist
+    	        	//Dementsprechend soll die Farbe des Striches geändert werden
+    	        	//Bei Y wieder den Wert korrigieren mit den ConBounds
+    	        	Bounds conBounds = ContentPane.this.localToScene(ContentPane.this.getLayoutBounds());
+    	        	boolean isConnectable = isConnectable(ContentPane.this.line.getEndX(), ContentPane.this.line.getEndY()+conBounds.getMinY(), node, eConnector);
+    	        	
+    	        	if(isConnectable)
+    	        		ContentPane.this.line.setStroke(Color.BLUE);
+    	        	else
+    	        		ContentPane.this.line.setStroke(Color.CORAL);
+    	        
+            	}*/
+            	/*
+            	else if(ContentPane.this.getScene().getCursor() == Cursor.SE_RESIZE)
+            	{
+            		//Transfer auf die parent Koordinate
+            		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+            		Bounds boundsInParent = node.getBoundsInParent();
+            		double newWidth = transferCoord.getX() - boundsInParent.getMinX();
+            		double newHeight = transferCoord.getY() - boundsInParent.getMinY();
+            		
+            		double scaleFactorWidth = newWidth / node.getMinWidth();
+            		double scaleFactorHeight = newHeight / node.getMinHeight();
+            		
+            		if(scaleFactorWidth < 1D)
+            			scaleFactorWidth = 1D;
+            		if(scaleFactorHeight < 1D)
+            			scaleFactorHeight = 1D;
+            		
+            		node.setScale(scaleFactorWidth, scaleFactorHeight);
+             	}*/
+            	//makeNewSnapshot();
+        	}
         }
 
     };
@@ -548,184 +599,180 @@ public class ContentPane extends Pane
            @Override
            public void handle(MouseEvent t) 
            {
-           	//Nur GroupComponent kann hier bearbeitet werden
-           	//TODO schauen was am besten später passt
-           	if(!(t.getSource() instanceof AUIElement) )
-           		return;
-           	
-           	
-           	AUIElement node = (AUIElement) t.getSource();
-           	if(node instanceof UILineConnector)
-    		{
-           		UILineConnector uiNode = ((UILineConnector)node);
-           		if(uiNode.isDeletedDesignated())
-           		{
-           			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-           			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
-           			if(indexFromMap >= 0)
-           				schemeObject.deleteElementMap(indexFromMap);
-           			deleteUINodeFromView(indexFromMap);
-           		}
-           		else
-           		{
-           			uiNode.setSelected(false);
-           		}
-           	}
-           	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
-           	{
-           		//draw the line from started point to the cursor point.
-           		
-           		//decision to draw the real line or remove the temp line           		
-           		
-         
-           		
-           		PickResult pickResult = t.getPickResult();
-           		
-          		System.out.println("pickResult " + pickResult.getIntersectedNode());
-           	
-          		System.out.println("nide " + node.toString());
-           	
-          		//List<Node> = ContentPane.this.getChildren().size();
-          		//Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-          		Point2D sceneCoords = new Point2D(t.getSceneX(), t.getSceneY());
-           		
-          		boolean found = false;
-          		GenericPair<Boolean, AUIElement> pair = new GenericPair<Boolean, AUIElement>(false, (AUIElement)null);
-          		for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
-          		{
-          			//ich suche nach einer instanz die einen Eingang besitzt
-          			
-          			Node uiNode =  ContentPane.this.getChildren().get(i);
-          			
-          			//TODO second entry connector is missing
-          			if(uiNode instanceof UILineInputConnector)
-          			{
-          				UILineInputConnector uiLIneInputConnector = (UILineInputConnector)uiNode;
-          				IConnectorArea iConnectorArea = (IConnectorArea)uiNode;
-          				System.out.println("uiLIneInputConnector " + uiLIneInputConnector.getClass());
-          				System.out.println("isInInput            " + iConnectorArea.isInputArea(sceneCoords));
-          			
-          				//TODO 
-          				if(iConnectorArea.isInputArea(sceneCoords))
-          				{
-          					
-          					//pair.setLeft(true);
-          					Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-          					int index = schemeObject.getIndexFromLogicElement(((AUIElement) uiNode).getLogicElement());
-          					if(index >= 0)
-          					{
-          						tempLine.setInputIndex(index);
-          						found = true;
-              					//pair.setRight((AUIElement) uiNode);
-          					}
-          					break;
-          				}
-          			
-          			}
-          		}
-          		
-          		if(found)
-          		{
-          			//build new uiLine/logicline
-          			
-          			System.out.println("tempLine " + tempLine.getOutputIndex() + " " + tempLine.getInputIndex());
-          			
-          			
-          			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-          			schemeObject.putElementAtMap(tempLine.getInputIndex(), new LineConnector());
-          			
-          			//TODO umsortierung der ui map!!!
-          			
-          			
-          			//remove from the view
-          			
-          			//new concrete line on view  
-          			
-          			UILineConnector newLine = new UILineConnector((LineConnector) schemeObject.getWorkflowMap().get(tempLine.getInputIndex()));
-          			
-          			newLine.setOutputX(tempLine.getStartX());
-          			newLine.setOutputY(tempLine.getStartY());
-          			
-          			newLine.setInputX(tempLine.getEndX());
-          			newLine.setInputY(tempLine.getEndY());
-          			
-          			putUINodeAtMap(tempLine.getInputIndex(), newLine);
-          			
-          			//conect the coordinates from the new line with the input and output ui component
-          			//no question about the pickup of the value 
-					if(uiMap.get(uiMap.lowerKey(tempLine.getInputIndex())) instanceof UILineOutputConnector)
-					{
-						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(tempLine.getInputIndex()))).setUIOutputConnector(newLine);
-					}
-					
-					if(uiMap.get(uiMap.higherKey(tempLine.getInputIndex())) instanceof UILineInputConnector)
-					{
-						((UILineInputConnector)uiMap.get(uiMap.higherKey(tempLine.getInputIndex()))).setUIInputConnector(newLine);
-					}
-					addMouseListener(newLine);
-					//add to content
-          			ContentPane.this.getChildren().add(newLine);
-          			
-          			
-          		}
-          		//remove from view
-          		ContentPane.this.getChildren().remove(tempLine);
-          	}
-           	
-           	/*
-           	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
-           	{
-           		//Feststellen wo man zum stehen gekommen ist
-           		EConnector eConnector = line.getStartPunkt();
-           	
-           		SchemeElement ausloeser = (SchemeElement) t.getSource();
-           		
-           		//Wird über das MouseEvent ermittelt..die Endpunkte der bisherig gezeichneten Linie sollten nicht verwendet werden.
-           		Point2D endpunktLinie = new Point2D(t.getSceneX(), t.getSceneY());
-           		
-           		List<Node> nodeList = ContentPane.this.getChildren();
-           		endpunktLinie = ContentPane.this.localToParent(endpunktLinie);
-           		
-           		Bounds conBounds = ContentPane.this.localToScene(ContentPane.this.getLayoutBounds());
-           		
-           		GenericPairVO<GenericPairVO<Coordinate, Coordinate>, SchemeElement> targetComponent = getTargetComponent(ContentPane.this.line.getEndX(), ContentPane.this.line.getEndY()+conBounds.getMinY(), ausloeser, eConnector);
-   	        	 
-           		//ungleich null, dann ist eine Verbindung möglich
-           		if(targetComponent != null && targetComponent.getRight() != null)
-           		{
-           			ContentPane.this.line.setStroke(Color.RED);
-           			
-           			//Gefunden jetzt linie nehmen und "zementieren".
-           			//ContentPane.this.getChildren().remove(line);
-           		
-           			//TODO weiß ich noch nicht wie die Verbindung zustande kommt.
-           			//Object createdObject = targetComponent.getRight().addObjectToEntry(targetComponent.getRight().getEntryObject());
-           			//ListCellElement listCellElement = (ListCellElement) createdObject;
-           			
-           			
-           			//Ist empty zu dem Zeitpunkt!
-           			CircleComponent circleComponent = listCellElement.getCircleComponent();
-           			
-           			
-           			//Sollte der inhalt nicht sichtbar sein, dann jetzt öffnen
-           			if(!targetComponent.getRight().isInhaltSichtbar())
-           			{
-           				
-           				targetComponent.getRight().openContentView();
-           				//Nach dem Öffnen ist sichergestellt, dass die Komponete gezeichnet ist
-           				
-           			}
-           			
-           		}
-           		else
-           		{
-           			//Linie löschen
-           			ContentPane.this.getChildren().remove(line);
-           		}
-           	}*/
-           	//makeNewSnapshot();
-           	//Cursor auf normal zurücksetzen
-            ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
+        	   if(t.getSource() instanceof Canvas)
+        	   {
+        		   //beim loslassen muss geprüft werden ob in dem gezeicneten Rechteck eine Komponente liegt
+        		   
+        		   boolean isComponentsInRect = false;
+        		   
+        		   Bounds boundsSelectionRect = new BoundingBox(selectionRect.getLayoutX(), selectionRect.getLayoutY(), selectionRect.getWidth(), selectionRect.getHeight());
+        		   
+        		   
+        		   
+        		   for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
+        		   {
+        			   Node node = ContentPane.this.getChildren().get(i);
+        			   //only uielements
+        			   if(node instanceof AUIElement)
+        			   {
+        				   AUIElement uiElement = (AUIElement)node;
+        				   //ausschlaggebend sind nur die Elemente die nicht Line sind
+        				   if(!(uiElement instanceof UILineConnector))
+        				   {
+        					  //TODO widht and heigt from component
+        					  Bounds uiBounds = new BoundingBox(uiElement.getTranslateX(), uiElement.getTranslateY(), 150D, 150D);
+        					  
+        					  if(UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
+        					  {
+        						  //change visulization from the element
+        						  uiElement.collected(true);
+        						  
+        						  isComponentsInRect = true;
+        					  }
+        				   }
+        				  
+        				   
+        				   
+        			   }
+        		   }
+        		   
+        		   
+        		   
+        		   
+        		   if(!isComponentsInRect)
+        		   {
+        			   //no components in rectangle found, delete dotted rectangle
+        			   
+        			   ContentPane.this.getChildren().remove(selectionRect);
+        			   
+        			   
+        			   
+        		   }
+        		   
+        		   
+        	   }
+        	   else if(t.getSource() instanceof AUIElement)
+        	   {
+
+                  	AUIElement node = (AUIElement) t.getSource();
+                  	if(node instanceof UILineConnector)
+                  	{
+                  		UILineConnector uiNode = ((UILineConnector)node);
+                  		if(uiNode.isDeletedDesignated())
+                  		{
+                  			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+                  			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
+                  			if(indexFromMap >= 0)
+                  				schemeObject.deleteElementMap(indexFromMap);
+                  			deleteUINodeFromView(indexFromMap);
+                  		}
+                  		else
+                  		{
+                  			uiNode.setSelected(false);
+                  		}
+                  	}
+                  	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
+                  	{
+                  		//draw the line from started point to the cursor point.
+                  		
+                  		//decision to draw the real line or remove the temp line           		
+                  		
+                
+                  		
+                  		PickResult pickResult = t.getPickResult();
+                  		
+                 		System.out.println("pickResult " + pickResult.getIntersectedNode());
+                  	
+                 		System.out.println("nide " + node.toString());
+                  	
+                 		//List<Node> = ContentPane.this.getChildren().size();
+                 		//Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+                 		Point2D sceneCoords = new Point2D(t.getSceneX(), t.getSceneY());
+                  		
+                 		boolean found = false;
+                 		GenericPair<Boolean, AUIElement> pair = new GenericPair<Boolean, AUIElement>(false, (AUIElement)null);
+                 		for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
+                 		{
+                 			//ich suche nach einer instanz die einen Eingang besitzt
+                 			
+                 			Node uiNode =  ContentPane.this.getChildren().get(i);
+                 			
+                 			//TODO second entry connector is missing
+                 			if(uiNode instanceof UILineInputConnector)
+                 			{
+                 				UILineInputConnector uiLIneInputConnector = (UILineInputConnector)uiNode;
+                 				IConnectorArea iConnectorArea = (IConnectorArea)uiNode;
+                 				System.out.println("uiLIneInputConnector " + uiLIneInputConnector.getClass());
+                 				System.out.println("isInInput            " + iConnectorArea.isInputArea(sceneCoords));
+                 			
+                 				//TODO 
+                 				if(iConnectorArea.isInputArea(sceneCoords))
+                 				{
+                 					
+                 					//pair.setLeft(true);
+                 					Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+                 					int index = schemeObject.getIndexFromLogicElement(((AUIElement) uiNode).getLogicElement());
+                 					if(index >= 0)
+                 					{
+                 						tempLine.setInputIndex(index);
+                 						found = true;
+                     					//pair.setRight((AUIElement) uiNode);
+                 					}
+                 					break;
+                 				}
+                 			
+                 			}
+                 		}
+                 		
+                 		if(found)
+                 		{
+                 			//build new uiLine/logicline
+                 			
+                 			System.out.println("tempLine " + tempLine.getOutputIndex() + " " + tempLine.getInputIndex());
+                 			
+                 			
+                 			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+                 			schemeObject.putElementAtMap(tempLine.getInputIndex(), new LineConnector());
+                 			
+                 			//TODO umsortierung der ui map!!!
+                 			
+                 			
+                 			//remove from the view
+                 			
+                 			//new concrete line on view  
+                 			
+                 			UILineConnector newLine = new UILineConnector((LineConnector) schemeObject.getWorkflowMap().get(tempLine.getInputIndex()));
+                 			
+                 			newLine.setOutputX(tempLine.getStartX());
+                 			newLine.setOutputY(tempLine.getStartY());
+                 			
+                 			newLine.setInputX(tempLine.getEndX());
+                 			newLine.setInputY(tempLine.getEndY());
+                 			
+                 			putUINodeAtMap(tempLine.getInputIndex(), newLine);
+                 			
+                 			//conect the coordinates from the new line with the input and output ui component
+                 			//no question about the pickup of the value 
+       					if(uiMap.get(uiMap.lowerKey(tempLine.getInputIndex())) instanceof UILineOutputConnector)
+       					{
+       						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(tempLine.getInputIndex()))).setUIOutputConnector(newLine);
+       					}
+       					
+       					if(uiMap.get(uiMap.higherKey(tempLine.getInputIndex())) instanceof UILineInputConnector)
+       					{
+       						((UILineInputConnector)uiMap.get(uiMap.higherKey(tempLine.getInputIndex()))).setUIInputConnector(newLine);
+       					}
+       					addMouseListener(newLine);
+       					//add to content
+                 			ContentPane.this.getChildren().add(newLine);
+                 			
+                 			
+                 		}
+                 		//remove from view
+                 		ContentPane.this.getChildren().remove(tempLine);
+                 	}
+        	   }
+        	   ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
            }
        };
        

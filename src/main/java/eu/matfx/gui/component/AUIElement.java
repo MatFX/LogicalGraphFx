@@ -12,7 +12,15 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	private T aLogicElement;
 	
 	//needed at all ui elemnts?
+	/**
+	 * selected when user click on this element
+	 */
 	protected boolean isSelected;
+	
+	/**
+	 * collected when user draw a frame around this component
+	 */
+	protected boolean isCollected;
 	
 	protected AUIElement(T logicElement)
 	{
@@ -95,6 +103,21 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 		}
 		return null;
 	}
+
+	/**
+	 * user can collect the uiElements with a frame
+	 * @param isCollected
+	 */
+	public void collected(boolean isCollected)
+	{
+		this.isCollected = isCollected;
+		this.changeCollectionColor();
+	}
+
+	/**
+	 * the different uiElement have different colors?
+	 */
+	public abstract void changeCollectionColor();
 	
 	
 	

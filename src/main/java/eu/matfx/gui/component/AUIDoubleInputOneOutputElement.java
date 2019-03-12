@@ -74,5 +74,12 @@ public abstract class AUIDoubleInputOneOutputElement<T extends ALogicElement> ex
 		return null;
 	}
 
+	
+
+	@Override
+	public void changeCollectionColor() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

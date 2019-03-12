@@ -3,6 +3,7 @@ package eu.matfx.gui.component.impl.container;
 import eu.matfx.gui.component.AUIDoubleInputOneOutputElement;
 import eu.matfx.logic.data.impl.container.RSFlipFlopContainer;
 import javafx.geometry.Point2D;
+import javafx.scene.shape.Rectangle;
 
 public class UIRSFlipFlopContainer extends AUIDoubleInputOneOutputElement<RSFlipFlopContainer>
 {
@@ -12,5 +13,6 @@ public class UIRSFlipFlopContainer extends AUIDoubleInputOneOutputElement<RSFlip
 		// TODO Auto-generated constructor stub
 	}
 
+	
 
 }

@@ -1,6 +1,7 @@
 package eu.matfx.gui.util;
 
 
+import eu.matfx.gui.component.AUIElement;
 import eu.matfx.gui.interfaces.ISelection;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -14,7 +15,7 @@ import javafx.scene.layout.VBox;
 public class UtilFx 
 {
 	/**
-	 * Prüfung ob der übergebene Punkt sich innerhalbt des Bereiches befindet
+	 * Prüfung ob der übergebene Punkt sich innerhalb des Bereiches befindet
 	 * <br>Voraussetzung für die Überprüfung ist, dass die Werte aus der gleichen komponente kommen.
 	 * @param point
 	 * @param shapeBounds
@@ -27,6 +28,16 @@ public class UtilFx
 				&& point.getY() >= shapeBounds.getMinY()
 				&& point.getY() <= shapeBounds.getMaxY())
 			return true;
+		return false;
+	}
+	
+	public static boolean isUIElementInShape(Bounds uiElement, Bounds shapeBounds)
+	{
+		//only complete uiElements in shape delivering true
+		if(shapeBounds.contains(uiElement))
+		{
+			return true;
+		}
 		return false;
 	}
 
