@@ -78,16 +78,11 @@ public class SchemeList implements IFileName
 	public String getCompletePath() {
 		
 		File temp = new File("");
-		
 		temp = new File(getPathToFile() + File.separator);
-		System.out.println("temp " + temp.getPath());
-		
 		if(!temp.exists())
 			temp.mkdirs();
 		
 		temp = new File(temp.getAbsolutePath() + "/" + getFileName());
-		System.out.println("target " + temp.getPath());
-		
 		return temp.getAbsolutePath();
 	}
 

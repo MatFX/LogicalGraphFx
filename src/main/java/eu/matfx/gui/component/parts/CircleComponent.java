@@ -58,8 +58,6 @@ public class CircleComponent extends Group implements IArea
 	public boolean isPointInArea(Point2D point) 
 	{
 		Bounds localBounds = circleBase.localToScene(circleBase.getBoundsInLocal());
-		System.out.println("localBounds " + localBounds.toString());
-		System.out.println("            " + point.toString());
 		return UtilFx.isPointInShape(point, localBounds);
 	}
 
@@ -99,16 +97,13 @@ public class CircleComponent extends Group implements IArea
 			final Point2D windowCoord = new Point2D(scene.getWindow().getX(), scene.getWindow().getY());
 			final Point2D sceneCoord = new Point2D(scene.getX(), scene.getY());
 			final Point2D nodeCoord = CircleComponent.this.localToScene(0.0, 0.0);
-			//System.out.println("nodeCoord " + nodeCoord.toString());
 			final double clickX = Math.round(windowCoord.getX() + sceneCoord.getX() + nodeCoord.getX());
 			final double clickY = Math.round(windowCoord.getY() + sceneCoord.getY() + nodeCoord.getY());
-			//System.out.println("clickX " + clickX + " clickY " +clickY);
 			return new Point2D(clickX, clickY);
 			
 		}
 		catch(Exception e)
 		{
-			System.out.println("hat nicht funktioniert");
 			return null;
 		}
 		

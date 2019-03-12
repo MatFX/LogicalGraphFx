@@ -99,7 +99,6 @@ public class CreationLogicSchemeBar extends HBox
 		ObservableList<Scheme> selectionComboBox = 
 				FXCollections.observableArrayList(tempList);
 		
-		System.out.println("tempList " + tempList.size());
 		
 		//TODO zu beginn noch nicht befüllt
 		schemeComboBox = new ComboBox<Scheme>(selectionComboBox);

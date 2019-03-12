@@ -105,12 +105,6 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	public void recalcualteCenterPoint() 
 	{
 		circleRight.recalcualteCenterPoint();
-		System.out.println(" " + circleRight.getCenterCoordinate());
-		
-		
-		
-		
-		
 	}
 
 	@Override

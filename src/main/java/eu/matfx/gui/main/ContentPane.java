@@ -386,6 +386,10 @@ public class ContentPane extends Pane
 					            orgTranslateY = ((Node)(t.getSource())).getTranslateY();
 				                statusText.set("Bewegung erkannt");
 			        		}
+			        		else
+			        		{
+			        			System.out.println(">> else zweig bei clicked");
+			        		}
 			        		
 			        		
 			        		

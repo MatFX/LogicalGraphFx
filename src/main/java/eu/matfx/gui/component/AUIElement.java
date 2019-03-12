@@ -83,7 +83,6 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 			}
 			catch(NoSuchMethodException nm)
 			{
-				//System.out.println("return value " + argument[0]);
 				//nm.printStackTrace();
 			}
 			catch(Exception e)
