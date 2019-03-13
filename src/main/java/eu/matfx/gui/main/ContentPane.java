@@ -297,7 +297,6 @@ public class ContentPane extends Pane
 	        									  //TODO change width and height from component
 	        									  Bounds uiBounds = new BoundingBox(uiElement.getTranslateX(), uiElement.getTranslateY(), 150D, 150D);
 	        									  System.out.println("uiBounds " + uiBounds.getMinX() + " y " + uiBounds.getMinY());
-	        									  
 	        									  System.out.println("uiBounds nest  " + uiElement.getLayoutY() + " y " + uiElement.getLayoutY());
 	        									  if(UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
 	        									  {
@@ -343,6 +342,15 @@ public class ContentPane extends Pane
 	        					}
 	        					else
 	        					{
+
+	                 			   	//sicherheitshalber die uiMap zurücksetzen
+	                 			   	for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+	                 			   	{
+	                 			   		if(!(entry.getValue() instanceof UILineConnector))
+	                 			   		{
+	                 			   			entry.getValue().collected(false);
+	                 			   		}
+	                 			   	}
 	        						//TODO raus
 	        						selectionRect.setStroke(Color.RED);
 	        						selectionRect.setCatchedUIElements(false);
@@ -584,7 +592,7 @@ public class ContentPane extends Pane
             		   Bounds boundsSelectionRect = new BoundingBox(selectionRect.getLayoutX(), selectionRect.getLayoutY(), selectionRect.getWidth(), selectionRect.getHeight());
             		   
             		   
-            		   
+            		   //TODO iterate through ui map?
             		   for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
             		   {
             			   Node node = ContentPane.this.getChildren().get(i);
@@ -606,9 +614,6 @@ public class ContentPane extends Pane
             						  isComponentsInRect = true;
             					  }
             				   }
-            				  
-            				   
-            				   
             			   }
             		   }
             		   
@@ -630,12 +635,20 @@ public class ContentPane extends Pane
                 			   changeListenerList = new ArrayList<GenericPair<ChangeListener, ChangeListener>>();
             			   }
             			   
+            			   //sicherheitshalber die uiMap zurücksetzen
+            			   for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+            			   {
+            				   if(!(entry.getValue() instanceof UILineConnector))
+            				   {
+            					   entry.getValue().collected(false);
+            				   }
+            			   }
+            			   
+            			   
+            			   
             			   
             			   //no components in rectangle found, delete dotted rectangle
             			   ContentPane.this.getChildren().remove(selectionRect);
-            			   
-            			   
-            			   
             		   }
         			   
         		   }
@@ -748,7 +761,7 @@ public class ContentPane extends Pane
        					}
        					addMouseListener(newLine);
        					//add to content
-                 			ContentPane.this.getChildren().add(newLine);
+                 		ContentPane.this.getChildren().add(newLine);
                  			
                  			
                  		}

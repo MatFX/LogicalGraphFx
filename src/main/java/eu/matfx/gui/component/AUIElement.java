@@ -140,12 +140,13 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	{ 
 		
 		this.setTranslateX(changedRectangleStartX + movementCoords.getX());
-		
+		this.recalcualteCenterPoint();
 	}
 	
 	public void setGroupedMovementY(double changedRectangleStartY)
 	{
 		this.setTranslateY(changedRectangleStartY + movementCoords.getY());
+		this.recalcualteCenterPoint();
 	}
 
 }
