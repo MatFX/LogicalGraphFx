@@ -133,19 +133,19 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	 */
 	public void setGroupedMovementStartCoords(Point2D movementInitCoords) 
 	{
-		this.movementCoords = new Point2D(movementInitCoords.getX() - this.getTranslateX(), movementInitCoords.getY() - this.getTranslateY());
+		this.movementCoords = new Point2D(this.getTranslateX() -movementInitCoords.getX(),this.getTranslateY() -  movementInitCoords.getY());
 	}
 	
 	public void setGroupedMovementX(double changedRectangleStartX)
 	{ 
 		
-		this.setLayoutX(changedRectangleStartX + movementCoords.getX());
+		this.setTranslateX(changedRectangleStartX + movementCoords.getX());
 		
 	}
 	
 	public void setGroupedMovementY(double changedRectangleStartY)
 	{
-		this.setLayoutY(changedRectangleStartY + movementCoords.getY());
+		this.setTranslateY(changedRectangleStartY + movementCoords.getY());
 	}
 
 	

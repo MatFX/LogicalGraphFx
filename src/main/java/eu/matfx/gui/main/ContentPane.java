@@ -1,15 +1,13 @@
 package eu.matfx.gui.main;
 
 
-import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import eu.matfx.gui.component.AUIElement;
-import eu.matfx.gui.component.AUIInputOutputElement;
-import eu.matfx.gui.component.AUIOutputElement;
 import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.helper.GenericPair;
 import eu.matfx.gui.helper.SelectionRectangle;
@@ -20,7 +18,6 @@ import eu.matfx.gui.interfaces.UILineOutputConnector;
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.gui.util.UtilFx;
 import eu.matfx.logic.Scheme;
-import eu.matfx.logic.SchemeList;
 import eu.matfx.logic.data.ALogicElement;
 import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.database.SchemeDataStorage;
@@ -41,8 +38,6 @@ import javafx.scene.input.PickResult;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 
@@ -72,6 +67,10 @@ public class ContentPane extends Pane
 	 * <br>Changelistener are connected with x and y from selectionRect
 	 */
 	private List<GenericPair<ChangeListener, ChangeListener>> changeListenerList;
+	
+	private Circle startRectangle = new Circle();
+	
+	
 	
 	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command) 
 	{
@@ -130,6 +129,17 @@ public class ContentPane extends Pane
 		
 		//canvas needs listener for the selection mechanism
 		addMouseListener(canvas);
+		//TODO raus 
+		canvas.setOnMouseMoved(new EventHandler<MouseEvent>(){
+
+			@Override
+			public void handle(MouseEvent event) 
+			{
+				statusText.set("x: " + event.getSceneX() + " y: " + event.getSceneY());
+				
+			}
+			
+		});
 		
 		if(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen() >= 0)
 		{
@@ -234,7 +244,6 @@ public class ContentPane extends Pane
 	        		case NO_COMMAND:
 	        			
 	        			Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-	        			
 	        			if(t.getSource() instanceof Canvas)
 	        			{
 	        				//ich habe bereits ein rechteck gezeichnet
@@ -247,8 +256,9 @@ public class ContentPane extends Pane
 	        					
 	        					//inside => moveable
 	        					Bounds boundsSelectionRect = new BoundingBox(selectionRect.getLayoutX(), selectionRect.getLayoutY(), selectionRect.getWidth(), selectionRect.getHeight());
-	        					//is this right? I think I have sometimes problems with the contains
-	        					if(selectionRect.contains(transferCoord))
+	        					Bounds localBounds = selectionRect.localToScene(selectionRect.getBoundsInLocal());
+	        					
+	        					if(UtilFx.isPointInShape(transferCoord, localBounds))
 	        					{
 	        						//TODO raus
 	        						selectionRect.setStroke(Color.BLUE);
@@ -263,18 +273,19 @@ public class ContentPane extends Pane
 	        					
 	        						//statusText.set("MoveInitCoord: " + movementInitCoords.getX() + "/" + movementInitCoords.getY() + " transCoord " + transferCoord.getX() +  "/" + transferCoord.getY());
 	        						
-	        						/* TODO raus
-	        						Circle circle = new Circle();
-	        						circle.setRadius(5);
-	        						circle.setFill(Color.BROWN);
-	        						circle.setCenterX(	selectionRect.getLayoutX());
-	        						circle.setCenterY( 	selectionRect.getLayoutY());
+	        						//TODO raus
+	        						startRectangle = new Circle();
+	        						startRectangle.setRadius(3);
+	        						startRectangle.setFill(Color.BROWN);
+	        						startRectangle.setCenterX(	selectionRect.getLayoutX());
+	        						startRectangle.setCenterY( 	selectionRect.getLayoutY());
 	        						
-	        						//getChildren().add(circle);*/
-	        						
+	        						System.out.println("start X "+ selectionRect.getLayoutX() + " start Y " + selectionRect.getLayoutY());
+	        						System.out.println("init X "+ movementInitCoords.getX() + " start Y " + movementInitCoords.getY());
 	        						//find the components and connect the visulisation
-	        						 for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
-	        						   {
+	        						
+	        						for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
+	        						{
 	        							   Node node = ContentPane.this.getChildren().get(i);
 	        							   //only uielements
 	        							   if(node instanceof AUIElement)
@@ -285,10 +296,11 @@ public class ContentPane extends Pane
 	        								   {
 	        									  //TODO change width and height from component
 	        									  Bounds uiBounds = new BoundingBox(uiElement.getTranslateX(), uiElement.getTranslateY(), 150D, 150D);
+	        									  System.out.println("uiBounds " + uiBounds.getMinX() + " y " + uiBounds.getMinY());
 	        									  
+	        									  System.out.println("uiBounds nest  " + uiElement.getLayoutY() + " y " + uiElement.getLayoutY());
 	        									  if(UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
 	        									  {
-	        										  
 	        										  //calculate the x/y from uielement to x/y to rectangle
 	        										  
 	        										  
@@ -321,17 +333,11 @@ public class ContentPane extends Pane
 	        										  
 	        										 
 	        									  }
+	        									  else
+	        										  statusText.set("UIElement liegt nicht im Rechteck");
 	        								   }
-	        								  
-	        								   
-	        								   
 	        							   }
-	        						   }
-	        						   
-	        						
-	        						
-	        						
-	        						
+	        						}
 	        						drawNew = false;
 	        						ContentPane.this.getScene().setCursor(Cursor.MOVE);
 	        					}
@@ -344,8 +350,7 @@ public class ContentPane extends Pane
 	        						ContentPane.this.getChildren().remove(selectionRect);
 	        					}
 	        				}
-	        				
-	        				
+	        			
 	        				if(drawNew)
 	        				{
 	        					//no selection rect on screen draw new rectangle
@@ -434,6 +439,8 @@ public class ContentPane extends Pane
         @Override
         public void handle(MouseEvent t)
         {
+        	Point2D test = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+        	statusText.set("x: " + test.getX() + " y " + test.getY());
         	
         	if(t.getSource() instanceof Canvas)
         	{

@@ -1,7 +1,5 @@
 package eu.matfx.gui.util;
 
-
-import eu.matfx.gui.component.AUIElement;
 import eu.matfx.gui.interfaces.ISelection;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
