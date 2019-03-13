@@ -148,10 +148,4 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 		this.setTranslateY(changedRectangleStartY + movementCoords.getY());
 	}
 
-	
-	
-	
-	
-
-
 }
