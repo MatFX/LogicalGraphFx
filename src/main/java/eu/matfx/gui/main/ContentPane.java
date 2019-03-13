@@ -2,8 +2,7 @@ package eu.matfx.gui.main;
 
 
 import java.util.Map.Entry;
-
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -68,6 +67,12 @@ public class ContentPane extends Pane
 	
 	private SelectionRectangle selectionRect;
 	
+	/**
+	 * is filled when with the selectionRect some uiElements grouped and moved.
+	 * <br>Changelistener are connected with x and y from selectionRect
+	 */
+	private List<GenericPair<ChangeListener, ChangeListener>> changeListenerList;
+	
 	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command) 
 	{
 		super();
@@ -100,116 +105,7 @@ public class ContentPane extends Pane
 			@Override
 			public void changed(ObservableValue<? extends ECommand> observable, ECommand oldValue, ECommand newValue) 
 			{
-				/* TODO
-				SchemeRootContainer schema = TempDataStorage.getSchemeRootContainer();
-				switch(newValue)
-				{
-					case CREATED_NEW_SCHEME:
-						ContentPane.this.setStyle("-fx-background-color: #5691b0;");
-						command.set(ECommand.NO_COMMAND);
-						
-						
-						break;
-						
-					//TODO raus ist nur übergangsweise
-					case CREATE_NEW_INDEX:
-						
-						if(schema.getSchemaMap().get(SchemeRootContainer.ROOT_INDEX) != null)
-						{
-							SensorValue sensorValue = (SensorValue) schema.getSchemaMap().get(SchemeRootContainer.ROOT_INDEX).get(0);
-							SensorElement testElement = new SensorElement(sensorValue.getId());
-							getChildren().add(testElement);
-							testElement.relocate(0, 0);
-							addMouseListener(testElement);
-							
-							
-						}
-						command.set(ECommand.NO_COMMAND);
-						break;
-				
-					case CREATE_NEW_CONTAINER:
-						System.out.println("create New dingsbums");
-						if(schema.getSchemaMap().get(1) != null)
-						{
-							
-							ANDContainer andContainer = (ANDContainer) schema.getSchemaMap().get(1).get(0);
-							
-							
-							AndContainerElement testElement = new AndContainerElement("AndContainer");
-							getChildren().add(testElement);
-							testElement.relocate(0, 0);
-							addMouseListener(testElement);
-							
-						}
-						
-						
-						
-						command.set(ECommand.NO_COMMAND);
-						break;
-				
-				
 				//TODO
-				/*
-					case ADDCOMPONENT:
-						//Mit add eine neue GroupComponent hinzufügen
-						
-						//Finde nun einen Bereich wo das Objekt abgelegt werden kann.
-					
-						ContainerComponent cc = new ContainerComponent(changedComponentView);
-						
-						Comparator<Node> xValueNumber = (n1, n2) -> Double.compare(n1.getLayoutX(), n2.getLayoutX());
-						
-						//ausgehend von 0,0 nach rechts verschiebend
-						List<Node> nodeList = getIConnectorArea().stream().sorted(xValueNumber).collect(Collectors.toList());
-						
-						//Abstand
-						double X_VALUE = 15;
-						double minXValue = 0;
-						
-						for(int i = 0; i < nodeList.size(); i++)
-						{
-							double nodeX = nodeList.get(i).getLayoutX();
-							if(nodeX >= minXValue && nodeX < (minXValue + X_VALUE))
-							{
-								minXValue = minXValue + X_VALUE;
-							}
-							else
-							{
-		 						break;
-							}
-						}
-						cc.relocate(minXValue, 0);
-						addMouseListener(cc);
-						ContentPane.this.getChildren().add(cc);
-						command.set(E_old_Command.NO_COMMAND);
-						break;
-					case DELETE_COMPONENT:
-						//Selektion sich holen und die Objekte entfernen
-						List<Node> selectedNodes = getSelectedNodes();
-						
-						for(Node nodeToDelete : selectedNodes)
-						{
-							//TODO wenn verbindung besteht, muss diese aufgelöst werden
-							
-							ContentPane.this.getChildren().remove(nodeToDelete);
-						}
-						break;
-						
-				
-				}
-				//Sollte das neue Value No_Comamnd kommen so sind alle selektierungen aufzuheben
-				List<Node> nodeList = ContentPane.this.getChildren();
-				for(int i = 0; i < nodeList.size(); i++)
-				{
-					//Muss ISelection implementiert haben
-					if(nodeList.get(i) instanceof ISelection)
-					{
-						((ISelection)nodeList.get(i)).setSelected(false);
-					}
-				}
-				makeNewSnapshot();
-			}
-			*/
 			}
 			
 		});
@@ -337,22 +233,135 @@ public class ContentPane extends Pane
 		        	default:
 	        		case NO_COMMAND:
 	        			
+	        			Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+	        			
 	        			if(t.getSource() instanceof Canvas)
 	        			{
-	        				Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-	        				System.out.println("clicked auf canvas");
+	        				//ich habe bereits ein rechteck gezeichnet
+	        				//dieses liegt auch auf der oberfläche
+	        				boolean drawNew = true;
+	        				if(selectionRect != null && ContentPane.this.getChildren().contains(selectionRect))
+	        				{
+	        					//is the mouse click inside the rect values or outside
+	        					//outside => drawNew
+	        					
+	        					//inside => moveable
+	        					Bounds boundsSelectionRect = new BoundingBox(selectionRect.getLayoutX(), selectionRect.getLayoutY(), selectionRect.getWidth(), selectionRect.getHeight());
+	        					//is this right? I think I have sometimes problems with the contains
+	        					if(selectionRect.contains(transferCoord))
+	        					{
+	        						//TODO raus
+	        						selectionRect.setStroke(Color.BLUE);
+	        						selectionRect.setCatchedUIElements(true);
+	        						selectionRect.setStartCoordsMovement(transferCoord);
+	        						
+	        						//need empty list to store the connected changelistener
+	        						changeListenerList = new ArrayList<GenericPair<ChangeListener, ChangeListener>>();
+	        						
+	        						
+	        						Point2D movementInitCoords = selectionRect.getMovementStartCoords();
+	        					
+	        						//statusText.set("MoveInitCoord: " + movementInitCoords.getX() + "/" + movementInitCoords.getY() + " transCoord " + transferCoord.getX() +  "/" + transferCoord.getY());
+	        						
+	        						/* TODO raus
+	        						Circle circle = new Circle();
+	        						circle.setRadius(5);
+	        						circle.setFill(Color.BROWN);
+	        						circle.setCenterX(	selectionRect.getLayoutX());
+	        						circle.setCenterY( 	selectionRect.getLayoutY());
+	        						
+	        						//getChildren().add(circle);*/
+	        						
+	        						//find the components and connect the visulisation
+	        						 for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
+	        						   {
+	        							   Node node = ContentPane.this.getChildren().get(i);
+	        							   //only uielements
+	        							   if(node instanceof AUIElement)
+	        							   {
+	        								   AUIElement uiElement = (AUIElement)node;
+	        								   //ausschlaggebend sind nur die Elemente die nicht Line sind
+	        								   if(!(uiElement instanceof UILineConnector))
+	        								   {
+	        									  //TODO change width and height from component
+	        									  Bounds uiBounds = new BoundingBox(uiElement.getTranslateX(), uiElement.getTranslateY(), 150D, 150D);
+	        									  
+	        									  if(UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
+	        									  {
+	        										  
+	        										  //calculate the x/y from uielement to x/y to rectangle
+	        										  
+	        										  
+	        										  uiElement.setGroupedMovementStartCoords(movementInitCoords);
+	        										  ChangeListener<Number> xListener = new ChangeListener<Number>(){
+
+														@Override
+														public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+															uiElement.setGroupedMovementX(selectionRect.getLayoutX());
+														}
+	        											  
+	        										  };
+	        										  ChangeListener<Number> yListener = new ChangeListener<Number>(){
+
+															@Override
+															public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+																uiElement.setGroupedMovementY(selectionRect.getLayoutY());
+																
+															}
+		        											  
+	        										  };
+	        										  selectionRect.getGroupedMovementProperties().getLeft().addListener(xListener);
+	        										  selectionRect.getGroupedMovementProperties().getRight().addListener(yListener);
+		        										  
+	        										  
+		        									  changeListenerList.add(new GenericPair<ChangeListener, ChangeListener>(xListener, yListener));
+		        									  
+	        										  //change visulization from the element
+	        										  //uiElement.collected(true);
+	        										  
+	        										 
+	        									  }
+	        								   }
+	        								  
+	        								   
+	        								   
+	        							   }
+	        						   }
+	        						   
+	        						
+	        						
+	        						
+	        						
+	        						drawNew = false;
+	        						ContentPane.this.getScene().setCursor(Cursor.MOVE);
+	        					}
+	        					else
+	        					{
+	        						//TODO raus
+	        						selectionRect.setStroke(Color.RED);
+	        						selectionRect.setCatchedUIElements(false);
+	        						drawNew = true;
+	        						ContentPane.this.getChildren().remove(selectionRect);
+	        					}
+	        				}
 	        				
-	        				selectionRect = new SelectionRectangle(transferCoord.getX(), transferCoord.getY());
 	        				
-	        				selectionRect.setWidth(1);
-	        				selectionRect.setHeight(1);
-	        				selectionRect.setStrokeWidth(0.5);
-	        				selectionRect.getStrokeDashArray().addAll(2.0,5.0,2.0,5.0);
-	        				//selectionRect.setStrokeDashOffset(0.1);
-	        				selectionRect.setStroke(Color.ANTIQUEWHITE);
-	        				selectionRect.setFill(Color.web("#00000000"));
-	        				
-	        				ContentPane.this.getChildren().add(selectionRect);
+	        				if(drawNew)
+	        				{
+	        					//no selection rect on screen draw new rectangle
+		        				
+		        				selectionRect = new SelectionRectangle(transferCoord.getX(), transferCoord.getY());
+		        				
+		        				selectionRect.setWidth(1);
+		        				selectionRect.setHeight(1);
+		        				selectionRect.setStrokeWidth(0.5);
+		        				selectionRect.getStrokeDashArray().addAll(2.0,5.0,2.0,5.0);
+		        				//selectionRect.setStrokeDashOffset(0.1);
+		        				selectionRect.setStroke(Color.ANTIQUEWHITE);
+		        				selectionRect.setFill(Color.web("#00000000"));
+		        				
+		        				ContentPane.this.getChildren().add(selectionRect);
+	        				}
 	        			}
 	        			else if(t.getSource() instanceof AUIElement)
 	        			{
@@ -365,13 +374,11 @@ public class ContentPane extends Pane
 			        		//line connector selected? to delete the line the user must select the line
 			        		if(node instanceof UILineConnector)
 			        		{
-			        			System.out.println("uLineConnector ");
 			        			((UILineConnector)node).setSelected(true);
 			        			
 			        		}
 			        		else if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
 			        		{
-			        			System.out.println("isOutputArea");
 			        			Point2D point2D = node.getOutputCenterPoint();
 			        			
 			        			//Abmaße der ContentPane die bei der Startkoordinate berücksichtigt werden müssen.
@@ -398,11 +405,9 @@ public class ContentPane extends Pane
 			        		}
 			        		else if(node.isMovePossible(t))
 			        		{
-			        			System.out.println("ismovePosssible");
-				        		//noch keine Ahnung wie ich das mit der Kollisionsabfrage mache
+			        			//noch keine Ahnung wie ich das mit der Kollisionsabfrage mache
 				        		ContentPane.this.getScene().setCursor(Cursor.MOVE);
 					        	
-				        		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
 				        		orgSceneX = transferCoord.getX();
 					            orgSceneY = transferCoord.getY();
 				        		
@@ -413,21 +418,7 @@ public class ContentPane extends Pane
 			        		
 	        			}
 	        			break;
-		        	//Auswahl wurde in der Menüleiste ausgewählt
-		        	/*
-	        		case SELECT:
-		        		//Bei einer Selektion muss festgestellt werden was selektiert worden ist
-		        		PickResult pickResult = t.getPickResult();
-		        		
-		        		//jetzt einmal bitte highlgiht der Auswahl 
-		        		Node node = pickResult.getIntersectedNode();
-		        		node.setEffect(new Glow(0.8));
-		        		UtilFx.setSelected(node);
-		        		break;
-		        		*/
-	        	
-	        		
-	        	}
+		        }
 	        	//navigator view
 	        	//makeNewSnapshot();
 	        }
@@ -446,37 +437,53 @@ public class ContentPane extends Pane
         	
         	if(t.getSource() instanceof Canvas)
         	{
-        		//check ne new coordinate from the mouseevent und change  the orientation or size
         		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+        		if(ContentPane.this.getScene().getCursor() == Cursor.MOVE)
+            	{
+        			//change the position of all components
+        			selectionRect.setMovementRectangle(transferCoord, ContentPane.this.getWidth(), ContentPane.this.getHeight());
         		
-        		double w = 1;
-        		double h = 1;
-        		if(selectionRect.getStartX() > transferCoord.getX())
-        		{
-        			//obacht hier startx anpassen
-        			w = selectionRect.getStartX() - transferCoord.getX();
-        			selectionRect.setLayoutX(transferCoord.getX());
-        		}
+        			//TODO inner componet must be moved
+        			
+        			
+        			
+        			
+            	}
         		else
         		{
-        			w = transferCoord.getX() - selectionRect.getStartX();
-        			selectionRect.setLayoutX(selectionRect.getStartX());
-        		}
-        		
-        		if(selectionRect.getStartY() > transferCoord.getY())
-        		{
-        			h = selectionRect.getStartY() - transferCoord.getY();
-        			selectionRect.setLayoutY(transferCoord.getY());
+            		//check ne new coordinate from the mouseevent und change  the orientation or size
+            	
+        			double w = 1;
+            		double h = 1;
+            		if(selectionRect.getStartX() > transferCoord.getX())
+            		{
+            			//obacht hier startx anpassen
+            			w = selectionRect.getStartX() - transferCoord.getX();
+            			selectionRect.setLayoutX(transferCoord.getX());
+            		}
+            		else
+            		{
+            			w = transferCoord.getX() - selectionRect.getStartX();
+            			selectionRect.setLayoutX(selectionRect.getStartX());
+            		}
+            		
+            		if(selectionRect.getStartY() > transferCoord.getY())
+            		{
+            			h = selectionRect.getStartY() - transferCoord.getY();
+            			selectionRect.setLayoutY(transferCoord.getY());
+            			
+            		}
+            		else
+            		{
+            			h = transferCoord.getY() - selectionRect.getStartY();
+            			selectionRect.setLayoutY(selectionRect.getStartY());
+            		}
+            		
+            		selectionRect.setWidth(w);
+            		selectionRect.setHeight(h);
         			
         		}
-        		else
-        		{
-        			h = transferCoord.getY() - selectionRect.getStartY();
-        			selectionRect.setLayoutY(selectionRect.getStartY());
-        		}
         		
-        		selectionRect.setWidth(w);
-        		selectionRect.setHeight(h);
         	}
         	else if(t.getSource() instanceof AUIElement)
         	{
@@ -539,56 +546,7 @@ public class ContentPane extends Pane
                		tempLine.setEndX(transferCoord.getX());
                		tempLine.setEndY(transferCoord.getY());
                	}
-            	/*
-            	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
-            	{
-            		EConnector eConnector = line.getStartPunkt();
-            		//Bei Hand muss vom Ausgangspunkt etwas gezeichnet werden.
-            		
-            		Point2D mousePoint = new Point2D(t.getSceneX(), t.getSceneY());
-            		//Umsetzung ist notwendig wegen der Menüleiste die evtl. noch in der Oberfläche abgelegt ist.
-            		Point2D translated = ContentPane.this.sceneToLocal(mousePoint);
-    	        	
-            		//Weitergabe als Info für die Statusleiste
-            		xCoords.set(translated.getX());
-    	        	yCoords.set(translated.getY());
-    	        	
-    	        	ContentPane.this.line.setEndX(translated.getX());
-    	        	ContentPane.this.line.setEndY(translated.getY());
-    	        
-    	        	//Hier noch prüfen ob ablegbar ist
-    	        	//Dementsprechend soll die Farbe des Striches geändert werden
-    	        	//Bei Y wieder den Wert korrigieren mit den ConBounds
-    	        	Bounds conBounds = ContentPane.this.localToScene(ContentPane.this.getLayoutBounds());
-    	        	boolean isConnectable = isConnectable(ContentPane.this.line.getEndX(), ContentPane.this.line.getEndY()+conBounds.getMinY(), node, eConnector);
-    	        	
-    	        	if(isConnectable)
-    	        		ContentPane.this.line.setStroke(Color.BLUE);
-    	        	else
-    	        		ContentPane.this.line.setStroke(Color.CORAL);
-    	        
-            	}*/
-            	/*
-            	else if(ContentPane.this.getScene().getCursor() == Cursor.SE_RESIZE)
-            	{
-            		//Transfer auf die parent Koordinate
-            		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-            		Bounds boundsInParent = node.getBoundsInParent();
-            		double newWidth = transferCoord.getX() - boundsInParent.getMinX();
-            		double newHeight = transferCoord.getY() - boundsInParent.getMinY();
-            		
-            		double scaleFactorWidth = newWidth / node.getMinWidth();
-            		double scaleFactorHeight = newHeight / node.getMinHeight();
-            		
-            		if(scaleFactorWidth < 1D)
-            			scaleFactorWidth = 1D;
-            		if(scaleFactorHeight < 1D)
-            			scaleFactorHeight = 1D;
-            		
-            		node.setScale(scaleFactorWidth, scaleFactorHeight);
-             	}*/
-            	//makeNewSnapshot();
-        	}
+            }
         }
 
     };
@@ -601,53 +559,80 @@ public class ContentPane extends Pane
            {
         	   if(t.getSource() instanceof Canvas)
         	   {
-        		   //beim loslassen muss geprüft werden ob in dem gezeicneten Rechteck eine Komponente liegt
         		   
-        		   boolean isComponentsInRect = false;
-        		   
-        		   Bounds boundsSelectionRect = new BoundingBox(selectionRect.getLayoutX(), selectionRect.getLayoutY(), selectionRect.getWidth(), selectionRect.getHeight());
-        		   
-        		   
-        		   
-        		   for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
+        		   if(selectionRect.isCatchedUIElements())
         		   {
-        			   Node node = ContentPane.this.getChildren().get(i);
-        			   //only uielements
-        			   if(node instanceof AUIElement)
-        			   {
-        				   AUIElement uiElement = (AUIElement)node;
-        				   //ausschlaggebend sind nur die Elemente die nicht Line sind
-        				   if(!(uiElement instanceof UILineConnector))
-        				   {
-        					  //TODO widht and heigt from component
-        					  Bounds uiBounds = new BoundingBox(uiElement.getTranslateX(), uiElement.getTranslateY(), 150D, 150D);
-        					  
-        					  if(UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
-        					  {
-        						  //change visulization from the element
-        						  uiElement.collected(true);
-        						  
-        						  isComponentsInRect = true;
-        					  }
-        				   }
-        				  
-        				   
-        				   
-        			   }
-        		   }
-        		   
-        		   
-        		   
-        		   
-        		   if(!isComponentsInRect)
-        		   {
-        			   //no components in rectangle found, delete dotted rectangle
-        			   
-        			   ContentPane.this.getChildren().remove(selectionRect);
-        			   
-        			   
+        			   //I think nothing to do
         			   
         		   }
+        		   else
+        		   {
+        			   //no component selected, search for it
+        			   
+            		   
+            		   //beim loslassen muss geprüft werden ob in dem gezeicneten Rechteck eine Komponente liegt
+            		   
+            		   boolean isComponentsInRect = false;
+            		   
+            		   Bounds boundsSelectionRect = new BoundingBox(selectionRect.getLayoutX(), selectionRect.getLayoutY(), selectionRect.getWidth(), selectionRect.getHeight());
+            		   
+            		   
+            		   
+            		   for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
+            		   {
+            			   Node node = ContentPane.this.getChildren().get(i);
+            			   //only uielements
+            			   if(node instanceof AUIElement)
+            			   {
+            				   AUIElement uiElement = (AUIElement)node;
+            				   //ausschlaggebend sind nur die Elemente die nicht Line sind
+            				   if(!(uiElement instanceof UILineConnector))
+            				   {
+            					  //TODO widht and heigt from component
+            					  Bounds uiBounds = new BoundingBox(uiElement.getTranslateX(), uiElement.getTranslateY(), 150D, 150D);
+            					  
+            					  if(UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
+            					  {
+            						  //change visulization from the element
+            						  uiElement.collected(true);
+            						  
+            						  isComponentsInRect = true;
+            					  }
+            				   }
+            				  
+            				   
+            				   
+            			   }
+            		   }
+            		   
+            		   
+            		   
+            		   
+            		   if(!isComponentsInRect)
+            		   {
+            			
+            			   if(changeListenerList != null)
+            			   {
+            				   for(int i = 0; i < changeListenerList.size(); i++)
+                			   {
+                				   GenericPair<ChangeListener, ChangeListener> temp = changeListenerList.get(i);
+                				   selectionRect.getGroupedMovementProperties().getLeft().removeListener(temp.getLeft());
+                				   selectionRect.getGroupedMovementProperties().getRight().removeListener(temp.getRight());
+                				   
+                			   }
+                			   changeListenerList = new ArrayList<GenericPair<ChangeListener, ChangeListener>>();
+            			   }
+            			   
+            			   
+            			   //no components in rectangle found, delete dotted rectangle
+            			   ContentPane.this.getChildren().remove(selectionRect);
+            			   
+            			   
+            			   
+            		   }
+        			   
+        		   }
+        		 
         		   
         		   
         	   }
@@ -674,17 +659,9 @@ public class ContentPane extends Pane
                   	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
                   	{
                   		//draw the line from started point to the cursor point.
-                  		
                   		//decision to draw the real line or remove the temp line           		
-                  		
-                
-                  		
                   		PickResult pickResult = t.getPickResult();
                   		
-                 		System.out.println("pickResult " + pickResult.getIntersectedNode());
-                  	
-                 		System.out.println("nide " + node.toString());
-                  	
                  		//List<Node> = ContentPane.this.getChildren().size();
                  		//Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
                  		Point2D sceneCoords = new Point2D(t.getSceneX(), t.getSceneY());

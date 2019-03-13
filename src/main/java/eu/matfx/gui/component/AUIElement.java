@@ -1,9 +1,12 @@
 package eu.matfx.gui.component;
 
+import eu.matfx.gui.helper.GenericPair;
 import eu.matfx.gui.interfaces.IConnectorArea;
 import eu.matfx.gui.interfaces.IMoveComponent;
 import eu.matfx.gui.util.Tools;
 import eu.matfx.logic.data.ALogicElement;
+import javafx.beans.property.DoubleProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 
@@ -21,6 +24,11 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	 * collected when user draw a frame around this component
 	 */
 	protected boolean isCollected;
+	
+	/**
+	 * gap coordinates (from rectangle to this x/y axis) when component is collected
+	 */
+	private Point2D movementCoords;
 	
 	protected AUIElement(T logicElement)
 	{
@@ -118,7 +126,28 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	 * the different uiElement have different colors?
 	 */
 	public abstract void changeCollectionColor();
+
+	/**
+	 * caculate the range from selected rectangle to this x and y axis
+	 * @param movementInitCoords
+	 */
+	public void setGroupedMovementStartCoords(Point2D movementInitCoords) 
+	{
+		this.movementCoords = new Point2D(movementInitCoords.getX() - this.getTranslateX(), movementInitCoords.getY() - this.getTranslateY());
+	}
 	
+	public void setGroupedMovementX(double changedRectangleStartX)
+	{ 
+		
+		this.setLayoutX(changedRectangleStartX + movementCoords.getX());
+		
+	}
+	
+	public void setGroupedMovementY(double changedRectangleStartY)
+	{
+		this.setLayoutY(changedRectangleStartY + movementCoords.getY());
+	}
+
 	
 	
 	
