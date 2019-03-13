@@ -369,7 +369,6 @@ public class ContentPane extends Pane
 		        				selectionRect.setHeight(1);
 		        				selectionRect.setStrokeWidth(0.5);
 		        				selectionRect.getStrokeDashArray().addAll(2.0,5.0,2.0,5.0);
-		        				//selectionRect.setStrokeDashOffset(0.1);
 		        				selectionRect.setStroke(Color.ANTIQUEWHITE);
 		        				selectionRect.setFill(Color.web("#00000000"));
 		        				
