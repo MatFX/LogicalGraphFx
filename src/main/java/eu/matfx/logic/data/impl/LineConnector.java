@@ -3,9 +3,11 @@ package eu.matfx.logic.data.impl;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import eu.matfx.gui.helper.GenericPair;
 import eu.matfx.logic.data.ALogicElement;
+import eu.matfx.logic.helper.GenericPairAdapter;
 
 /**
  * This object connect two different LogicElements. At the ui it will be represented with a line.
@@ -25,9 +27,11 @@ public class LineConnector extends ALogicElement
 	/**
 	 * left side identification number of node and right ident number of output channel (normally 0)
 	 */
-	private GenericPair<Integer, Integer> outputIndex;
+	@XmlJavaTypeAdapter(GenericPairAdapter.class)
+	private GenericPair<Integer, Integer> outputIndex  = new GenericPair<Integer, Integer>(Integer.MIN_VALUE, 0);
 
-	private GenericPair<Integer, Integer> inputIndex;
+	@XmlJavaTypeAdapter(GenericPairAdapter.class)
+	private GenericPair<Integer, Integer> inputIndex  = new GenericPair<Integer, Integer>(Integer.MIN_VALUE, 0);
 
 	public boolean isMasterIdOutput(int index) 
 	{
@@ -64,11 +68,17 @@ public class LineConnector extends ALogicElement
 		inputIndex = null;
 	}
 
-	public void setMasteridOutput(int newIndexNext) {
+	public void setMasteridOutput(int newIndexNext) 
+	{
+		if(outputIndex == null)
+			outputIndex = new GenericPair<Integer, Integer>(Integer.MIN_VALUE, 0);
 		outputIndex.setLeft(newIndexNext);
 	}
 
-	public void setMasteridInput(int newIndexNext) {
+	public void setMasteridInput(int newIndexNext) 
+	{
+		if(inputIndex == null)
+			inputIndex = new GenericPair<Integer, Integer>(Integer.MIN_VALUE, 0);
 		inputIndex.setLeft(newIndexNext);
 	}
 	

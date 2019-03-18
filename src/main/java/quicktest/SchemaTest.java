@@ -1,9 +1,9 @@
-package eu.matfx.logic;
+package quicktest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
-
+import eu.matfx.logic.Scheme;
+import eu.matfx.logic.SchemeList;
 import eu.matfx.logic.data.impl.FunctionElement;
 import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.data.impl.SensorElement;
@@ -13,15 +13,15 @@ import eu.matfx.logic.database.XMLAccess;
 
 public class SchemaTest {
 
-	@Test
-	public void testSchemeMap()
+	
+	public static void main(String[] args)
 	{
+
 		Scheme scheme = new Scheme();
 		scheme.setDescriptionName("Test-Schema");
 		
 		scheme.addElementAtMap(new SensorElement());
 		
-		assertTrue("Schememap filled at Index 0?", (scheme.getWorkflowMap().get(Scheme.START_INDEX)!= null));
 		
 		
 		AndContainer andContainer  = new AndContainer();
@@ -33,7 +33,6 @@ public class SchemaTest {
 		scheme.putElementAtMap(andContainer.getIndex(), andContainer);
 		scheme.putElementAtMap(functionElement.getIndex(), functionElement);
 		
-		assertTrue("Schememap is empty at Index 1?", (scheme.getWorkflowMap().get(1) == null));
 		
 		LineConnector lineConnect = new LineConnector();
 		lineConnect.setIndex(1);
@@ -41,26 +40,19 @@ public class SchemaTest {
 		lineConnect.setMasteridInput(2);
 		
 		scheme.putElementAtMap(lineConnect.getIndex(), lineConnect);
-		assertTrue("Schememap is not filled at Index 1?", (scheme.getWorkflowMap().get(1) != null));
 		
 		//set at index 2 a new OrContainer the other elements muss be moved
 		OrContainer orContainer = new OrContainer();
 		orContainer.setIndex(2);
 		scheme.putElementAtMap(orContainer.getIndex(),  orContainer);
 		
-		//result of the movement 
-		assertTrue("value at index 2 must be OrContainer", (scheme.getWorkflowMap().get(2) instanceof OrContainer));
-		assertTrue("value at index 3 must be AndContainer", (scheme.getWorkflowMap().get(3) instanceof AndContainer));
-		assertTrue("value at index 4 must be FunctionElement", (scheme.getWorkflowMap().get(4) instanceof FunctionElement));
-	
-	
+		
 		
 		SchemeList schemeList = new SchemeList();
 		
 		schemeList.getSchemeList().add(scheme);
 		
 		schemeList.setActiveSchemeOnScreen(schemeList.getSchemeList().size()-1);
-		System.out.println("Test " + schemeList.getSchemeList().get(0).getWorkflowMap());
 		//write definied xml in file
 		XMLAccess.writeObjectToFile(schemeList);
 		
@@ -69,12 +61,7 @@ public class SchemaTest {
 		
 		SchemeList readedSchemeList = (SchemeList) XMLAccess.readObjectFromFile(new SchemeList());
 		
-		assertTrue("readed scheme list must be 5 elements", (scheme.getWorkflowMap().size() == 5));
-		
-		
-		
 		
 		
 	}
-
 }
