@@ -13,16 +13,17 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUIElement<T> implements UILineOutputConnector, UILineInputConnector
+//extends from abstract output
+public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUIOutputElement<T> implements UILineInputConnector
 {
-	private CircleComponent circleRight;
+	//private CircleComponent circleRight;
 	
 	private CircleComponent circleLeft;
 	
 	/**
 	 * uiLineConnector; when component is moving give coords to the connector.
 	 */
-	private UILineConnector uiLineOutputConnector;
+	//private UILineConnector uiLineOutputConnector;
 	
 	/**
 	 * uiLineConnector; when component is moving give coords to the connector.
@@ -44,7 +45,7 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 		ds.setOffsetY(0.1f);
 		ds.setColor(Color.web("#304f30"));
 		
-		circleRight = new CircleComponent(5, 140, 25, Color.web("#304f30"));
+		//circleRight = new CircleComponent(5, 140, 25, Color.web("#304f30"));
 
 	  	circleLeft = new CircleComponent(5, 10, 25, Color.web("#304f30"));
 		
@@ -58,7 +59,8 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 	    r.setFill(Color.web("#74aa74"));
 	  	r.setEffect(ds);
 	  	
-	    this.getChildren().addAll(canvas, r, circleRight, circleLeft);
+	    //this.getChildren().addAll(canvas, r, circleRight, circleLeft);
+	    this.getChildren().addAll(circleLeft);
 	}
 	
 	@Override

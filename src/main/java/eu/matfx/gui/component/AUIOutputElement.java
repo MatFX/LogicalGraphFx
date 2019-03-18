@@ -14,14 +14,14 @@ import javafx.scene.shape.Rectangle;
 
 public abstract class AUIOutputElement<T extends ALogicElement> extends AUIElement<T> implements UILineOutputConnector
 {
-	private CircleComponent circleRight;
+	protected CircleComponent circleRight;
 	
 	/**
 	 * uiLineConnector; when component is moving give coords to the connector.
 	 */
-	private UILineConnector uiLineOutputConnector;
+	protected UILineConnector uiLineOutputConnector;
 	
-	private Rectangle r;
+	protected Rectangle r;
 
 	protected AUIOutputElement(T logicElement)
 	{

@@ -4,7 +4,7 @@ import eu.matfx.gui.helper.Coordinate;
 import eu.matfx.logic.data.ALogicElement;
 import javafx.geometry.Point2D;
 
-public abstract class AUIDoubleInputOneOutputElement<T extends ALogicElement> extends AUIElement<T> 
+public abstract class AUIDoubleInputOneOutputElement<T extends ALogicElement> extends AUIInputOutputElement<T>  //TODO need second input interface
 {
 
 	protected AUIDoubleInputOneOutputElement(T logicElement) {

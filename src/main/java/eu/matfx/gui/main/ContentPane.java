@@ -8,6 +8,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import eu.matfx.gui.component.AUIElement;
+import eu.matfx.gui.component.AUIInputOutputElement;
+import eu.matfx.gui.component.AUIOutputElement;
 import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.helper.GenericPair;
 import eu.matfx.gui.helper.SelectionRectangle;
@@ -18,7 +20,9 @@ import eu.matfx.gui.interfaces.UILineOutputConnector;
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.gui.util.UtilFx;
 import eu.matfx.logic.Scheme;
+import eu.matfx.logic.data.AInputOutputElement;
 import eu.matfx.logic.data.ALogicElement;
+import eu.matfx.logic.data.AOutputElement;
 import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.database.SchemeDataStorage;
 import javafx.beans.property.DoubleProperty;
@@ -197,15 +201,16 @@ public class ContentPane extends Pane
 					//When any component will change the position the line connector will change the position
 					
 					UILineConnector connector = (UILineConnector)entry.getValue();
-					//no question about the pickup of the value 
-					if(uiMap.get(uiMap.lowerKey(entry.getKey())) instanceof UILineOutputConnector)
-					{
-						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(entry.getKey()))).setUIOutputConnector(connector);
-					}
 					
-					if(uiMap.get(uiMap.higherKey(entry.getKey())) instanceof UILineInputConnector)
+					LineConnector lineConnector = connector.getLogicElement();
+					//one entry empty, dont draw the line 
+					if(!lineConnector.isOutputEmpty() && !lineConnector.isInputEmpty())
 					{
-						((UILineInputConnector)uiMap.get(uiMap.higherKey(entry.getKey()))).setUIInputConnector(connector);
+						//find the output connector
+						UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(lineConnector.getOutputId());
+						UILineInputConnector inputConnector = (UILineInputConnector) getConnector(lineConnector.getInputId());
+						outputConnector.setUIOutputConnector(connector);
+						inputConnector.setUIInputConnector(connector);
 					}
 					ContentPane.this.getChildren().add(connector);
 					addMouseListener(connector);
@@ -215,6 +220,20 @@ public class ContentPane extends Pane
 		}
 	}
 	
+	private AUIElement getConnector(GenericPair<Integer, Integer> inputId) 
+	{
+		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+		{
+			System.out.println("element? " + entry.getValue().getLogicElement());
+			System.out.println("element? " + entry.getValue().getLogicElement().getIndex());
+			if(entry.getValue().getLogicElement().getIndex() == inputId.getLeft()
+					&& (entry.getValue() instanceof UILineOutputConnector || entry.getValue() instanceof UILineInputConnector))
+				return entry.getValue();
+			
+		}
+		return null;
+	}
+
 	/**
 	 * Alle Komponenten auf der Hauptoberfläche erhalten die gleiche Mausaktivitäten.
 	 * <br>Muss ich diese auch wieder entfernen, wenn ich die Komponente aus der Oberfläche entfernen will?
@@ -296,6 +315,7 @@ public class ContentPane extends Pane
 	        								   {
 	        									  //TODO change width and height from component
 	        									  Bounds uiBounds = new BoundingBox(uiElement.getTranslateX(), uiElement.getTranslateY(), 150D, 150D);
+	        									 
 	        									  System.out.println("uiBounds " + uiBounds.getMinX() + " y " + uiBounds.getMinY());
 	        									  System.out.println("uiBounds nest  " + uiElement.getLayoutY() + " y " + uiElement.getLayoutY());
 	        									  if(UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
@@ -668,7 +688,9 @@ public class ContentPane extends Pane
                   			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
                   			if(indexFromMap >= 0)
                   				schemeObject.deleteElementMap(indexFromMap);
+                  		
                   			deleteUINodeFromView(indexFromMap);
+                  		
                   		}
                   		else
                   		{
@@ -747,20 +769,67 @@ public class ContentPane extends Pane
                  			
                  			putUINodeAtMap(tempLine.getInputIndex(), newLine);
                  			
-                 			//conect the coordinates from the new line with the input and output ui component
+                 			System.out.println("index von " + tempLine.getOutputIndex() + " : " + tempLine.getInputIndex());
+                 			
+                 			//connect the coordinates from the new line with the input and output ui component
                  			//no question about the pickup of the value 
-       					if(uiMap.get(uiMap.lowerKey(tempLine.getInputIndex())) instanceof UILineOutputConnector)
-       					{
-       						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(tempLine.getInputIndex()))).setUIOutputConnector(newLine);
-       					}
-       					
-       					if(uiMap.get(uiMap.higherKey(tempLine.getInputIndex())) instanceof UILineInputConnector)
-       					{
-       						((UILineInputConnector)uiMap.get(uiMap.higherKey(tempLine.getInputIndex()))).setUIInputConnector(newLine);
-       					}
-       					addMouseListener(newLine);
-       					//add to content
-                 		ContentPane.this.getChildren().add(newLine);
+                 			
+                 			//TODO subindex must be in tempLine
+                 			UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(new GenericPair<Integer, Integer>(tempLine.getOutputIndex(), 0));
+                 			
+                 			UILineInputConnector inputConnector = (UILineInputConnector) getConnector((new GenericPair<Integer, Integer>(tempLine.getInputIndex(), 0)));
+                 		
+                 			//line need always a start and a end 
+                 			System.out.println("outputConnector " + outputConnector);
+                 			System.out.println("inputConnector " + inputConnector);
+                 			
+                 			if(outputConnector != null && inputConnector != null)
+                 			{
+                 				//fill now the id to the logic elements
+                 				LineConnector lineConnector = newLine.getLogicElement();
+                 				
+                 				AOutputElement outputElement = (AOutputElement) ((AUIElement)outputConnector).getLogicElement();
+                 				lineConnector.setMasteridOutput(outputElement.getIndex());
+                 				
+                 				AInputOutputElement inAndOutElement = (AInputOutputElement) ((AUIElement)inputConnector).getLogicElement();
+                 				lineConnector.setMasteridInput(inAndOutElement.getIndex());
+                 			}
+                 			
+                 			
+                 			
+                 			LineConnector lineConnector = newLine.getLogicElement();
+                 			//fill the lineConnector values
+                 			
+                 			if(!lineConnector.isOutputEmpty() && !lineConnector.isInputEmpty())
+                 			{
+                 				//find the output connector
+                 				//UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(lineConnector.getOutputId());
+                 				//UILineInputConnector inputConnector = (UILineInputConnector) getConnector(lineConnector.getInputId());
+                 				outputConnector.setUIOutputConnector(newLine);
+                 				inputConnector.setUIInputConnector(newLine);
+                 			}
+                 			else
+                 				System.out.println("immer noch leer");
+                 			
+                 			
+
+                 			/* TODO raus
+	       					if(uiMap.get(uiMap.lowerKey(tempLine.getInputIndex())) instanceof UILineOutputConnector)
+	       					{
+	       						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(tempLine.getInputIndex()))).setUIOutputConnector(newLine);
+	       					}
+	       					
+	       					if(uiMap.get(uiMap.higherKey(tempLine.getInputIndex())) instanceof UILineInputConnector)
+	       					{
+	       						((UILineInputConnector)uiMap.get(uiMap.higherKey(tempLine.getInputIndex()))).setUIInputConnector(newLine);
+	       					}*/
+                 			
+                 			
+                 			
+                 			
+	       					addMouseListener(newLine);
+	       					//add to content
+	                 		ContentPane.this.getChildren().add(newLine);
                  			
                  			
                  		}
@@ -770,7 +839,51 @@ public class ContentPane extends Pane
         	   }
         	   ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
            }
+
        };
+       
+
+	private UILineOutputConnector getOutputConnector(Point2D point2d)
+	{
+		System.out.println("OUT " + point2d);
+		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+		{
+			if(entry.getValue() instanceof UILineOutputConnector)
+			{
+				AUIOutputElement element = (AUIOutputElement)entry.getValue();
+				
+				
+				//the coord and the saved values must be equals.
+			//	System.out.println(" element.getOutputCenterCoordinate().getX() " + element.getOutputCenterCoordinate().getX() + " point " + point2d.getX());
+			//	System.out.println(" element.getOutputCenterCoordinate().getY() " + element.getOutputCenterCoordinate().getY() + " point " + point2d.getY());
+				if(element.isOutputArea(point2d))
+				{
+			//		System.out.println("return value out");
+					return element;
+				}
+			}
+		}
+		return null;
+	}
+	
+	private UILineInputConnector getInputConnector(Point2D point2d)
+	{
+		System.out.println("IN " + point2d);
+		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+		{
+			if(entry.getValue() instanceof UILineInputConnector)
+			{
+				AUIInputOutputElement element = (AUIInputOutputElement)entry.getValue();
+				if(element.isInputArea(point2d))
+				{
+					return element;
+				}
+			}
+		}
+		return null;
+	}
+	
+	
        
     private TreeMap<Integer, AUIElement> restructureMap(TreeMap<Integer, AUIElement> restructMap) 
    	{
@@ -811,6 +924,7 @@ public class ContentPane extends Pane
 	protected void deleteUINodeFromView(int indexFromMap) 
 	{
 		AUIElement uiNode = uiMap.remove(indexFromMap);
+		//TODO delete the connections from combined objects?
 		uiMap = restructureMap(uiMap);
 		ContentPane.this.getChildren().remove(uiNode);
 	}

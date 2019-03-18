@@ -65,7 +65,7 @@ public class CircleComponent extends Group implements IArea
 	public Point2D getCenterPointFromArea() {
 		Point2D point2D = null;
 		Bounds localBounds = circleBase.localToScene(circleBase.getBoundsInLocal());
-		point2D = new Point2D(UtilFx.getCoordinate(localBounds.getMinX(), localBounds.getMaxX()),
+		point2D = new Point2D(UtilFx.getCoordinate(localBounds.getMinX(), localBounds.getMaxX()), 
 				UtilFx.getCoordinate(localBounds.getMinY(), localBounds.getMaxY()));
 		return point2D;
 	}

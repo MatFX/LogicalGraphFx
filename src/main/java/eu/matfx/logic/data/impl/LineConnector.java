@@ -49,13 +49,13 @@ public class LineConnector extends ALogicElement
 
 	public boolean isOutputEmpty() 
 	{
-		if(outputIndex == null)
+		if(outputIndex == null || outputIndex.getLeft() == Integer.MIN_VALUE)
 			return true;
 		return false;
 	}
 
 	public boolean isInputEmpty() {
-		if(inputIndex == null)
+		if(inputIndex == null || inputIndex.getLeft() == Integer.MIN_VALUE)
 			return true;
 		return false;
 	}
@@ -80,6 +80,16 @@ public class LineConnector extends ALogicElement
 		if(inputIndex == null)
 			inputIndex = new GenericPair<Integer, Integer>(Integer.MIN_VALUE, 0);
 		inputIndex.setLeft(newIndexNext);
+	}
+	
+	public GenericPair<Integer, Integer> getOutputId()
+	{
+		return outputIndex;
+	}
+	
+	public GenericPair<Integer, Integer> getInputId()
+	{
+		return inputIndex;
 	}
 	
 	

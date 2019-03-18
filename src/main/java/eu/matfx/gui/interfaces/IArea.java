@@ -9,11 +9,19 @@ public interface IArea
 	/**
 	 * Ist Dort zu implementieren wo ermittelt werden muss, ob ein Koordinatenpunkt innerhalb eines Bereiches liegt
 	 * <br>Der Punkt ist von außerhalb zu übergeben, die Bereichsermittlung findet im eigentlichen Objekt statt.
+	 * <b>inside the method its a convert of the parameter point!
 	 * @param point
 	 * @param bounds
 	 * @return
 	 */
 	public boolean isPointInArea(Point2D point);
+	
+	/**
+	 * the parameter point2d will be not converted!
+	 * @param point
+	 * @return
+	 */
+	//public boolean isPointInAreaWithoutConversion(Point2D point);
 	
 	/**
 	 * Ermittelt die Mittelpunktkoordinate auf Basis der Szene.
