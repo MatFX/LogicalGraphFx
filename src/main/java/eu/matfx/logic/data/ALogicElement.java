@@ -1,11 +1,9 @@
 package eu.matfx.logic.data;
 
 import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-
 import eu.matfx.logic.data.impl.FunctionElement;
 import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.data.impl.SensorElement;
@@ -24,15 +22,19 @@ import eu.matfx.logic.helper.LocationView;
  * @author m.goerlich
  *
  */
-@XmlSeeAlso({AndContainer.class, OrContainer.class, RSFlipFlopContainer.class, XorContainer.class, FunctionElement.class,
-	LineConnector.class, SensorElement.class})
-@XmlType(propOrder={"classDescription", "locationView", "dimensionView"})
+@XmlSeeAlso({AndContainer.class, OrContainer.class, RSFlipFlopContainer.class, XorContainer.class, FunctionElement.class, LineConnector.class, SensorElement.class})
+@XmlType(propOrder={"classDescription", "index", "locationView", "dimensionView"})
 public abstract class ALogicElement implements Serializable
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6177940045926437821L;
+	
+	/**
+	 * id from the object; it must be filled when object added to list
+	 */
+	private int index = Integer.MIN_VALUE;
 	
 	@XmlElement
 	private String classDescription = this.getClass().getSimpleName();
@@ -55,6 +57,14 @@ public abstract class ALogicElement implements Serializable
 
 	public LocationView getLocationView() {
 		return locationView;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
 	}
 
 	

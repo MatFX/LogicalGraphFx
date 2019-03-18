@@ -5,11 +5,9 @@ import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 
 import eu.matfx.logic.data.ALogicElement;
 
@@ -41,13 +39,12 @@ public class Scheme implements Serializable {
 	 * describes the complete workflow of an event. The first element is ever at index 0 (START_INDEX)
 	 * <br>The indices are continuously without a numerical gap.
 	 */
-	
-	
 	private TreeMap<Integer, ALogicElement> workflowMap = new TreeMap<Integer, ALogicElement>();
 	
 	public void addElementAtMap(ALogicElement logicElement)
 	{
-		workflowMap.put(workflowMap.size(), logicElement);
+		logicElement.setIndex(workflowMap.size());
+		workflowMap.put(logicElement.getIndex(), logicElement);
 	}
 
 	public void deleteElementMap(int index)
@@ -89,6 +86,10 @@ public class Scheme implements Serializable {
 			//move action
 			int newIndex = indexToSet + 1;
 			ALogicElement valueToMove = workflowMap.get(indexToSet);
+			valueToMove.setIndex(newIndex);
+			
+			//TODO line new 
+			
 			//set the param from method
 			workflowMap.put(indexToSet, logicElement);
 			//hop to the new index with the old value
