@@ -266,7 +266,6 @@ public class ContentPane extends Pane
 	        		case NO_COMMAND:
 	        			
 	        			Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-	        			System.out.println("getSource " + t.getSource());
 	        			if(t.getSource() instanceof Canvas)
 	        			{
 	        				//ich habe bereits ein rechteck gezeichnet
@@ -283,27 +282,13 @@ public class ContentPane extends Pane
 	        					
 	        					if(UtilFx.isPointInShape(transferCoord, localBounds))
 	        					{
-	        						//TODO raus
 	        						selectionRect.setStroke(Color.BLUE);
 	        						selectionRect.setCatchedUIElements(true);
 	        						selectionRect.setStartCoordsMovement(transferCoord);
 	        						
 	        						//need empty list to store the connected changelistener
 	        						changeListenerMap = new HashMap<AUIElement, GenericPair<ChangeListener, ChangeListener>>();
-	        						
-	        						
-	        						Point2D movementInitCoords = selectionRect.getMovementStartCoords();
-	        					
-	        						//statusText.set("MoveInitCoord: " + movementInitCoords.getX() + "/" + movementInitCoords.getY() + " transCoord " + transferCoord.getX() +  "/" + transferCoord.getY());
-	        						
-	        						//TODO raus
-	        						startRectangle = new Circle();
-	        						startRectangle.setRadius(3);
-	        						startRectangle.setFill(Color.BROWN);
-	        						startRectangle.setCenterX(	selectionRect.getLayoutX());
-	        						startRectangle.setCenterY( 	selectionRect.getLayoutY());
-	        					
-	        						
+	        							
 	        						//find the components and connect the visulisation
 	        						
 	        						for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
@@ -321,40 +306,8 @@ public class ContentPane extends Pane
 	        									 
 	        									  if(UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
 	        									  {
-	        										  //calculate the x/y from uielement to x/y to rectangle
-	        										  
-	        										  
-	        										  uiElement.setGroupedMovementStartCoords(movementInitCoords);
-	        										  ChangeListener<Number> xListener = new ChangeListener<Number>(){
-
-														@Override
-														public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-															uiElement.setGroupedMovementX(selectionRect.getLayoutX());
-														}
-	        											  
-	        										  };
-	        										  ChangeListener<Number> yListener = new ChangeListener<Number>(){
-
-															@Override
-															public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-																uiElement.setGroupedMovementY(selectionRect.getLayoutY());
-																
-															}
-		        											  
-	        										  };
-	        										  selectionRect.getGroupedMovementProperties().getLeft().addListener(xListener);
-	        										  selectionRect.getGroupedMovementProperties().getRight().addListener(yListener);
-		        										  
-	        										  
-		        									  changeListenerMap.put(uiElement, new GenericPair<ChangeListener, ChangeListener>(xListener, yListener));
-		        									  
-	        										  //change visulization from the element
-	        										  //uiElement.collected(true);
-	        										  
-	        										 
+	        										  addChangeListenerToCollectRect(uiElement);
 	        									  }
-	        									  else
-	        										  statusText.set("UIElement liegt nicht im Rechteck");
 	        								   }
 	        							   }
 	        						}
@@ -410,28 +363,16 @@ public class ContentPane extends Pane
 			        			((UILineConnector)node).setSelected(true);
 			        		
 			        		}
-			        		else if(node instanceof AUIElement)
-			        		{
-			        			((AUIElement)node).setSelected(true);
-			        		}
-			        		//TODO else if?
-			        		
-			        		
-			        		if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
+			        		else if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
 			        		{
 			        			Point2D point2D = node.getOutputCenterPoint();
 			        			
 			        			//Abmaße der ContentPane die bei der Startkoordinate berücksichtigt werden müssen.
 				        		Bounds conBounds = ContentPane.this.localToScene(ContentPane.this.getLayoutBounds());
-				        		
 				        		statusText.set("OutputArea erkannt");
 				        		
 				        		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-				        		
-				        		System.out.println("node " + node.getLogicElement());
-				        		System.out.println("node " + node.getClass().toString());
 				        		//is the output channel occupied
-				        		
 				        		if(node instanceof UILineOutputConnector)
 				        		{
 				        			//check the output connection
@@ -459,6 +400,7 @@ public class ContentPane extends Pane
 			        		}
 			        		else if(node.isMovePossible(t))
 			        		{
+			        			((AUIElement)node).setSelected(true);
 			        			//noch keine Ahnung wie ich das mit der Kollisionsabfrage mache
 				        		ContentPane.this.getScene().setCursor(Cursor.MOVE);
 					        	
@@ -736,8 +678,8 @@ public class ContentPane extends Pane
                   	{
                   		
                   		//when node is moved from a collected frame
-                  		if(node.isCollected())
-                  		{
+                  		//if(node.isCollected())
+                  		//{
                   			//it must be checked that the movement goes outside the definied frame
                   			//TODO w und h flexible?
                   			Bounds uiBounds = new BoundingBox(node.getTranslateX(), node.getTranslateY(), 150D, 150D);
@@ -749,25 +691,22 @@ public class ContentPane extends Pane
                       			{
                       			  //out of the shape, than reset flag value
                       			  node.collected(false);
-                      			  System.out.println("remove from map");
                       			  removeChangeListenerFromCollectRect(node);
                       			  
                       			}
     	        				else
+    	        				{
     	        					node.collected(true);
+    	        					addChangeListenerToCollectRect(node);
+    	        					//System.out.println("selection ist true");
+    	        				}
                   			}
                   			//no selection rect ...reset flag
                   			else
                   			{
                   				node.collected(false);
-                  				System.out.println("remove from map 2");
-                  			 	removeChangeListenerFromCollectRect(node);
+                  				removeChangeListenerFromCollectRect(node);
                   			}
-                  		}
-                  		
-                  		
-                  		
-                  		
                   		System.out.println("move and released node selected " +node.isSelected());
                   		if(node.isSelected())
                   		{
@@ -866,6 +805,7 @@ public class ContentPane extends Pane
                  		ContentPane.this.getChildren().remove(tempLine);
                  	}
         	   }
+        	   System.out.println("setze wieder cursor auf default");
         	   ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
            }
 
@@ -879,11 +819,49 @@ public class ContentPane extends Pane
      */
     private void removeChangeListenerFromCollectRect(AUIElement node) 
     {
-    	System.out.println(" changeListenerList.get(node).getLeft() " + changeListenerMap.get(node).getLeft());
+    	if(changeListenerMap == null || changeListenerMap.get(node) == null)
+    		return;
     	selectionRect.getGroupedMovementProperties().getLeft().removeListener(changeListenerMap.get(node).getLeft());
 		selectionRect.getGroupedMovementProperties().getRight().removeListener(changeListenerMap.get(node).getRight());
 		changeListenerMap.remove(node);
 	} 
+
+    /**
+     * a ui component is in the area of a user definied frame
+     * @param node
+     */
+	protected void addChangeListenerToCollectRect(AUIElement uiElement) 
+	{
+		if(selectionRect != null && ContentPane.this.getChildren().contains(selectionRect))
+		{
+
+			Point2D movementInitCoords = selectionRect.getMovementStartCoords();
+			uiElement.setGroupedMovementStartCoords(movementInitCoords);
+			ChangeListener<Number> xListener = new ChangeListener<Number>(){
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					uiElement.setGroupedMovementX(selectionRect.getLayoutX());
+				}
+				  
+			  };
+			ChangeListener<Number> yListener = new ChangeListener<Number>(){
+
+					@Override
+					public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+						uiElement.setGroupedMovementY(selectionRect.getLayoutY());
+						
+					}
+					  
+			  };
+			selectionRect.getGroupedMovementProperties().getLeft().addListener(xListener);
+			selectionRect.getGroupedMovementProperties().getRight().addListener(yListener);
+				  
+			//store at map for later remove
+			changeListenerMap.put(uiElement, new GenericPair<ChangeListener, ChangeListener>(xListener, yListener));
+		}
+		
+	}
 
 	private UILineOutputConnector getOutputConnector(Point2D point2d)
 	{

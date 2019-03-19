@@ -18,7 +18,7 @@ import eu.matfx.logic.helper.LocationView;
 
 
 /**
- * 
+ * Abstract logic element with member variable of all extended classes
  * @author m.goerlich
  *
  */
@@ -36,6 +36,9 @@ public abstract class ALogicElement implements Serializable
 	 */
 	private int index = Integer.MIN_VALUE;
 	
+	/**
+	 * class description it's only a helper describe the xml context.
+	 */
 	@XmlElement
 	private String classDescription = this.getClass().getSimpleName();
 
@@ -43,6 +46,10 @@ public abstract class ALogicElement implements Serializable
 	
 	private LocationView locationView = new LocationView(0,0);
 	
+	/**
+	 * return the dimension of the ui component on the screen.
+	 * @return
+	 */
 	public DimensionView getDimensionView() {
 		return dimensionView;
 	}
@@ -55,10 +62,18 @@ public abstract class ALogicElement implements Serializable
 		this.locationView = locationView;
 	}
 
+	/**
+	 * return the location of the ui component on the screen.
+	 * @return
+	 */
 	public LocationView getLocationView() {
 		return locationView;
 	}
 
+	/**
+	 * return the id of the logic element. 
+	 * @return
+	 */
 	public int getIndex() {
 		return index;
 	}

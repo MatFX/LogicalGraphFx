@@ -22,7 +22,7 @@ public class Coordinate
 		
 	}
 	
-
+	
 	public DoubleProperty getX_Property() {
 		return x;
 	}
