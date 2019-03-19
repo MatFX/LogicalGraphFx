@@ -24,34 +24,35 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 	
 	protected ChangeListener<Number> changeListenerInputX, changeListenerInputY;
 	
-	private Rectangle r;
+	
+	
 
 	protected AUIInputOutputElement(T logicElement) {
 		super(logicElement);
 		
-		Rectangle canvas = new Rectangle();
-		canvas.setWidth(150);
-		canvas.setHeight(150);
-		canvas.setArcHeight(15);
-		canvas.setArcWidth(15);
-		canvas.setFill(Color.web("#74aa7400"));
-		DropShadow ds = new DropShadow();
-		ds.setOffsetY(0.1f);
-		ds.setColor(Color.web("#304f30"));
+//		Rectangle canvas = new Rectangle();
+//		canvas.setWidth(150);
+//		canvas.setHeight(150);
+//		canvas.setArcHeight(15);
+//		canvas.setArcWidth(15);
+//		canvas.setFill(Color.web("#74aa7400"));
+//		ds = new DropShadow();
+//		ds.setOffsetY(0.1f);
+//		ds.setColor(Color.web("#304f30"));
 		
 		//circleRight = new CircleComponent(5, 140, 25, Color.web("#304f30"));
 
 	  	circleLeft = new CircleComponent(5, 10, 25, Color.web("#304f30"));
 		
-		r = new Rectangle();
-		r.setX(10);
-	    r.setY(10);
-	    r.setWidth(130);
-	    r.setHeight(130);
-	    r.setArcHeight(15);
-		r.setArcWidth(15);
-	    r.setFill(Color.web("#74aa74"));
-	  	r.setEffect(ds);
+//		r = new Rectangle();
+//		r.setX(10);
+//	    r.setY(10);
+//	    r.setWidth(130);
+//	    r.setHeight(130);
+//	    r.setArcHeight(15);
+//		r.setArcWidth(15);
+//	    r.setFill(Color.web("#74aa74"));
+//	  	r.setEffect(ds);
 	  	
 	    //this.getChildren().addAll(canvas, r, circleRight, circleLeft);
 	    this.getChildren().addAll(circleLeft);
@@ -163,25 +164,6 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 		//this.uiLineOutputConnector = uiLineConnector;
 		
 	}
-	
-	@Override
-	public void changeCollectionColor() {
-		if(this.isCollected)
-		{
-			DropShadow ds = new DropShadow();
-			ds.setOffsetY(1f);
-			ds.setColor(Color.web("#ff3333"));
-		 	r.setEffect(ds);
-		}
-		else
-		{
-			DropShadow ds = new DropShadow();
-			ds.setOffsetY(0.1f);
-			ds.setColor(Color.web("#304f30"));
-		 	r.setEffect(ds);
-		}
-		
-	}
 
 	public boolean isUIInputOccupied()
 	{
@@ -197,8 +179,6 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 		circleLeft.getCenterCoordinate().getY_Property().removeListener(changeListenerInputY);
 		uiLineInputConnector = null;
 	}
-
-
 
 
 }

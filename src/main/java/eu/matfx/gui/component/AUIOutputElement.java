@@ -24,6 +24,9 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	protected ChangeListener<Number> changeListenerOutputX, changeListenerOutputY;
 	
 	protected Rectangle r;
+	
+
+	private DropShadow ds;
 
 	protected AUIOutputElement(T logicElement)
 	{
@@ -36,7 +39,7 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 		canvas.setArcWidth(15);
 		//TODO later with css style sheet
 		canvas.setFill(Color.web("#74aa7400"));
-		DropShadow ds = new DropShadow();
+		ds = new DropShadow();
 		ds.setOffsetY(0.1f);
 		ds.setColor(Color.web("#304f30"));
 		//canvas.setEffect(ds);
@@ -175,20 +178,9 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	@Override
 	public void changeCollectionColor() {
 		if(this.isCollected)
-		{
-			DropShadow ds = new DropShadow();
-			ds.setOffsetY(1.0f);
 			ds.setColor(Color.web("#ff3333"));
-		 	r.setEffect(ds);
-		}
 		else
-		{
-			DropShadow ds = new DropShadow();
-			ds.setOffsetY(0.1f);
 			ds.setColor(Color.web("#304f30"));
-		 	r.setEffect(ds);
-		}
-		
 	}
 
 
@@ -208,4 +200,16 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 		circleRight.getCenterCoordinate().getY_Property().removeListener(changeListenerOutputY);
 		uiLineOutputConnector = null;
 	}
+	
+
+	public void setSelected(boolean isSelected) 
+	{
+		super.setSelected(isSelected);
+		if(this.isSelected || this.isCollected)
+			ds.setColor(Color.web("#ff3333"));
+		else if(!this.isCollected)
+			ds.setColor(Color.web("#304f30"));
+	}
+	
+	
 }

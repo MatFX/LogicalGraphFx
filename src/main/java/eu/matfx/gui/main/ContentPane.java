@@ -2,6 +2,7 @@ package eu.matfx.gui.main;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -70,7 +71,7 @@ public class ContentPane extends Pane
 	 * is filled when with the selectionRect some uiElements grouped and moved.
 	 * <br>Changelistener are connected with x and y from selectionRect
 	 */
-	private List<GenericPair<ChangeListener, ChangeListener>> changeListenerList;
+	private HashMap<AUIElement, GenericPair<ChangeListener, ChangeListener>> changeListenerMap;
 	
 	private Circle startRectangle = new Circle();
 	
@@ -265,6 +266,7 @@ public class ContentPane extends Pane
 	        		case NO_COMMAND:
 	        			
 	        			Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
+	        			System.out.println("getSource " + t.getSource());
 	        			if(t.getSource() instanceof Canvas)
 	        			{
 	        				//ich habe bereits ein rechteck gezeichnet
@@ -287,7 +289,7 @@ public class ContentPane extends Pane
 	        						selectionRect.setStartCoordsMovement(transferCoord);
 	        						
 	        						//need empty list to store the connected changelistener
-	        						changeListenerList = new ArrayList<GenericPair<ChangeListener, ChangeListener>>();
+	        						changeListenerMap = new HashMap<AUIElement, GenericPair<ChangeListener, ChangeListener>>();
 	        						
 	        						
 	        						Point2D movementInitCoords = selectionRect.getMovementStartCoords();
@@ -344,7 +346,7 @@ public class ContentPane extends Pane
 	        										  selectionRect.getGroupedMovementProperties().getRight().addListener(yListener);
 		        										  
 	        										  
-		        									  changeListenerList.add(new GenericPair<ChangeListener, ChangeListener>(xListener, yListener));
+		        									  changeListenerMap.put(uiElement, new GenericPair<ChangeListener, ChangeListener>(xListener, yListener));
 		        									  
 	        										  //change visulization from the element
 	        										  //uiElement.collected(true);
@@ -406,9 +408,16 @@ public class ContentPane extends Pane
 			        		if(node instanceof UILineConnector)
 			        		{
 			        			((UILineConnector)node).setSelected(true);
-			        			
+			        		
 			        		}
-			        		else if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
+			        		else if(node instanceof AUIElement)
+			        		{
+			        			((AUIElement)node).setSelected(true);
+			        		}
+			        		//TODO else if?
+			        		
+			        		
+			        		if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
 			        		{
 			        			Point2D point2D = node.getOutputCenterPoint();
 			        			
@@ -586,6 +595,10 @@ public class ContentPane extends Pane
                 		newTranslateY = ContentPane.this.getHeight() - node.getBoundsInLocal().getHeight();
                     
                     node.moveComponent(newTranslateX, newTranslateY);
+                    
+                    
+                    
+                    
             	}
                	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
                	{
@@ -655,16 +668,16 @@ public class ContentPane extends Pane
             		   if(!isComponentsInRect)
             		   {
             			
-            			   if(changeListenerList != null)
+            			   if(changeListenerMap != null)
             			   {
-            				   for(int i = 0; i < changeListenerList.size(); i++)
-                			   {
-                				   GenericPair<ChangeListener, ChangeListener> temp = changeListenerList.get(i);
-                				   selectionRect.getGroupedMovementProperties().getLeft().removeListener(temp.getLeft());
-                				   selectionRect.getGroupedMovementProperties().getRight().removeListener(temp.getRight());
-                				   
-                			   }
-                			   changeListenerList = new ArrayList<GenericPair<ChangeListener, ChangeListener>>();
+            				   
+            				   for(Entry<AUIElement, GenericPair<ChangeListener, ChangeListener>>  entry : changeListenerMap.entrySet())
+            				   {
+            					   selectionRect.getGroupedMovementProperties().getLeft().removeListener(entry.getValue().getLeft());
+                				   selectionRect.getGroupedMovementProperties().getRight().removeListener(entry.getValue().getRight());
+            					   
+            				   }
+            				   changeListenerMap = new HashMap<AUIElement, GenericPair<ChangeListener, ChangeListener>>();
             			   }
             			   
             			   //sicherheitshalber die uiMap zurücksetzen
@@ -690,13 +703,20 @@ public class ContentPane extends Pane
         	   }
         	   else if(t.getSource() instanceof AUIElement)
         	   {
-
-                  	AUIElement node = (AUIElement) t.getSource();
+        	      	AUIElement node = (AUIElement) t.getSource();
                   	if(node instanceof UILineConnector)
                   	{
                   		UILineConnector uiNode = ((UILineConnector)node);
                   		if(uiNode.isDeletedDesignated())
                   		{
+                  			
+                  			UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(uiNode.getLogicElement().getOutputId());
+                  			//TODO second input?
+                  			UILineInputConnector inputConnector = (UILineInputConnector) getConnector(uiNode.getLogicElement().getInputId());
+                     		
+                  			outputConnector.removeUIOutputConnector();
+                  			inputConnector.removeUIInputConnector();
+                  			
                   			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
                   			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
                   			if(indexFromMap >= 0)
@@ -704,11 +724,56 @@ public class ContentPane extends Pane
                   			
                   			deleteUINodeFromView(indexFromMap);
                   		
+                  			//TODO delete the connection to the ofter nodes
                   		}
                   		else
                   		{
                   			uiNode.setSelected(false);
                   		}
+                  	}
+                  	//release the colored frame and the select flag
+                  	else if(ContentPane.this.getScene().getCursor() == Cursor.MOVE)
+                  	{
+                  		
+                  		//when node is moved from a collected frame
+                  		if(node.isCollected())
+                  		{
+                  			//it must be checked that the movement goes outside the definied frame
+                  			//TODO w und h flexible?
+                  			Bounds uiBounds = new BoundingBox(node.getTranslateX(), node.getTranslateY(), 150D, 150D);
+                  			
+                  			if(selectionRect != null && ContentPane.this.getChildren().contains(selectionRect))
+                  			{
+                  				Bounds boundsSelectionRect = new BoundingBox(selectionRect.getLayoutX(), selectionRect.getLayoutY(), selectionRect.getWidth(), selectionRect.getHeight());
+    	        				if(!UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
+                      			{
+                      			  //out of the shape, than reset flag value
+                      			  node.collected(false);
+                      			  System.out.println("remove from map");
+                      			  removeChangeListenerFromCollectRect(node);
+                      			  
+                      			}
+    	        				else
+    	        					node.collected(true);
+                  			}
+                  			//no selection rect ...reset flag
+                  			else
+                  			{
+                  				node.collected(false);
+                  				System.out.println("remove from map 2");
+                  			 	removeChangeListenerFromCollectRect(node);
+                  			}
+                  		}
+                  		
+                  		
+                  		
+                  		
+                  		System.out.println("move and released node selected " +node.isSelected());
+                  		if(node.isSelected())
+                  		{
+                  			node.setSelected(false);
+                  		}
+                  		
                   	}
                   	else if(ContentPane.this.getScene().getCursor() == Cursor.HAND)
                   	{
@@ -716,9 +781,7 @@ public class ContentPane extends Pane
                   		//decision to draw the real line or remove the temp line           		
                   		PickResult pickResult = t.getPickResult();
                   		
-                 		//List<Node> = ContentPane.this.getChildren().size();
-                 		//Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
-                 		Point2D sceneCoords = new Point2D(t.getSceneX(), t.getSceneY());
+                  		Point2D sceneCoords = new Point2D(t.getSceneX(), t.getSceneY());
                   		
                  		boolean found = false;
                  		GenericPair<Boolean, AUIElement> pair = new GenericPair<Boolean, AUIElement>(false, (AUIElement)null);
@@ -781,17 +844,14 @@ public class ContentPane extends Pane
                  				//fill now the id to the logic elements
                  				AOutputElement outputElement = (AOutputElement) ((AUIElement)outputConnector).getLogicElement();
                  				lineConnector.setMasteridOutput(outputElement.getIndex());
-                 				System.out.println(" index " + outputElement.getIndex() + " " + outputElement.getClass().toString());
                  				
                  				AInputOutputElement inAndOutElement = (AInputOutputElement) ((AUIElement)inputConnector).getLogicElement();
                  				lineConnector.setMasteridInput(inAndOutElement.getIndex());
-                 				System.out.println(" index " + inAndOutElement.getIndex() + " " + inAndOutElement.getClass().toString());
                  			}
                  			
                  			
                  			if(!lineConnector.isOutputEmpty() && !lineConnector.isInputEmpty())
                  			{
-                 				System.out.println("setze die linie");
                  				outputConnector.setUIOutputConnector(newLine);
                  				inputConnector.setUIInputConnector(newLine);
                  			}
@@ -809,12 +869,24 @@ public class ContentPane extends Pane
         	   ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
            }
 
+		
+
        };
        
+    /**
+     * needed, when a component removed from a user definied frame on screeen
+     * @param node
+     */
+    private void removeChangeListenerFromCollectRect(AUIElement node) 
+    {
+    	System.out.println(" changeListenerList.get(node).getLeft() " + changeListenerMap.get(node).getLeft());
+    	selectionRect.getGroupedMovementProperties().getLeft().removeListener(changeListenerMap.get(node).getLeft());
+		selectionRect.getGroupedMovementProperties().getRight().removeListener(changeListenerMap.get(node).getRight());
+		changeListenerMap.remove(node);
+	} 
 
 	private UILineOutputConnector getOutputConnector(Point2D point2d)
 	{
-		System.out.println("OUT " + point2d);
 		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
 		{
 			if(entry.getValue() instanceof UILineOutputConnector)
@@ -861,10 +933,11 @@ public class ContentPane extends Pane
     	Scheme schemeObject  = 
     			SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
     	
+    	//TODO raus
     	SortedMap<Integer, ALogicElement> schemeMap = schemeObject.getWorkflowMap();
     	for(Entry<Integer, ALogicElement> entry : schemeMap.entrySet())
     	{
-    		System.out.println("entry " + entry.getValue().getIndex() +  " " + entry.getKey());
+    		//System.out.println("entry " + entry.getValue().getIndex() +  " " + entry.getKey());
     	}
     	
     	
@@ -875,9 +948,6 @@ public class ContentPane extends Pane
    		//TODO können Lücken vorkommen? Eigentlich nicht weil es in schemedata schon restrukturiert wird.
    		for(Entry<Integer, AUIElement> entry : restructMap.entrySet())
    		{
-   			System.out.println("entry " + entry.getValue().getLogicElement().getIndex());
-   			System.out.println("index " + startIndex);
-   			
    			newMap.put(startIndex, entry.getValue());
    			startIndex++;
    		}

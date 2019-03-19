@@ -125,6 +125,15 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	 * the different uiElement have different colors?
 	 */
 	public abstract void changeCollectionColor();
+	
+	/**
+	 * is collected when component is in the area of a user definied frame
+	 * @return
+	 */
+	public boolean isCollected()
+	{
+		return this.isCollected;
+	}
 
 	/**
 	 * caculate the range from selected rectangle to this x and y axis
