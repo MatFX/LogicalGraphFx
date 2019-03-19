@@ -224,25 +224,11 @@ public class ContentPane extends Pane
 	{
 		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
     	
-		/* TODO raus
-		for(Entry<Integer, ALogicElement> entry : schemeObject.getWorkflowMap().entrySet())
-		{
-			System.out.println("key " +entry.getKey() + "entry " + entry.getValue().getIndex());
-		}*/
-		
-		
-		
-		
-		
 		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
 		{
-			//System.out.println("gesucht " + inputId.getLeft());
-			//System.out.println("geCon   " + entry.getValue().getLogicElement().getIndex());
-			
 			if(entry.getValue().getLogicElement().getIndex() == inputId.getLeft()
 					&& (entry.getValue() instanceof UILineOutputConnector || entry.getValue() instanceof UILineInputConnector))
 			{
-			//	System.out.println("------------------gefunden");
 				return entry.getValue();
 			}
 			
@@ -314,9 +300,8 @@ public class ContentPane extends Pane
 	        						startRectangle.setFill(Color.BROWN);
 	        						startRectangle.setCenterX(	selectionRect.getLayoutX());
 	        						startRectangle.setCenterY( 	selectionRect.getLayoutY());
+	        					
 	        						
-	        						System.out.println("start X "+ selectionRect.getLayoutX() + " start Y " + selectionRect.getLayoutY());
-	        						System.out.println("init X "+ movementInitCoords.getX() + " start Y " + movementInitCoords.getY());
 	        						//find the components and connect the visulisation
 	        						
 	        						for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
@@ -332,8 +317,6 @@ public class ContentPane extends Pane
 	        									  //TODO change width and height from component
 	        									  Bounds uiBounds = new BoundingBox(uiElement.getTranslateX(), uiElement.getTranslateY(), 150D, 150D);
 	        									 
-	        									  System.out.println("uiBounds " + uiBounds.getMinX() + " y " + uiBounds.getMinY());
-	        									  System.out.println("uiBounds nest  " + uiElement.getLayoutY() + " y " + uiElement.getLayoutY());
 	        									  if(UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
 	        									  {
 	        										  //calculate the x/y from uielement to x/y to rectangle
@@ -431,7 +414,7 @@ public class ContentPane extends Pane
 			        			
 			        			//Abmaße der ContentPane die bei der Startkoordinate berücksichtigt werden müssen.
 				        		Bounds conBounds = ContentPane.this.localToScene(ContentPane.this.getLayoutBounds());
-				        		ContentPane.this.getScene().setCursor(Cursor.HAND);
+				        		
 				        		statusText.set("OutputArea erkannt");
 				        		
 				        		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
@@ -440,22 +423,30 @@ public class ContentPane extends Pane
 				        		System.out.println("node " + node.getClass().toString());
 				        		//is the output channel occupied
 				        		
-				        		
-				        		
-				        		int startIndex = schemeObject.getIndexFromLogicElement(node.getLogicElement());
-				        		if(startIndex >= 0)
+				        		if(node instanceof UILineOutputConnector)
 				        		{
-				        			//build a temp line
-					        		tempLine = new TempLine(startIndex);
-					        		tempLine.setStrokeWidth(3);
-					        		tempLine.setStroke(Color.BLUE);
-					        		tempLine.setStartX(node.getOutputCenterCoordinate().getX());
-					        		tempLine.setStartY(node.getOutputCenterCoordinate().getY());
-					        		tempLine.setEndX(node.getOutputCenterCoordinate().getX());
-					        		tempLine.setEndY(node.getOutputCenterCoordinate().getY());
-					        		ContentPane.this.getChildren().add(tempLine);
-					        	}
-				        	
+				        			//check the output connection
+				        			UILineOutputConnector outputConnector = (UILineOutputConnector)node;
+					        		if(!outputConnector.isUIOutputOccupied())
+				        			{
+						        		int startIndex = schemeObject.getIndexFromLogicElement(node.getLogicElement());
+						        		if(startIndex >= 0)
+						        		{
+						        			//build a temp line
+							        		tempLine = new TempLine(startIndex);
+							        		tempLine.setStrokeWidth(3);
+							        		tempLine.setStroke(Color.BLUE);
+							        		tempLine.setStartX(node.getOutputCenterCoordinate().getX());
+							        		tempLine.setStartY(node.getOutputCenterCoordinate().getY());
+							        		tempLine.setEndX(node.getOutputCenterCoordinate().getX());
+							        		tempLine.setEndY(node.getOutputCenterCoordinate().getY());
+							        		ContentPane.this.getChildren().add(tempLine);
+							        		//ok signal flag for the other listener
+							        		ContentPane.this.getScene().setCursor(Cursor.HAND);
+							        	}
+				        			}
+				        		}
+				        		
 			        		}
 			        		else if(node.isMovePossible(t))
 			        		{
@@ -743,19 +734,15 @@ public class ContentPane extends Pane
                  				UILineInputConnector uiLIneInputConnector = (UILineInputConnector)uiNode;
                  				IConnectorArea iConnectorArea = (IConnectorArea)uiNode;
                  			
-                 				//TODO 
-                 				if(iConnectorArea.isInputArea(sceneCoords))
+                 				if(iConnectorArea.isInputArea(sceneCoords) && !uiLIneInputConnector.isUIInputOccupied())
                  				{
-                 					
-                 					//pair.setLeft(true);
                  					Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
                  					int index = schemeObject.getIndexFromLogicElement(((AUIElement) uiNode).getLogicElement());
                  					if(index >= 0)
                  					{
                  						tempLine.setInputIndex(index);
                  						found = true;
-                     					//pair.setRight((AUIElement) uiNode);
-                 					}
+                     				}
                  					break;
                  				}
                  			
