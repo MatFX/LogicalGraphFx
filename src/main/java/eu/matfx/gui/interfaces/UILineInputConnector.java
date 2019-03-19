@@ -7,4 +7,7 @@ public interface UILineInputConnector
 	
 	public void setUIInputConnector(UILineConnector uiLineConnector);
 
+	public boolean isUIInputOccupied();
+	
+	public void removeUIInputConnector();
 }

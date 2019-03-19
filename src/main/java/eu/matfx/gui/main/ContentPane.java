@@ -224,10 +224,11 @@ public class ContentPane extends Pane
 	{
 		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
     	
+		/* TODO raus
 		for(Entry<Integer, ALogicElement> entry : schemeObject.getWorkflowMap().entrySet())
 		{
 			System.out.println("key " +entry.getKey() + "entry " + entry.getValue().getIndex());
-		}
+		}*/
 		
 		
 		
@@ -235,13 +236,13 @@ public class ContentPane extends Pane
 		
 		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
 		{
-			System.out.println("gesucht " + inputId.getLeft());
-			System.out.println("geCon   " + entry.getValue().getLogicElement().getIndex());
+			//System.out.println("gesucht " + inputId.getLeft());
+			//System.out.println("geCon   " + entry.getValue().getLogicElement().getIndex());
 			
 			if(entry.getValue().getLogicElement().getIndex() == inputId.getLeft()
 					&& (entry.getValue() instanceof UILineOutputConnector || entry.getValue() instanceof UILineInputConnector))
 			{
-				System.out.println("------------------gefunden");
+			//	System.out.println("------------------gefunden");
 				return entry.getValue();
 			}
 			
@@ -434,6 +435,12 @@ public class ContentPane extends Pane
 				        		statusText.set("OutputArea erkannt");
 				        		
 				        		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+				        		
+				        		System.out.println("node " + node.getLogicElement());
+				        		System.out.println("node " + node.getClass().toString());
+				        		//is the output channel occupied
+				        		
+				        		
 				        		
 				        		int startIndex = schemeObject.getIndexFromLogicElement(node.getLogicElement());
 				        		if(startIndex >= 0)
@@ -783,17 +790,21 @@ public class ContentPane extends Pane
                  			UILineInputConnector inputConnector = (UILineInputConnector) getConnector((new GenericPair<Integer, Integer>(tempLine.getInputIndex(), 0)));
                  			if(outputConnector != null && inputConnector != null)
                  			{
+                 				
                  				//fill now the id to the logic elements
                  				AOutputElement outputElement = (AOutputElement) ((AUIElement)outputConnector).getLogicElement();
                  				lineConnector.setMasteridOutput(outputElement.getIndex());
+                 				System.out.println(" index " + outputElement.getIndex() + " " + outputElement.getClass().toString());
                  				
                  				AInputOutputElement inAndOutElement = (AInputOutputElement) ((AUIElement)inputConnector).getLogicElement();
                  				lineConnector.setMasteridInput(inAndOutElement.getIndex());
+                 				System.out.println(" index " + inAndOutElement.getIndex() + " " + inAndOutElement.getClass().toString());
                  			}
                  			
                  			
                  			if(!lineConnector.isOutputEmpty() && !lineConnector.isInputEmpty())
                  			{
+                 				System.out.println("setze die linie");
                  				outputConnector.setUIOutputConnector(newLine);
                  				inputConnector.setUIInputConnector(newLine);
                  			}

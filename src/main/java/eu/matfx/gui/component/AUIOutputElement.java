@@ -21,6 +21,8 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	 */
 	protected UILineConnector uiLineOutputConnector;
 	
+	protected ChangeListener<Number> changeListenerOutputX, changeListenerOutputY;
+	
 	protected Rectangle r;
 
 	protected AUIOutputElement(T logicElement)
@@ -121,28 +123,37 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	{
 		if(uiLineConnector != null)
 		{	
-			//TODO i dont know	
 			this.uiLineOutputConnector = uiLineConnector;
 			
-			uiLineConnector.setOutputX(circleRight.getCenterCoordinate().getX());
-			uiLineConnector.setOutputY(circleRight.getCenterCoordinate().getY());
-			circleRight.getCenterCoordinate().getX_Property().addListener(new ChangeListener<Number>(){
+			uiLineOutputConnector.setOutputX(circleRight.getCenterCoordinate().getX());
+			uiLineOutputConnector.setOutputY(circleRight.getCenterCoordinate().getY());
+			
+			changeListenerOutputX = new ChangeListener<Number>(){
 
 				@Override
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					uiLineConnector.setOutputX(newValue.doubleValue());
+					uiLineOutputConnector.setOutputX(newValue.doubleValue());
 					
 				}
 				
-			});
+			};
 			
-			circleRight.getCenterCoordinate().getY_Property().addListener(new ChangeListener<Number>(){
+			
+			
+			circleRight.getCenterCoordinate().getX_Property().addListener(changeListenerOutputX);
+			
+			
+			changeListenerOutputY = new ChangeListener<Number>(){
 
 				@Override
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					uiLineConnector.setOutputY(newValue.doubleValue());
+					uiLineOutputConnector.setOutputY(newValue.doubleValue());
 				}
-			});
+			};
+			
+			
+			
+			circleRight.getCenterCoordinate().getY_Property().addListener(changeListenerOutputY);
 			
 			//init of the outputconnector
 			
@@ -181,5 +192,20 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	}
 
 
+	@Override
+	public boolean isUIOutputOccupied() 
+	{
+		if(uiLineOutputConnector != null)
+			return true;
+		else
+			return false;
+	}
 
+	@Override
+	public void removeUIOutputConnector() 
+	{
+		circleRight.getCenterCoordinate().getX_Property().removeListener(changeListenerOutputX);
+		circleRight.getCenterCoordinate().getY_Property().removeListener(changeListenerOutputY);
+		uiLineOutputConnector = null;
+	}
 }

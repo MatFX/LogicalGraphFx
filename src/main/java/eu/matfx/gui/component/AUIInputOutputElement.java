@@ -15,19 +15,14 @@ import javafx.scene.shape.Rectangle;
 //extends from abstract output
 public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUIOutputElement<T> implements UILineInputConnector
 {
-	//private CircleComponent circleRight;
-	
 	private CircleComponent circleLeft;
 	
 	/**
 	 * uiLineConnector; when component is moving give coords to the connector.
 	 */
-	//private UILineConnector uiLineOutputConnector;
-	
-	/**
-	 * uiLineConnector; when component is moving give coords to the connector.
-	 */
 	private UILineConnector uiLineInputConnector;
+	
+	protected ChangeListener<Number> changeListenerInputX, changeListenerInputY;
 	
 	private Rectangle r;
 
@@ -118,42 +113,44 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 	}
 	
 	@Override
-	public void setUIOutputConnector(UILineConnector uiLineConnector) {
-		this.uiLineInputConnector = uiLineConnector;
-		
-	}
-
-	@Override
 	public void setUIInputConnector(UILineConnector uiLineConnector) {
 		
 		
 		if(uiLineConnector != null)
 		{	
-			//TODO i dont know	
-			this.uiLineOutputConnector = uiLineConnector;
+			this.uiLineInputConnector = uiLineConnector;
 			
 
-			uiLineConnector.setInputX(circleLeft.getCenterCoordinate().getX());
-			uiLineConnector.setInputY(circleLeft.getCenterCoordinate().getY());
-			circleLeft.getCenterCoordinate().getX_Property().addListener(new ChangeListener<Number>(){
+			uiLineInputConnector.setInputX(circleLeft.getCenterCoordinate().getX());
+			uiLineInputConnector.setInputY(circleLeft.getCenterCoordinate().getY());
+			
+			changeListenerInputX = new ChangeListener<Number>(){
 
 				@Override
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					uiLineConnector.setInputX(newValue.doubleValue());
+					uiLineInputConnector.setInputX(newValue.doubleValue());
 					
 				}
 				
-			});
+			};
 			
-			circleLeft.getCenterCoordinate().getY_Property().addListener(new ChangeListener<Number>(){
+			
+			
+			
+			circleLeft.getCenterCoordinate().getX_Property().addListener(changeListenerInputX);
+			
+			
+			changeListenerInputY = new ChangeListener<Number>(){
 
 				@Override
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					uiLineConnector.setInputY(newValue.doubleValue());
+					uiLineInputConnector.setInputY(newValue.doubleValue());
 					
 				}
 				
-			});
+			};
+			
+			circleLeft.getCenterCoordinate().getY_Property().addListener(changeListenerInputY);
 		}
 		else
 		{
@@ -185,6 +182,22 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 		}
 		
 	}
+
+	public boolean isUIInputOccupied()
+	{
+		if(uiLineInputConnector != null)
+			return true;
+		else
+			return false;
+	}
+	
+	public void removeUIInputConnector()
+	{
+		circleLeft.getCenterCoordinate().getX_Property().removeListener(changeListenerInputX);
+		circleLeft.getCenterCoordinate().getY_Property().removeListener(changeListenerInputY);
+		uiLineInputConnector = null;
+	}
+
 
 
 
