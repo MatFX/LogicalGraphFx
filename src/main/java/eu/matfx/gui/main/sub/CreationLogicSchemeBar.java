@@ -175,8 +175,9 @@ public class CreationLogicSchemeBar extends HBox
 		command.set(ECommand.DELETE_ACTIVE_SCHEME);
 	}
 
-	protected void saveScheme() {
-		// TODO Auto-generated method stub
+	protected void saveScheme() 
+	{
+		command.set(ECommand.SAVE_ACTIVE_SCHEME);
 		
 	}
 

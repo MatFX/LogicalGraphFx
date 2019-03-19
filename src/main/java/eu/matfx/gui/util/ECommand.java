@@ -29,6 +29,11 @@ public enum ECommand
 	DELETED_SCHEME,
 	
 	/**
+	 * Save active scheme
+	 */
+	SAVE_ACTIVE_SCHEME,
+	
+	/**
 	 * remark, that a active scheme on the main pane.
 	 */
 	ACTIVATED_SCHEME,

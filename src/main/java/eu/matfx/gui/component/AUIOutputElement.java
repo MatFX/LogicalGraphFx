@@ -5,6 +5,8 @@ import eu.matfx.gui.component.parts.CircleComponent;
 import eu.matfx.gui.helper.Coordinate;
 import eu.matfx.gui.interfaces.UILineOutputConnector;
 import eu.matfx.logic.data.ALogicElement;
+import eu.matfx.logic.helper.DimensionView;
+import eu.matfx.logic.helper.LocationView;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
@@ -209,6 +211,15 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 			ds.setColor(Color.web("#ff3333"));
 		else if(!this.isCollected)
 			ds.setColor(Color.web("#304f30"));
+	}
+	
+
+	@Override
+	public void saveVariables() 
+	{
+		this.getLogicElement().setLocationView(new LocationView(this.getTranslateX(), this.getTranslateY()));
+		this.getLogicElement().setDimensionView(new DimensionView(this.getLayoutBounds().getWidth(), this.getLayoutBounds().getHeight()));
+		
 	}
 	
 	

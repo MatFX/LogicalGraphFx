@@ -3,10 +3,13 @@ package eu.matfx.gui.component.impl;
 import eu.matfx.gui.component.AUIElement;
 import eu.matfx.gui.helper.Coordinate;
 import eu.matfx.logic.data.impl.LineConnector;
+import eu.matfx.logic.helper.DimensionView;
+import eu.matfx.logic.helper.LocationView;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
@@ -336,5 +339,20 @@ public class UILineConnector extends AUIElement<LineConnector>
 		//not to use
 	}
 
+	@Override
+
+	
+	public void saveVariables()
+	{
+		//not to use
+		//Bounds bounds = this.getLayoutBounds();
+
+		//		System.out.println("bounds " + bounds);
+//		System.out.println(" " + this.getLayoutX() + " this " + this.getLayoutX());
+//		System.out.println(" " + this.getTranslateX() + " this " + this.getTranslateY());
+		
+		//this.getLogicElement().setLocationView(new LocationView(bounds.getMinX(), bounds.getMinY()));
+		//this.getLogicElement().setDimensionView(new DimensionView(bounds.getMaxX()- bounds.getMinX(), bounds.getMaxY() - bounds.getMaxY()));
+	}
 
 }

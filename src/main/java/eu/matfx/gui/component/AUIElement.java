@@ -5,6 +5,9 @@ import eu.matfx.gui.interfaces.IConnectorArea;
 import eu.matfx.gui.interfaces.IMoveComponent;
 import eu.matfx.gui.util.Tools;
 import eu.matfx.logic.data.ALogicElement;
+import eu.matfx.logic.helper.DimensionView;
+import eu.matfx.logic.helper.LocationView;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
@@ -158,5 +161,8 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 		this.setTranslateY(changedRectangleStartY + movementCoords.getY());
 		this.recalcualteCenterPoint();
 	}
+	
+	public abstract void saveVariables();
+	
 
 }

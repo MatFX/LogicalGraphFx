@@ -25,6 +25,7 @@ import eu.matfx.logic.data.ALogicElement;
 import eu.matfx.logic.data.AOutputElement;
 import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.database.SchemeDataStorage;
+import eu.matfx.logic.database.XMLAccess;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -108,7 +109,16 @@ public class ContentPane extends Pane
 			@Override
 			public void changed(ObservableValue<? extends ECommand> observable, ECommand oldValue, ECommand newValue) 
 			{
-				//TODO
+				System.out.println("COMMAND Listener " + newValue);
+				switch(newValue)
+				{
+					case SAVE_ACTIVE_SCHEME:
+						saveActiveScheme();
+						
+						
+						break;
+				
+				}
 			}
 			
 		});
@@ -144,11 +154,8 @@ public class ContentPane extends Pane
 					default:
 						break;
 				}
-				
-				
 			}
-			
-		} );
+		});
 		
 		
 		this.statusText = statusText;
@@ -182,6 +189,24 @@ public class ContentPane extends Pane
 			//put scheme on screen
 			rebuildView();
 		}
+	}
+
+	/**
+	 * save the activate scheme from the view
+	 */
+	protected void saveActiveScheme() 
+	{
+		//iterate through the ui map and update the logicelements with coords
+		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry :  uiMap.entrySet())
+		{
+			entry.getValue().saveVariables();
+		}
+		
+		XMLAccess.writeObjectToFile(SchemeDataStorage.getSchemeList());
+		
+		
+		//write the details in the xml file
+		
 	}
 
 	/**
@@ -302,7 +327,7 @@ public class ContentPane extends Pane
 						ContentPane.this.getChildren().add(createdElement);
 						
 						//TODO positioning 
-						createdElement.moveComponent(1, 1);
+						createdElement.moveComponent(aLogicElement.getLocationView().getX(), aLogicElement.getLocationView().getY());
 						createdElement.recalcualteCenterPoint();
 						
 						addMouseListener(createdElement);
@@ -828,7 +853,6 @@ public class ContentPane extends Pane
                   				node.collected(false);
                   				removeChangeListenerFromCollectRect(node);
                   			}
-                  		System.out.println("move and released node selected " +node.isSelected());
                   		if(node.isSelected())
                   		{
                   			node.setSelected(false);
@@ -924,7 +948,6 @@ public class ContentPane extends Pane
                  		ContentPane.this.getChildren().remove(tempLine);
                  	}
         	   }
-        	   System.out.println("setze wieder cursor auf default");
         	   ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
            }
 
