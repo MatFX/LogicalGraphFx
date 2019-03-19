@@ -1,11 +1,10 @@
 package eu.matfx.gui.component;
 
-import eu.matfx.gui.helper.GenericPair;
+
 import eu.matfx.gui.interfaces.IConnectorArea;
 import eu.matfx.gui.interfaces.IMoveComponent;
 import eu.matfx.gui.util.Tools;
 import eu.matfx.logic.data.ALogicElement;
-import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;

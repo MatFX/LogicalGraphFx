@@ -222,13 +222,28 @@ public class ContentPane extends Pane
 	
 	private AUIElement getConnector(GenericPair<Integer, Integer> inputId) 
 	{
+		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+    	
+		for(Entry<Integer, ALogicElement> entry : schemeObject.getWorkflowMap().entrySet())
+		{
+			System.out.println("key " +entry.getKey() + "entry " + entry.getValue().getIndex());
+		}
+		
+		
+		
+		
+		
 		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
 		{
-			System.out.println("element? " + entry.getValue().getLogicElement());
-			System.out.println("element? " + entry.getValue().getLogicElement().getIndex());
+			System.out.println("gesucht " + inputId.getLeft());
+			System.out.println("geCon   " + entry.getValue().getLogicElement().getIndex());
+			
 			if(entry.getValue().getLogicElement().getIndex() == inputId.getLeft()
 					&& (entry.getValue() instanceof UILineOutputConnector || entry.getValue() instanceof UILineInputConnector))
+			{
+				System.out.println("------------------gefunden");
 				return entry.getValue();
+			}
 			
 		}
 		return null;
@@ -688,7 +703,7 @@ public class ContentPane extends Pane
                   			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
                   			if(indexFromMap >= 0)
                   				schemeObject.deleteElementMap(indexFromMap);
-                  		
+                  			
                   			deleteUINodeFromView(indexFromMap);
                   		
                   		}
@@ -750,16 +765,11 @@ public class ContentPane extends Pane
                  			
                  			
                  			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-                 			schemeObject.putElementAtMap(tempLine.getInputIndex(), new LineConnector());
+                 			LineConnector lineConnector = new LineConnector();
+                 			//add a new connector to the logical map; with the add the line will get the new index
+                 			schemeObject.addElementAtMap(lineConnector);
                  			
-                 			//TODO umsortierung der ui map!!!
-                 			
-                 			
-                 			//remove from the view
-                 			
-                 			//new concrete line on view  
-                 			
-                 			UILineConnector newLine = new UILineConnector((LineConnector) schemeObject.getWorkflowMap().get(tempLine.getInputIndex()));
+                 			UILineConnector newLine = new UILineConnector((LineConnector) schemeObject.getWorkflowMap().get(lineConnector.getIndex()));
                  			
                  			newLine.setOutputX(tempLine.getStartX());
                  			newLine.setOutputY(tempLine.getStartY());
@@ -767,7 +777,7 @@ public class ContentPane extends Pane
                  			newLine.setInputX(tempLine.getEndX());
                  			newLine.setInputY(tempLine.getEndY());
                  			
-                 			putUINodeAtMap(tempLine.getInputIndex(), newLine);
+                 			putUINodeAtMap(lineConnector.getIndex(), newLine);
                  			
                  			System.out.println("index von " + tempLine.getOutputIndex() + " : " + tempLine.getInputIndex());
                  			
@@ -786,8 +796,6 @@ public class ContentPane extends Pane
                  			if(outputConnector != null && inputConnector != null)
                  			{
                  				//fill now the id to the logic elements
-                 				LineConnector lineConnector = newLine.getLogicElement();
-                 				
                  				AOutputElement outputElement = (AOutputElement) ((AUIElement)outputConnector).getLogicElement();
                  				lineConnector.setMasteridOutput(outputElement.getIndex());
                  				
@@ -796,36 +804,11 @@ public class ContentPane extends Pane
                  			}
                  			
                  			
-                 			
-                 			LineConnector lineConnector = newLine.getLogicElement();
-                 			//fill the lineConnector values
-                 			
                  			if(!lineConnector.isOutputEmpty() && !lineConnector.isInputEmpty())
                  			{
-                 				//find the output connector
-                 				//UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(lineConnector.getOutputId());
-                 				//UILineInputConnector inputConnector = (UILineInputConnector) getConnector(lineConnector.getInputId());
                  				outputConnector.setUIOutputConnector(newLine);
                  				inputConnector.setUIInputConnector(newLine);
                  			}
-                 			else
-                 				System.out.println("immer noch leer");
-                 			
-                 			
-
-                 			/* TODO raus
-	       					if(uiMap.get(uiMap.lowerKey(tempLine.getInputIndex())) instanceof UILineOutputConnector)
-	       					{
-	       						((UILineOutputConnector)uiMap.get(uiMap.lowerKey(tempLine.getInputIndex()))).setUIOutputConnector(newLine);
-	       					}
-	       					
-	       					if(uiMap.get(uiMap.higherKey(tempLine.getInputIndex())) instanceof UILineInputConnector)
-	       					{
-	       						((UILineInputConnector)uiMap.get(uiMap.higherKey(tempLine.getInputIndex()))).setUIInputConnector(newLine);
-	       					}*/
-                 			
-                 			
-                 			
                  			
 	       					addMouseListener(newLine);
 	       					//add to content
@@ -887,12 +870,28 @@ public class ContentPane extends Pane
        
     private TreeMap<Integer, AUIElement> restructureMap(TreeMap<Integer, AUIElement> restructMap) 
    	{
+    	
+    	
+    	Scheme schemeObject  = 
+    			SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+    	
+    	SortedMap<Integer, ALogicElement> schemeMap = schemeObject.getWorkflowMap();
+    	for(Entry<Integer, ALogicElement> entry : schemeMap.entrySet())
+    	{
+    		System.out.println("entry " + entry.getValue().getIndex() +  " " + entry.getKey());
+    	}
+    	
+    	
    		TreeMap<Integer, AUIElement> newMap = new TreeMap<Integer, AUIElement>();
    		
    		int startIndex = 0; 
    		
+   		//TODO können Lücken vorkommen? Eigentlich nicht weil es in schemedata schon restrukturiert wird.
    		for(Entry<Integer, AUIElement> entry : restructMap.entrySet())
    		{
+   			System.out.println("entry " + entry.getValue().getLogicElement().getIndex());
+   			System.out.println("index " + startIndex);
+   			
    			newMap.put(startIndex, entry.getValue());
    			startIndex++;
    		}

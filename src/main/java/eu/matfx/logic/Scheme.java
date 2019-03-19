@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlType;
 
 
 import eu.matfx.logic.data.ALogicElement;
+import eu.matfx.logic.data.impl.LineConnector;
 
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -66,10 +67,40 @@ public class Scheme implements Serializable {
 		
 		for(Entry<Integer, ALogicElement> entry : restructMap.entrySet())
 		{
+			//startindex ist different from the logic index
+			if(startIndex != entry.getValue().getIndex())
+			{
+				int oldIndex = entry.getValue().getIndex();
+				//check the line element, if line element has the index in input or output it must be changed
+				checkLineElementsInOutIndex(oldIndex, startIndex);
+				//set new index
+				entry.getValue().setIndex(startIndex);
+			}
 			newMap.put(startIndex, entry.getValue());
 			startIndex++;
 		}
 		return newMap;
+	}
+
+	private void checkLineElementsInOutIndex(int oldIndex, int newIndex)
+	{
+		for(Entry<Integer, ALogicElement> entry : workflowMap.entrySet())
+		{
+			if(entry.getValue() instanceof LineConnector)
+			{
+				
+				LineConnector lineConnector = (LineConnector) entry.getValue();
+				if(!lineConnector.isOutputEmpty() && lineConnector.isMasterIdOutput(oldIndex))
+				{
+					lineConnector.setMasteridOutput(newIndex);
+				}
+				
+				if(!lineConnector.isInputEmpty() && lineConnector.isMasterIdInput(oldIndex))
+				{
+					lineConnector.setMasteridInput(newIndex);
+				}
+			}
+		}
 	}
 
 	/**

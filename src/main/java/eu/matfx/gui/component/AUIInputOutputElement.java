@@ -4,7 +4,6 @@ import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.component.parts.CircleComponent;
 import eu.matfx.gui.helper.Coordinate;
 import eu.matfx.gui.interfaces.UILineInputConnector;
-import eu.matfx.gui.interfaces.UILineOutputConnector;
 import eu.matfx.logic.data.ALogicElement;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
