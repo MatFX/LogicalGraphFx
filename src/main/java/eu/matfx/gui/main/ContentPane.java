@@ -735,8 +735,6 @@ public class ContentPane extends Pane
                  			{
                  				UILineInputConnector uiLIneInputConnector = (UILineInputConnector)uiNode;
                  				IConnectorArea iConnectorArea = (IConnectorArea)uiNode;
-                 				System.out.println("uiLIneInputConnector " + uiLIneInputConnector.getClass());
-                 				System.out.println("isInInput            " + iConnectorArea.isInputArea(sceneCoords));
                  			
                  				//TODO 
                  				if(iConnectorArea.isInputArea(sceneCoords))
@@ -761,9 +759,6 @@ public class ContentPane extends Pane
                  		{
                  			//build new uiLine/logicline
                  			
-                 			System.out.println("tempLine " + tempLine.getOutputIndex() + " " + tempLine.getInputIndex());
-                 			
-                 			
                  			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
                  			LineConnector lineConnector = new LineConnector();
                  			//add a new connector to the logical map; with the add the line will get the new index
@@ -779,8 +774,6 @@ public class ContentPane extends Pane
                  			
                  			putUINodeAtMap(lineConnector.getIndex(), newLine);
                  			
-                 			System.out.println("index von " + tempLine.getOutputIndex() + " : " + tempLine.getInputIndex());
-                 			
                  			//connect the coordinates from the new line with the input and output ui component
                  			//no question about the pickup of the value 
                  			
@@ -788,11 +781,6 @@ public class ContentPane extends Pane
                  			UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(new GenericPair<Integer, Integer>(tempLine.getOutputIndex(), 0));
                  			
                  			UILineInputConnector inputConnector = (UILineInputConnector) getConnector((new GenericPair<Integer, Integer>(tempLine.getInputIndex(), 0)));
-                 		
-                 			//line need always a start and a end 
-                 			System.out.println("outputConnector " + outputConnector);
-                 			System.out.println("inputConnector " + inputConnector);
-                 			
                  			if(outputConnector != null && inputConnector != null)
                  			{
                  				//fill now the id to the logic elements
