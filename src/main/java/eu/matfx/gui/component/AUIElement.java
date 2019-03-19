@@ -79,7 +79,9 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	}
 	
 	
-	public static AUIElement getInstance(ALogicElement aLogicElement)
+	
+	@SuppressWarnings("unchecked")
+	public static AUIElement<? extends ALogicElement> getInstance(ALogicElement aLogicElement)
 	{
 		
 		
@@ -88,11 +90,11 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 		argument[0] = aLogicElement.getClass();
 		for(int i = 0; i < clazz.length; i++)
 		{
-			AUIElement returnValue = null;
+			AUIElement<? extends ALogicElement> returnValue = null;
 			try
 			{
 				
-				returnValue = (AUIElement) clazz[i].getDeclaredConstructor(argument).newInstance(aLogicElement);
+				returnValue = (AUIElement<? extends ALogicElement>) clazz[i].getDeclaredConstructor(argument).newInstance(aLogicElement);
 				return returnValue;
 				
 			}

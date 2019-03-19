@@ -9,8 +9,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import eu.matfx.gui.component.AUIElement;
-import eu.matfx.gui.component.AUIInputOutputElement;
-import eu.matfx.gui.component.AUIOutputElement;
 import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.helper.GenericPair;
 import eu.matfx.gui.helper.SelectionRectangle;
@@ -21,6 +19,7 @@ import eu.matfx.gui.interfaces.UILineOutputConnector;
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.gui.util.UtilFx;
 import eu.matfx.logic.Scheme;
+import eu.matfx.logic.SchemeList;
 import eu.matfx.logic.data.AInputOutputElement;
 import eu.matfx.logic.data.ALogicElement;
 import eu.matfx.logic.data.AOutputElement;
@@ -38,8 +37,8 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.PickResult;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -61,7 +60,7 @@ public class ContentPane extends Pane
 	private double orgSceneX, orgSceneY;
 	private double orgTranslateX, orgTranslateY;
 	
-	private TreeMap<Integer, AUIElement> uiMap = new TreeMap<Integer, AUIElement>();
+	private TreeMap<Integer, AUIElement<? extends ALogicElement>> uiMap = new TreeMap<Integer, AUIElement<? extends ALogicElement>>();
 	
 	private TempLine tempLine;
 	
@@ -71,7 +70,7 @@ public class ContentPane extends Pane
 	 * is filled when with the selectionRect some uiElements grouped and moved.
 	 * <br>Changelistener are connected with x and y from selectionRect
 	 */
-	private HashMap<AUIElement, GenericPair<ChangeListener, ChangeListener>> changeListenerMap;
+	private HashMap<AUIElement<? extends ALogicElement>, GenericPair<ChangeListener<Number>, ChangeListener<Number>>> changeListenerMap;
 	
 	private Circle startRectangle = new Circle();
 	
@@ -120,6 +119,38 @@ public class ContentPane extends Pane
 		canvas.relocate(0, 0);
 		
 		this.primaryStage = primaryStage;
+		//I think not needed
+		this.primaryStage.getScene().setOnKeyPressed(new EventHandler<KeyEvent>(){
+
+			@Override
+			public void handle(KeyEvent event) {
+				//System.out.println("pressedKey:  " + event.getCode());
+				
+			}
+			
+		} );
+		this.primaryStage.getScene().setOnKeyReleased(new EventHandler<KeyEvent>(){
+
+			@Override
+			public void handle(KeyEvent event) {
+				System.out.println("releasedKey:  " + event.getCode());
+				switch(event.getCode())
+				{
+					//two possible keys to delete the selected ui components
+					case BACK_SPACE:
+					case DELETE:
+						deleteSelectedUIElements();
+						break;
+					default:
+						break;
+				}
+				
+				
+			}
+			
+		} );
+		
+		
 		this.statusText = statusText;
 		this.xCoords = xCoords;
 		this.yCoords = yCoords;
@@ -153,10 +184,101 @@ public class ContentPane extends Pane
 		}
 	}
 
+	/**
+	 * delete all selecte ui elements from the view.
+	 */
+	protected void deleteSelectedUIElements() 
+	{
+		List<AUIElement<? extends ALogicElement>> toDeleteList = new ArrayList<AUIElement<? extends ALogicElement>>();
+		
+		//find alle ui element without the line connectors
+		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
+		{
+			if(!(entry.getValue() instanceof UILineConnector))
+			{
+				if(entry.getValue().isSelected() || entry.getValue().isCollected()) 
+				{
+					boolean foundLine = false;
+					//any connection with other element established
+					for(Entry<Integer, AUIElement<? extends ALogicElement>> secondCheck : uiMap.entrySet())
+					{
+						if(secondCheck.getValue() instanceof UILineConnector)
+						{
+							UILineConnector uiLineConnector =  (UILineConnector)secondCheck.getValue();
+							if(!uiLineConnector.getLogicElement().isOutputEmpty() && uiLineConnector.getLogicElement().isMasterIdOutput(entry.getValue().getLogicElement().getIndex()))
+							{
+								toDeleteList.add(secondCheck.getValue());
+								foundLine = true;
+							}
+							else if(!uiLineConnector.getLogicElement().isInputEmpty() && uiLineConnector.getLogicElement().isMasterIdInput(entry.getValue().getLogicElement().getIndex()))
+							{
+								toDeleteList.add(secondCheck.getValue());
+								foundLine = true;
+							}
+							//no break after found it is possible that the ui combinend with two different lines
+						}
+						
+						
+					}
+					
+					if(foundLine)
+					{
+						//remove the connector
+						if(entry.getValue() instanceof UILineOutputConnector)
+						{
+							UILineOutputConnector out = (UILineOutputConnector)entry.getValue();
+							if(out.isUIOutputOccupied())
+								out.removeUIOutputConnector();
+						}
+						
+						if(entry.getValue() instanceof UILineInputConnector)
+						{
+							UILineInputConnector in = (UILineInputConnector)entry.getValue();
+							if(in.isUIInputOccupied())
+								in.removeUIInputConnector();
+						}
+					}
+					
+					//Now the founded element
+					toDeleteList.add(entry.getValue());
+				}
+			}
+		}
+		
+		if(toDeleteList.size() > 0)
+		{
+	
+			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+			//System.out.println(" vorher " + schemeObject.getWorkflowMap().size());
+			
+			for(int i = 0; i < toDeleteList.size(); i++)
+			{
+				//delete from the logic map
+				int indexFromMap = schemeObject.getIndexFromLogicElement(toDeleteList.get(i).getLogicElement());
+				if(indexFromMap >= 0)
+					schemeObject.deleteElementMap(indexFromMap);
+				//now the ui side
+				deleteUINodeFromView(indexFromMap);
+			}
+			
+			//TODO raus to test the system outs
+			System.out.println("map content " + schemeObject.getWorkflowMap());
+			for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
+			{
+				System.out.println("? " + entry.getValue().getClass() + " " + entry.getValue().getLogicElement().getIndex());
+			}
+			
+			
+		
+		}
+		
+		
+	}
+
 	private void rebuildView() 
 	{
 		//with the rebuild the map must be deleted
-		uiMap = new TreeMap<Integer, AUIElement>();
+		uiMap = new TreeMap<Integer, AUIElement<? extends ALogicElement>>();
 		ContentPane.this.setStyle("-fx-background-color: #5691b0;");
 		
 		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
@@ -169,7 +291,7 @@ public class ContentPane extends Pane
 			{
 				ALogicElement aLogicElement = entry.getValue();
 				
-				AUIElement createdElement = AUIElement.getInstance(aLogicElement);
+				AUIElement<? extends ALogicElement> createdElement = AUIElement.getInstance(aLogicElement);
 				if(createdElement != null)
 				{
 					//in the first draw no line connector!
@@ -194,7 +316,7 @@ public class ContentPane extends Pane
 			
 			
 			//with the second draw the line connector came on view
-			for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+			for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
 			{
 				if(entry.getValue() instanceof UILineConnector)
 				{
@@ -221,11 +343,9 @@ public class ContentPane extends Pane
 		}
 	}
 	
-	private AUIElement getConnector(GenericPair<Integer, Integer> inputId) 
+	private AUIElement<? extends ALogicElement> getConnector(GenericPair<Integer, Integer> inputId) 
 	{
-		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-    	
-		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
 		{
 			if(entry.getValue().getLogicElement().getIndex() == inputId.getLeft()
 					&& (entry.getValue() instanceof UILineOutputConnector || entry.getValue() instanceof UILineInputConnector))
@@ -268,8 +388,7 @@ public class ContentPane extends Pane
 	        			Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
 	        			if(t.getSource() instanceof Canvas)
 	        			{
-	        				//ich habe bereits ein rechteck gezeichnet
-	        				//dieses liegt auch auf der oberfläche
+	        				//user definied rectangle on screen?
 	        				boolean drawNew = true;
 	        				if(selectionRect != null && ContentPane.this.getChildren().contains(selectionRect))
 	        				{
@@ -287,7 +406,7 @@ public class ContentPane extends Pane
 	        						selectionRect.setStartCoordsMovement(transferCoord);
 	        						
 	        						//need empty list to store the connected changelistener
-	        						changeListenerMap = new HashMap<AUIElement, GenericPair<ChangeListener, ChangeListener>>();
+	        						changeListenerMap = new HashMap<AUIElement<? extends ALogicElement>, GenericPair<ChangeListener<Number>, ChangeListener<Number>>>();
 	        							
 	        						//find the components and connect the visulisation
 	        						
@@ -297,7 +416,8 @@ public class ContentPane extends Pane
 	        							   //only uielements
 	        							   if(node instanceof AUIElement)
 	        							   {
-	        								   AUIElement uiElement = (AUIElement)node;
+	        								   @SuppressWarnings("unchecked")
+	        								   AUIElement<? extends ALogicElement> uiElement = (AUIElement<? extends ALogicElement>)node;
 	        								   //ausschlaggebend sind nur die Elemente die nicht Line sind
 	        								   if(!(uiElement instanceof UILineConnector))
 	        								   {
@@ -318,14 +438,13 @@ public class ContentPane extends Pane
 	        					{
 
 	                 			   	//sicherheitshalber die uiMap zurücksetzen
-	                 			   	for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+	                 			   	for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
 	                 			   	{
 	                 			   		if(!(entry.getValue() instanceof UILineConnector))
 	                 			   		{
 	                 			   			entry.getValue().collected(false);
 	                 			   		}
 	                 			   	}
-	        						//TODO raus
 	        						selectionRect.setStroke(Color.RED);
 	        						selectionRect.setCatchedUIElements(false);
 	        						drawNew = true;
@@ -353,8 +472,10 @@ public class ContentPane extends Pane
 	        			{
 
 			        		//Move nur dann wenn wir uns mit dem Punkt auf der einer gültige Komponent uns befinden
-			        		AUIElement node = (AUIElement) t.getSource();
-			        		Point2D point2d = new Point2D(t.getSceneX(), t.getSceneY());
+	        				@SuppressWarnings("unchecked")
+							AUIElement<? extends ALogicElement> node = (AUIElement<? extends ALogicElement>) t.getSource();
+			        		//TODO raus
+	        				//Point2D point2d = new Point2D(t.getSceneX(), t.getSceneY());
 			        		
 			        		
 			        		//line connector selected? to delete the line the user must select the line
@@ -365,10 +486,12 @@ public class ContentPane extends Pane
 			        		}
 			        		else if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
 			        		{
-			        			Point2D point2D = node.getOutputCenterPoint();
+			        			//TODO raus
+			        			//Point2D point2D = node.getOutputCenterPoint();
 			        			
 			        			//Abmaße der ContentPane die bei der Startkoordinate berücksichtigt werden müssen.
-				        		Bounds conBounds = ContentPane.this.localToScene(ContentPane.this.getLayoutBounds());
+				        		//TODO raus
+			        			//Bounds conBounds = ContentPane.this.localToScene(ContentPane.this.getLayoutBounds());
 				        		statusText.set("OutputArea erkannt");
 				        		
 				        		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
@@ -485,7 +608,8 @@ public class ContentPane extends Pane
         	}
         	else if(t.getSource() instanceof AUIElement)
         	{
-        		AUIElement node = (AUIElement) t.getSource();
+        		@SuppressWarnings("unchecked")
+				AUIElement<? extends ALogicElement> node = (AUIElement<? extends ALogicElement>) t.getSource();
             	
              	//if the line connector selected and the mouse is out of a range ...the line will be deleted
                	if(node instanceof UILineConnector)
@@ -586,7 +710,8 @@ public class ContentPane extends Pane
             			   //only uielements
             			   if(node instanceof AUIElement)
             			   {
-            				   AUIElement uiElement = (AUIElement)node;
+            				   @SuppressWarnings("unchecked")
+            				   AUIElement<? extends ALogicElement> uiElement = (AUIElement<? extends ALogicElement>)node;
             				   //ausschlaggebend sind nur die Elemente die nicht Line sind
             				   if(!(uiElement instanceof UILineConnector))
             				   {
@@ -613,27 +738,23 @@ public class ContentPane extends Pane
             			   if(changeListenerMap != null)
             			   {
             				   
-            				   for(Entry<AUIElement, GenericPair<ChangeListener, ChangeListener>>  entry : changeListenerMap.entrySet())
+            				   for(Entry<AUIElement<? extends ALogicElement>, GenericPair<ChangeListener<Number>, ChangeListener<Number>>>  entry : changeListenerMap.entrySet())
             				   {
             					   selectionRect.getGroupedMovementProperties().getLeft().removeListener(entry.getValue().getLeft());
                 				   selectionRect.getGroupedMovementProperties().getRight().removeListener(entry.getValue().getRight());
             					   
             				   }
-            				   changeListenerMap = new HashMap<AUIElement, GenericPair<ChangeListener, ChangeListener>>();
+            				   changeListenerMap = new HashMap<AUIElement<? extends ALogicElement>, GenericPair<ChangeListener<Number>, ChangeListener<Number>>>();
             			   }
             			   
             			   //sicherheitshalber die uiMap zurücksetzen
-            			   for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
+            			   for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
             			   {
             				   if(!(entry.getValue() instanceof UILineConnector))
             				   {
             					   entry.getValue().collected(false);
             				   }
             			   }
-            			   
-            			   
-            			   
-            			   
             			   //no components in rectangle found, delete dotted rectangle
             			   ContentPane.this.getChildren().remove(selectionRect);
             		   }
@@ -645,7 +766,8 @@ public class ContentPane extends Pane
         	   }
         	   else if(t.getSource() instanceof AUIElement)
         	   {
-        	      	AUIElement node = (AUIElement) t.getSource();
+        		    @SuppressWarnings("unchecked")
+        		   	AUIElement<? extends ALogicElement> node = (AUIElement<? extends ALogicElement>) t.getSource();
                   	if(node instanceof UILineConnector)
                   	{
                   		UILineConnector uiNode = ((UILineConnector)node);
@@ -665,7 +787,6 @@ public class ContentPane extends Pane
                   				schemeObject.deleteElementMap(indexFromMap);
                   			
                   			deleteUINodeFromView(indexFromMap);
-                  		
                   			//TODO delete the connection to the ofter nodes
                   		}
                   		else
@@ -718,12 +839,10 @@ public class ContentPane extends Pane
                   	{
                   		//draw the line from started point to the cursor point.
                   		//decision to draw the real line or remove the temp line           		
-                  		PickResult pickResult = t.getPickResult();
                   		
                   		Point2D sceneCoords = new Point2D(t.getSceneX(), t.getSceneY());
                   		
                  		boolean found = false;
-                 		GenericPair<Boolean, AUIElement> pair = new GenericPair<Boolean, AUIElement>(false, (AUIElement)null);
                  		for(int i = 0; i < ContentPane.this.getChildren().size(); i++)
                  		{
                  			//ich suche nach einer instanz die einen Eingang besitzt
@@ -817,7 +936,7 @@ public class ContentPane extends Pane
      * needed, when a component removed from a user definied frame on screeen
      * @param node
      */
-    private void removeChangeListenerFromCollectRect(AUIElement node) 
+    private void removeChangeListenerFromCollectRect(AUIElement<? extends ALogicElement> node) 
     {
     	if(changeListenerMap == null || changeListenerMap.get(node) == null)
     		return;
@@ -830,7 +949,7 @@ public class ContentPane extends Pane
      * a ui component is in the area of a user definied frame
      * @param node
      */
-	protected void addChangeListenerToCollectRect(AUIElement uiElement) 
+	protected void addChangeListenerToCollectRect(AUIElement<? extends ALogicElement> uiElement) 
 	{
 		if(selectionRect != null && ContentPane.this.getChildren().contains(selectionRect))
 		{
@@ -858,73 +977,19 @@ public class ContentPane extends Pane
 			selectionRect.getGroupedMovementProperties().getRight().addListener(yListener);
 				  
 			//store at map for later remove
-			changeListenerMap.put(uiElement, new GenericPair<ChangeListener, ChangeListener>(xListener, yListener));
+			changeListenerMap.put(uiElement, new GenericPair<ChangeListener<Number>, ChangeListener<Number>>(xListener, yListener));
 		}
 		
 	}
 
-	private UILineOutputConnector getOutputConnector(Point2D point2d)
-	{
-		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
-		{
-			if(entry.getValue() instanceof UILineOutputConnector)
-			{
-				AUIOutputElement element = (AUIOutputElement)entry.getValue();
-				
-				
-				//the coord and the saved values must be equals.
-			//	System.out.println(" element.getOutputCenterCoordinate().getX() " + element.getOutputCenterCoordinate().getX() + " point " + point2d.getX());
-			//	System.out.println(" element.getOutputCenterCoordinate().getY() " + element.getOutputCenterCoordinate().getY() + " point " + point2d.getY());
-				if(element.isOutputArea(point2d))
-				{
-			//		System.out.println("return value out");
-					return element;
-				}
-			}
-		}
-		return null;
-	}
-	
-	private UILineInputConnector getInputConnector(Point2D point2d)
-	{
-		System.out.println("IN " + point2d);
-		for(Entry<Integer, AUIElement> entry : uiMap.entrySet())
-		{
-			if(entry.getValue() instanceof UILineInputConnector)
-			{
-				AUIInputOutputElement element = (AUIInputOutputElement)entry.getValue();
-				if(element.isInputArea(point2d))
-				{
-					return element;
-				}
-			}
-		}
-		return null;
-	}
-	
-	
-       
-    private TreeMap<Integer, AUIElement> restructureMap(TreeMap<Integer, AUIElement> restructMap) 
+	private TreeMap<Integer, AUIElement<? extends ALogicElement>> restructureMap(TreeMap<Integer, AUIElement<? extends ALogicElement>> restructMap) 
    	{
-    	
-    	
-    	Scheme schemeObject  = 
-    			SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-    	
-    	//TODO raus
-    	SortedMap<Integer, ALogicElement> schemeMap = schemeObject.getWorkflowMap();
-    	for(Entry<Integer, ALogicElement> entry : schemeMap.entrySet())
-    	{
-    		//System.out.println("entry " + entry.getValue().getIndex() +  " " + entry.getKey());
-    	}
-    	
-    	
-   		TreeMap<Integer, AUIElement> newMap = new TreeMap<Integer, AUIElement>();
+    	TreeMap<Integer, AUIElement<? extends ALogicElement>> newMap = new TreeMap<Integer, AUIElement<? extends ALogicElement>>();
    		
    		int startIndex = 0; 
    		
    		//TODO können Lücken vorkommen? Eigentlich nicht weil es in schemedata schon restrukturiert wird.
-   		for(Entry<Integer, AUIElement> entry : restructMap.entrySet())
+   		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : restructMap.entrySet())
    		{
    			newMap.put(startIndex, entry.getValue());
    			startIndex++;
@@ -937,12 +1002,12 @@ public class ContentPane extends Pane
      * @param inputIndex
      * @param newLine
      */
-	protected void putUINodeAtMap(int inputIndex, AUIElement auiElement) 
+	protected void putUINodeAtMap(int inputIndex, AUIElement<? extends ALogicElement> auiElement) 
 	{
 		if(uiMap.get(inputIndex) != null)
 		{
 			int newIndex = inputIndex + 1;
-			AUIElement valueToMove = uiMap.get(inputIndex);
+			AUIElement<? extends ALogicElement> valueToMove = uiMap.get(inputIndex);
 			//set the param from method
 			uiMap.put(inputIndex, auiElement);
 			//hop to the new index with the old value

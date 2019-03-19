@@ -50,9 +50,7 @@ public class Scheme implements Serializable {
 
 	public void deleteElementMap(int index)
 	{
-		//TODO after delete consistency check?
 		workflowMap.remove(index);
-		
 		//after remove the map set the indizes new
 		workflowMap = restructureMap(workflowMap);
 	}
