@@ -5,9 +5,6 @@ import eu.matfx.gui.interfaces.IConnectorArea;
 import eu.matfx.gui.interfaces.IMoveComponent;
 import eu.matfx.gui.util.Tools;
 import eu.matfx.logic.data.ALogicElement;
-import eu.matfx.logic.helper.DimensionView;
-import eu.matfx.logic.helper.LocationView;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
@@ -31,6 +28,9 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	 * gap coordinates (from rectangle to this x/y axis) when component is collected
 	 */
 	private Point2D movementCoords;
+	
+	/* TODO later changeable? */
+	protected double w = 150, h = 150;
 	
 	protected AUIElement(T logicElement)
 	{
@@ -163,6 +163,31 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	}
 	
 	public abstract void saveVariables();
+	
+	
+	public double getWidth()
+	{
+		return w;
+	}
+	
+	public double getHeigth()
+	{
+		return h;
+	}
+	
+	
+	public void setWidth(double width)
+	{
+		this.w = width;
+	}
+	
+	public void setHeight(double height)
+	{
+		this.h = height;
+	}
+	
+	
+	
 	
 
 }

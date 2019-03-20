@@ -35,32 +35,29 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 		super(logicElement);
 		
 		Rectangle canvas = new Rectangle();
-		canvas.setWidth(150);
-		canvas.setHeight(150);
-		canvas.setArcHeight(15);
-		canvas.setArcWidth(15);
+		
+		canvas.setWidth(w);
+		canvas.setHeight(h);
+		canvas.setArcHeight(h * 0.1);
+		canvas.setArcWidth(w * 0.1);
 		//TODO later with css style sheet
 		canvas.setFill(Color.web("#74aa7400"));
 		ds = new DropShadow();
 		ds.setOffsetY(0.1f);
 		ds.setColor(Color.web("#304f30"));
-		//canvas.setEffect(ds);
-		
-		
-		circleRight = new CircleComponent(5, 140, 25, Color.web("#304f30"));
+			
+		circleRight = new CircleComponent(w * 0.033, w - (w * 0.066), h * 0.166, Color.web("#304f30"));
 		
 		r = new Rectangle();
-		r.setX(10);
-	    r.setY(10);
-	    r.setWidth(130);
-	    r.setHeight(130);
-	    r.setArcHeight(15);
-		r.setArcWidth(15);
+		r.setX(w * 0.066);
+	    r.setY(h * 0.066);
+	    r.setWidth(w * 0.868);
+	    r.setHeight(h * 0.868);
+	    r.setArcHeight(h * 0.1);
+		r.setArcWidth(w * 0.1);
 	    r.setFill(Color.web("#74aa74"));
 	  	r.setEffect(ds);
 	    this.getChildren().addAll(canvas, r, circleRight);
-		
-		
 	
 	}
 	
@@ -218,8 +215,7 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 	public void saveVariables() 
 	{
 		this.getLogicElement().setLocationView(new LocationView(this.getTranslateX(), this.getTranslateY()));
-		this.getLogicElement().setDimensionView(new DimensionView(this.getLayoutBounds().getWidth(), this.getLayoutBounds().getHeight()));
-		
+		this.getLogicElement().setDimensionView(new DimensionView(w, h));
 	}
 	
 	

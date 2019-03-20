@@ -8,9 +8,8 @@ import eu.matfx.logic.data.ALogicElement;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+
 
 //extends from abstract output
 public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUIOutputElement<T> implements UILineInputConnector
@@ -29,33 +28,8 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 
 	protected AUIInputOutputElement(T logicElement) {
 		super(logicElement);
-		
-//		Rectangle canvas = new Rectangle();
-//		canvas.setWidth(150);
-//		canvas.setHeight(150);
-//		canvas.setArcHeight(15);
-//		canvas.setArcWidth(15);
-//		canvas.setFill(Color.web("#74aa7400"));
-//		ds = new DropShadow();
-//		ds.setOffsetY(0.1f);
-//		ds.setColor(Color.web("#304f30"));
-		
-		//circleRight = new CircleComponent(5, 140, 25, Color.web("#304f30"));
-
-	  	circleLeft = new CircleComponent(5, 10, 25, Color.web("#304f30"));
-		
-//		r = new Rectangle();
-//		r.setX(10);
-//	    r.setY(10);
-//	    r.setWidth(130);
-//	    r.setHeight(130);
-//	    r.setArcHeight(15);
-//		r.setArcWidth(15);
-//	    r.setFill(Color.web("#74aa74"));
-//	  	r.setEffect(ds);
-	  	
-	    //this.getChildren().addAll(canvas, r, circleRight, circleLeft);
-	    this.getChildren().addAll(circleLeft);
+		circleLeft = new CircleComponent(w * 0.033, w * 0.066, h * 0.166, Color.web("#304f30"));
+	  	this.getChildren().addAll(circleLeft);
 	}
 	
 	@Override
