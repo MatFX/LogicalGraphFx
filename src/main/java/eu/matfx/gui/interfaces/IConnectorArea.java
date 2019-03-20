@@ -26,6 +26,14 @@ public interface IConnectorArea extends IArea
 	public boolean isOutputArea(Point2D point);
 	
 	/**
+	 * one component has two entries
+	 * @param point
+	 * @return
+	 */
+	public boolean isSecondInputArea(Point2D point);
+	
+	
+	/**
 	 * Gibt den Mittelpunkt des Eingangs zurück. Koordinate bezieht sich auf die Szene
 	 * @return
 	 */
@@ -52,5 +60,11 @@ public interface IConnectorArea extends IArea
 	 * @return
 	 */
 	public Coordinate getOutputCenterCoordinate();
+	
+	/**
+	 * center point from the second input connector
+	 * @return
+	 */
+	public Coordinate getSecondInputCenterCoordinate();
 	
 }

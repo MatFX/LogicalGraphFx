@@ -218,5 +218,19 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 		this.getLogicElement().setDimensionView(new DimensionView(w, h));
 	}
 	
+
+	@Override
+	public boolean isSecondInputArea(Point2D point) {
+		//not int this component
+		return false;
+	}
+
+	@Override
+	public Coordinate getSecondInputCenterCoordinate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
 	
 }

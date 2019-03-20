@@ -9,6 +9,7 @@ import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.data.impl.SensorElement;
 import eu.matfx.logic.data.impl.container.AndContainer;
 import eu.matfx.logic.data.impl.container.OrContainer;
+import eu.matfx.logic.data.impl.container.RSFlipFlopContainer;
 import eu.matfx.logic.database.XMLAccess;
 
 public class SchemaTest {
@@ -53,6 +54,11 @@ public class SchemaTest {
 		assertTrue("value at index 3 must be AndContainer", (scheme.getWorkflowMap().get(3) instanceof AndContainer));
 		assertTrue("value at index 4 must be FunctionElement", (scheme.getWorkflowMap().get(4) instanceof FunctionElement));
 	
+		
+		RSFlipFlopContainer rsContainer = new RSFlipFlopContainer();
+		scheme.addElementAtMap(rsContainer);
+	
+		int countedElements = scheme.getWorkflowMap().size();
 	
 		
 		SchemeList schemeList = new SchemeList();
@@ -69,7 +75,7 @@ public class SchemaTest {
 		
 		SchemeList readedSchemeList = (SchemeList) XMLAccess.readObjectFromFile(new SchemeList());
 		
-		assertTrue("readed scheme list must be 5 elements", (scheme.getWorkflowMap().size() == 5));
+		assertTrue("readed scheme list must be " + countedElements + " elements", (scheme.getWorkflowMap().size() == countedElements));
 		
 		
 		

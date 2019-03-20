@@ -16,10 +16,11 @@ import eu.matfx.gui.helper.TempLine;
 import eu.matfx.gui.interfaces.IConnectorArea;
 import eu.matfx.gui.interfaces.UILineInputConnector;
 import eu.matfx.gui.interfaces.UILineOutputConnector;
+import eu.matfx.gui.interfaces.UILineSecondInputConnector;
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.gui.util.UtilFx;
 import eu.matfx.logic.Scheme;
-import eu.matfx.logic.SchemeList;
+import eu.matfx.logic.data.ADoubleInputOneOutputElement;
 import eu.matfx.logic.data.AInputOutputElement;
 import eu.matfx.logic.data.ALogicElement;
 import eu.matfx.logic.data.AOutputElement;
@@ -74,8 +75,6 @@ public class ContentPane extends Pane
 	private HashMap<AUIElement<? extends ALogicElement>, GenericPair<ChangeListener<Number>, ChangeListener<Number>>> changeListenerMap;
 	
 	private Circle startRectangle = new Circle();
-	
-	
 	
 	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command) 
 	{
@@ -274,7 +273,6 @@ public class ContentPane extends Pane
 		{
 	
 			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-			//System.out.println(" vorher " + schemeObject.getWorkflowMap().size());
 			
 			for(int i = 0; i < toDeleteList.size(); i++)
 			{
@@ -285,16 +283,6 @@ public class ContentPane extends Pane
 				//now the ui side
 				deleteUINodeFromView(indexFromMap);
 			}
-			
-			//TODO raus to test the system outs
-			System.out.println("map content " + schemeObject.getWorkflowMap());
-			for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
-			{
-				System.out.println("? " + entry.getValue().getClass() + " " + entry.getValue().getLogicElement().getIndex());
-			}
-			
-			
-		
 		}
 		
 		
@@ -357,8 +345,17 @@ public class ContentPane extends Pane
 						//find the output connector
 						UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(lineConnector.getOutputId());
 						UILineInputConnector inputConnector = (UILineInputConnector) getConnector(lineConnector.getInputId());
+						
 						outputConnector.setUIOutputConnector(connector);
-						inputConnector.setUIInputConnector(connector);
+						//TODO not beautiful
+						if(lineConnector.getInputId().getRight() == 1)
+						{
+							((UILineSecondInputConnector)inputConnector).setUISecondInputConnector(connector);
+						}
+						else 
+						{
+							inputConnector.setUIInputConnector(connector);
+						}
 					}
 					ContentPane.this.getChildren().add(connector);
 					addMouseListener(connector);
@@ -499,11 +496,8 @@ public class ContentPane extends Pane
 			        		//Move nur dann wenn wir uns mit dem Punkt auf der einer gültige Komponent uns befinden
 	        				@SuppressWarnings("unchecked")
 							AUIElement<? extends ALogicElement> node = (AUIElement<? extends ALogicElement>) t.getSource();
-			        		//TODO raus
-	        				//Point2D point2d = new Point2D(t.getSceneX(), t.getSceneY());
 			        		
-			        		
-			        		//line connector selected? to delete the line the user must select the line
+	        				//line connector selected? to delete the line the user must select the line
 			        		if(node instanceof UILineConnector)
 			        		{
 			        			((UILineConnector)node).setSelected(true);
@@ -511,14 +505,7 @@ public class ContentPane extends Pane
 			        		}
 			        		else if(node.isOutputArea(UtilFx.getPointFromEvent(t)))
 			        		{
-			        			//TODO raus
-			        			//Point2D point2D = node.getOutputCenterPoint();
-			        			
-			        			//Abmaße der ContentPane die bei der Startkoordinate berücksichtigt werden müssen.
-				        		//TODO raus
-			        			//Bounds conBounds = ContentPane.this.localToScene(ContentPane.this.getLayoutBounds());
-				        		statusText.set("OutputArea erkannt");
-				        		
+			        			statusText.set("OutputArea erkannt");
 				        		Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
 				        		//is the output channel occupied
 				        		if(node instanceof UILineOutputConnector)
@@ -719,9 +706,8 @@ public class ContentPane extends Pane
         		   else
         		   {
         			   //no component selected, search for it
-        			   
-            		   
-            		   //beim loslassen muss geprüft werden ob in dem gezeicneten Rechteck eine Komponente liegt
+        		
+        			   //beim loslassen muss geprüft werden ob in dem gezeicneten Rechteck eine Komponente liegt
             		   
             		   boolean isComponentsInRect = false;
             		   
@@ -753,10 +739,7 @@ public class ContentPane extends Pane
             				   }
             			   }
             		   }
-            		   
-            		   
-            		   
-            		   
+            			   
             		   if(!isComponentsInRect)
             		   {
             			
@@ -785,9 +768,6 @@ public class ContentPane extends Pane
             		   }
         			   
         		   }
-        		 
-        		   
-        		   
         	   }
         	   else if(t.getSource() instanceof AUIElement)
         	   {
@@ -800,11 +780,16 @@ public class ContentPane extends Pane
                   		{
                   			
                   			UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(uiNode.getLogicElement().getOutputId());
-                  			//TODO second input?
                   			UILineInputConnector inputConnector = (UILineInputConnector) getConnector(uiNode.getLogicElement().getInputId());
                      		
                   			outputConnector.removeUIOutputConnector();
-                  			inputConnector.removeUIInputConnector();
+                  			//TODO not the best idea
+                  			if(uiNode.getLogicElement().getInputId().getRight() == 1)
+                  			{
+                  				((UILineSecondInputConnector)inputConnector).removeUISecondInputConnector();
+                  			}
+                  			else
+                  				inputConnector.removeUIInputConnector();
                   			
                   			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
                   			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
@@ -812,7 +797,6 @@ public class ContentPane extends Pane
                   				schemeObject.deleteElementMap(indexFromMap);
                   			
                   			deleteUINodeFromView(indexFromMap);
-                  			//TODO delete the connection to the ofter nodes
                   		}
                   		else
                   		{
@@ -823,36 +807,32 @@ public class ContentPane extends Pane
                   	else if(ContentPane.this.getScene().getCursor() == Cursor.MOVE)
                   	{
                   		
-                  		//when node is moved from a collected frame
-                  		//if(node.isCollected())
-                  		//{
-                  			//it must be checked that the movement goes outside the definied frame
-                  			//TODO w und h flexible?
-                  			Bounds uiBounds = new BoundingBox(node.getTranslateX(), node.getTranslateY(), 150D, 150D);
-                  			
-                  			if(selectionRect != null && ContentPane.this.getChildren().contains(selectionRect))
+              			//it must be checked that the movement goes outside the definied frame
+              			//TODO w und h flexible?
+              			Bounds uiBounds = new BoundingBox(node.getTranslateX(), node.getTranslateY(), 150D, 150D);
+              			
+              			if(selectionRect != null && ContentPane.this.getChildren().contains(selectionRect))
+              			{
+              				Bounds boundsSelectionRect = new BoundingBox(selectionRect.getLayoutX(), selectionRect.getLayoutY(), selectionRect.getWidth(), selectionRect.getHeight());
+	        				if(!UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
                   			{
-                  				Bounds boundsSelectionRect = new BoundingBox(selectionRect.getLayoutX(), selectionRect.getLayoutY(), selectionRect.getWidth(), selectionRect.getHeight());
-    	        				if(!UtilFx.isUIElementInShape(uiBounds,  boundsSelectionRect))
-                      			{
-                      			  //out of the shape, than reset flag value
-                      			  node.collected(false);
-                      			  removeChangeListenerFromCollectRect(node);
-                      			  
-                      			}
-    	        				else
-    	        				{
-    	        					node.collected(true);
-    	        					addChangeListenerToCollectRect(node);
-    	        					//System.out.println("selection ist true");
-    	        				}
+                  			  //out of the shape, than reset flag value
+                  			  node.collected(false);
+                  			  removeChangeListenerFromCollectRect(node);
+                  			  
                   			}
-                  			//no selection rect ...reset flag
-                  			else
-                  			{
-                  				node.collected(false);
-                  				removeChangeListenerFromCollectRect(node);
-                  			}
+	        				else
+	        				{
+	        					node.collected(true);
+	        					addChangeListenerToCollectRect(node);
+	        				}
+              			}
+              			//no selection rect ...reset flag
+              			else
+              			{
+              				node.collected(false);
+              				removeChangeListenerFromCollectRect(node);
+              			}
                   		if(node.isSelected())
                   		{
                   			node.setSelected(false);
@@ -890,14 +870,36 @@ public class ContentPane extends Pane
                      				}
                  					break;
                  				}
-                 			
+                 			}
+                 			//when not found check the second input channel...not the best solution
+                 			if(!found)
+                 			{
+                 				
+                 				if(uiNode instanceof UILineSecondInputConnector)
+                 				{
+                 					UILineSecondInputConnector uiLineSecondInputConnector = (UILineSecondInputConnector)uiNode;
+                 					IConnectorArea iConnectorArea = (IConnectorArea)uiNode;
+                 					
+                 					if(iConnectorArea.isSecondInputArea(sceneCoords) && !uiLineSecondInputConnector.isUISecondInputOccupied())
+                     				{
+                     					Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+                     					int index = schemeObject.getIndexFromLogicElement(((AUIElement) uiNode).getLogicElement());
+                     					if(index >= 0)
+                     					{
+                     						tempLine.setInputIndex(index);
+                     						tempLine.setSubIndexInput(1);
+                     						found = true;
+                         				}
+                     					break;
+                     				}
+                 				}
                  			}
                  		}
                  		
                  		if(found)
                  		{
-                 			//build new uiLine/logicline
                  			
+                 			//build new uiLine/logicline
                  			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
                  			LineConnector lineConnector = new LineConnector();
                  			//add a new connector to the logical map; with the add the line will get the new index
@@ -919,7 +921,9 @@ public class ContentPane extends Pane
                  			//TODO subindex must be in tempLine
                  			UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(new GenericPair<Integer, Integer>(tempLine.getOutputIndex(), 0));
                  			
-                 			UILineInputConnector inputConnector = (UILineInputConnector) getConnector((new GenericPair<Integer, Integer>(tempLine.getInputIndex(), 0)));
+                 			//here is the problem with the second input
+                 			UILineInputConnector inputConnector = (UILineInputConnector) getConnector((new GenericPair<Integer, Integer>(tempLine.getInputIndex(), tempLine.getSubIndexInput())));
+                 			
                  			if(outputConnector != null && inputConnector != null)
                  			{
                  				
@@ -927,15 +931,34 @@ public class ContentPane extends Pane
                  				AOutputElement outputElement = (AOutputElement) ((AUIElement)outputConnector).getLogicElement();
                  				lineConnector.setMasteridOutput(outputElement.getIndex());
                  				
-                 				AInputOutputElement inAndOutElement = (AInputOutputElement) ((AUIElement)inputConnector).getLogicElement();
-                 				lineConnector.setMasteridInput(inAndOutElement.getIndex());
+                 				if(tempLine.getSubIndexInput() == 0)
+                 				{
+                 					AInputOutputElement inAndOutElement = (AInputOutputElement) ((AUIElement)inputConnector).getLogicElement();
+                     				lineConnector.setMasteridInput(inAndOutElement.getIndex());
+                 				}
+                 				else if(tempLine.getSubIndexInput() == 1)
+                 				{
+                 					ADoubleInputOneOutputElement in2ndOutElement = (ADoubleInputOneOutputElement) ((AUIElement)inputConnector).getLogicElement();
+                 					lineConnector.setMasteridInput(in2ndOutElement.getIndex());
+                 					lineConnector.setMasteridInputWithSubindex(tempLine.getInputIndex(), tempLine.getSubIndexInput());
+                 				}
+                 			
+                 				
                  			}
                  			
                  			
                  			if(!lineConnector.isOutputEmpty() && !lineConnector.isInputEmpty())
                  			{
+                 				
                  				outputConnector.setUIOutputConnector(newLine);
-                 				inputConnector.setUIInputConnector(newLine);
+                 				if(tempLine.getSubIndexInput() == 1)
+                 				{
+                 					((UILineSecondInputConnector)inputConnector).setUISecondInputConnector(newLine);
+                 					
+                 				}
+                 				//normal 
+                 				else
+                 					inputConnector.setUIInputConnector(newLine);
                  			}
                  			
 	       					addMouseListener(newLine);

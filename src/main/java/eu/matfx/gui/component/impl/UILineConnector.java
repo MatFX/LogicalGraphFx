@@ -3,13 +3,10 @@ package eu.matfx.gui.component.impl;
 import eu.matfx.gui.component.AUIElement;
 import eu.matfx.gui.helper.Coordinate;
 import eu.matfx.logic.data.impl.LineConnector;
-import eu.matfx.logic.helper.DimensionView;
-import eu.matfx.logic.helper.LocationView;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
@@ -89,13 +86,13 @@ public class UILineConnector extends AUIElement<LineConnector>
 
 	@Override
 	public boolean isInputArea(Point2D point) {
-		// TODO Auto-generated method stub
+		//not needed
 		return false;
 	}
 
 	@Override
 	public boolean isOutputArea(Point2D point) {
-		// TODO Auto-generated method stub
+		//not needed
 		return false;
 	}
 
@@ -109,7 +106,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 
 	@Override
 	public Coordinate getOutputCenterCoordinate() {
-		// TODO Auto-generated method stub
+		//not needed
 		return null;
 	}
 
@@ -121,7 +118,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 
 	@Override
 	public Point2D getCenterPointFromArea() {
-		// TODO Auto-generated method stub
+		//not needed
 		return null;
 	}
 
@@ -133,7 +130,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 
 	@Override
 	public Coordinate getCenterCoordinate() {
-		// TODO Auto-generated method stub
+		//not needed
 		return null;
 	}
 
@@ -161,15 +158,28 @@ public class UILineConnector extends AUIElement<LineConnector>
 
 	@Override
 	public Point2D getInputCenterPoint() {
-		// TODO Auto-generated method stub
+		//not needed
 		return null;
 	}
 
 	@Override
 	public Point2D getOutputCenterPoint() {
-		// TODO Auto-generated method stub
+		//not needed
 		return null;
 	}
+	
+	@Override
+	public boolean isSecondInputArea(Point2D point) {
+		//not needed
+		return false;
+	}
+
+	@Override
+	public Coordinate getSecondInputCenterCoordinate() {
+		//not needed
+		return null;
+	}
+
 	
 	@Override
 	public void setSelected(boolean isSelected) 
@@ -340,19 +350,9 @@ public class UILineConnector extends AUIElement<LineConnector>
 	}
 
 	@Override
-
-	
 	public void saveVariables()
 	{
-		//not to use
-		//Bounds bounds = this.getLayoutBounds();
-
-		//		System.out.println("bounds " + bounds);
-//		System.out.println(" " + this.getLayoutX() + " this " + this.getLayoutX());
-//		System.out.println(" " + this.getTranslateX() + " this " + this.getTranslateY());
-		
-		//this.getLogicElement().setLocationView(new LocationView(bounds.getMinX(), bounds.getMinY()));
-		//this.getLogicElement().setDimensionView(new DimensionView(bounds.getMaxX()- bounds.getMinX(), bounds.getMaxY() - bounds.getMaxY()));
+		// a line need not a save.
 	}
 
 }

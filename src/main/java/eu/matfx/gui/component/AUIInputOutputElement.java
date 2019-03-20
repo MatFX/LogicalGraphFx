@@ -23,9 +23,6 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 	
 	protected ChangeListener<Number> changeListenerInputX, changeListenerInputY;
 	
-	
-	
-
 	protected AUIInputOutputElement(T logicElement) {
 		super(logicElement);
 		circleLeft = new CircleComponent(w * 0.033, w * 0.066, h * 0.166, Color.web("#304f30"));
@@ -126,16 +123,9 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 			};
 			
 			circleLeft.getCenterCoordinate().getY_Property().addListener(changeListenerInputY);
-		}
-		else
-		{
-			//TODO listener as member variable to delete them
-			//circleRight.getCenterCoordinate().getX_Property().dele
 			
+			System.out.println("centerCoordinate " + circleLeft.getCenterCoordinate());
 		}
-		
-		
-		//this.uiLineOutputConnector = uiLineConnector;
 		
 	}
 

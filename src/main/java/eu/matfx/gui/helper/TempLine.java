@@ -13,6 +13,10 @@ public class TempLine extends Line
 	
 	private int inputIndex;
 	
+	private int subIndexInput = 0;
+	
+	private int subIndexOutput = 0;
+	
 	public TempLine(int startIndexFromWorkflowMap)
 	{
 		this.outputIndex = startIndexFromWorkflowMap;
@@ -33,4 +37,19 @@ public class TempLine extends Line
 		this.inputIndex = inputIndex;
 	}
 
+	public int getSubIndexInput() {
+		return subIndexInput;
+	}
+
+	public int getSubIndexOutput() {
+		return subIndexOutput;
+	}
+
+	public void setSubIndexInput(int subIndexInput) {
+		this.subIndexInput = subIndexInput;
+	}
+
+	public void setSubIndexOutput(int subIndexOutput) {
+		this.subIndexOutput = subIndexOutput;
+	}
 }

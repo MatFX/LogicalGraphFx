@@ -82,6 +82,15 @@ public class LineConnector extends ALogicElement
 		inputIndex.setLeft(newIndexNext);
 	}
 	
+	public void setMasteridInputWithSubindex(int newIndexNext, int subindex)
+	{
+		if(inputIndex == null)
+			inputIndex = new GenericPair<Integer, Integer>(Integer.MIN_VALUE, 0);
+		inputIndex.setLeft(newIndexNext);
+		inputIndex.setRight(subindex);
+	}
+	
+	
 	public GenericPair<Integer, Integer> getOutputId()
 	{
 		return outputIndex;
