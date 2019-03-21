@@ -10,6 +10,7 @@ import eu.matfx.logic.helper.LocationView;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -33,6 +34,8 @@ public class UICircleLineConnector extends AUIElement<CircleLineConnector> imple
 	protected ChangeListener<Number> changeListenerOutputX, changeListenerOutputY;
 	
 	private Coordinate centerCoordinate = new Coordinate();
+	
+	private DropShadow ds;
 
 	public UICircleLineConnector(CircleLineConnector logicElement) 
 	{
@@ -43,6 +46,10 @@ public class UICircleLineConnector extends AUIElement<CircleLineConnector> imple
 		circle.setRadius(10);
 		circle.setFill(Color.BURLYWOOD);
 		
+		ds = new DropShadow();
+		ds.setOffsetY(0.1f);
+		ds.setColor(Color.web("#304f30"));
+		circle.setEffect(ds);
 		
 		this.getChildren().add(circle);
 	}
@@ -153,14 +160,18 @@ public class UICircleLineConnector extends AUIElement<CircleLineConnector> imple
 
 	@Override
 	public void removeUIOutputConnector() {
-		// TODO Auto-generated method stub
-		
+		this.translateYProperty().removeListener(changeListenerOutputY);
+		this.translateXProperty().removeListener(changeListenerOutputX);
+		this.uiLineOutputConnector = null;
 	}
 
 	@Override
-	public void changeCollectionColor() {
-		// TODO Auto-generated method stub
-		
+	public void changeCollectionColor() 
+	{
+		if(this.isCollected)
+			ds.setColor(Color.web("#ff3333"));
+		else
+			ds.setColor(Color.web("#304f30"));
 	}
 
 	@Override
@@ -211,8 +222,29 @@ public class UICircleLineConnector extends AUIElement<CircleLineConnector> imple
 
 	@Override
 	public void removeUIInputConnector() {
-		// TODO Auto-generated method stub
+		this.translateYProperty().removeListener(changeListenerInputY);
+		this.translateXProperty().removeListener(changeListenerInputY);
+		this.uiLineInputConnector = null;
 		
+	}
+	
+	public UILineConnector getUILineOutputConnector()
+	{
+		return uiLineOutputConnector;
+	}
+	
+	public UILineConnector getUILineInputConnector()
+	{
+		return uiLineInputConnector;
+	}
+	
+	public void setSelected(boolean isSelected) 
+	{
+		super.setSelected(isSelected);
+		if(this.isSelected || this.isCollected)
+			ds.setColor(Color.web("#ff3333"));
+		else if(!this.isCollected)
+			ds.setColor(Color.web("#304f30"));
 	}
 
 }
