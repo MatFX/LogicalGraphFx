@@ -41,7 +41,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -185,11 +184,15 @@ public class ContentPane extends Pane
 									//release from the to observe components
 								
 									//here is the problem with the second input
+									System.out.println("was ist gesucht l " + lineConnector.getLogicElement().getInputId().getLeft());
+									System.out.println("was ist gesucht r " + lineConnector.getLogicElement().getInputId().getRight());
+									
 									UILineInputConnector endConnector = (UILineInputConnector) getConnector(lineConnector.getLogicElement().getInputId());
 
 									//der wird weiterhin bei der linie verbleiben
 									//startConnector.removeUIOutputConnector();
 									//remove the ending point...this point will be establish at the new line
+									System.out.println("input right Id " + lineConnector.getLogicElement().getInputId().getRight());
 									if(lineConnector.getLogicElement().getInputId().getRight() == 1)
 									{
 										((UILineSecondInputConnector)endConnector).removeUISecondInputConnector();
@@ -235,9 +238,14 @@ public class ContentPane extends Pane
 									
 									addMouseListener(uiCircle);
 									addMouseListener(uiNewLineConnector); 
+									
+									System.out.println(" uiNewLineConnector " + uiNewLineConnector.getLogicElement().getInputId().getLeft());
 			       					//add to content
 			                 		ContentPane.this.getChildren().add(uiCircle);
 			                 		ContentPane.this.getChildren().add(uiNewLineConnector);
+			                 		
+			                 		uiMap.put(uiCircle.getLogicElement().getIndex(), uiCircle);
+			                 		uiMap.put(uiNewLineConnector.getLogicElement().getIndex(), uiNewLineConnector);
 								}
 							}
 						}
