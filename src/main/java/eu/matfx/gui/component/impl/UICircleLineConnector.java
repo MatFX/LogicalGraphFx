@@ -44,7 +44,6 @@ public class UICircleLineConnector extends AUIElement<CircleLineConnector> imple
 		circle.setFill(Color.BURLYWOOD);
 		
 		
-		
 		this.getChildren().add(circle);
 	}
 
