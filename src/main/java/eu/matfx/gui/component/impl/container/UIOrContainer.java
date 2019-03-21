@@ -7,6 +7,5 @@ public class UIOrContainer extends AUIInputOutputElement<OrContainer>  {
 
 	public UIOrContainer(OrContainer logicElement) {
 		super(logicElement);
-		// TODO Auto-generated constructor stub
 	}
 }

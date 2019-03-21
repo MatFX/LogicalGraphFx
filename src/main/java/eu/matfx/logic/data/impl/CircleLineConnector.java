@@ -7,22 +7,20 @@ import eu.matfx.logic.data.AConnectorElement;
 
 
 /**
- * This object connect two different LogicElements. At the ui it will be represented with a line.
+ * this circle connect two lines
  * @author m.goerlich
  *
  */
-@XmlType(name = "LineConnector")
+@XmlType(name = "CircleLineConnector")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class LineConnector extends AConnectorElement
+public class CircleLineConnector extends AConnectorElement
 {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4985338600265951913L;
+	private static final long serialVersionUID = -7414368713043545580L;
+	
+	
 
-	
-	
-	
-	
 }

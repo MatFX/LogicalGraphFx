@@ -7,7 +7,6 @@ public class UIAndContainer extends AUIInputOutputElement<AndContainer>  {
 
 	public UIAndContainer(AndContainer logicElement) {
 		super(logicElement);
-		// TODO Auto-generated constructor stub
 	}
 
 }

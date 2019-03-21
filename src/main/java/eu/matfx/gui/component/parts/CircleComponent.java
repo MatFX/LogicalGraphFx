@@ -72,7 +72,6 @@ public class CircleComponent extends Group implements IArea
 	
 	public Coordinate getCenterCoordinate()
 	{
-		
 		return centerCoordinate;
 	}
 	

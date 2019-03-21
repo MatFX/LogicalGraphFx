@@ -85,9 +85,8 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 	}
 	
 	@Override
-	public void setUIInputConnector(UILineConnector uiLineConnector) {
-		
-		
+	public void setUIInputConnector(UILineConnector uiLineConnector) 
+	{
 		if(uiLineConnector != null)
 		{	
 			this.uiLineInputConnector = uiLineConnector;
@@ -123,8 +122,6 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 			};
 			
 			circleLeft.getCenterCoordinate().getY_Property().addListener(changeListenerInputY);
-			
-			System.out.println("centerCoordinate " + circleLeft.getCenterCoordinate());
 		}
 		
 	}

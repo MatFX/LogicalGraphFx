@@ -14,12 +14,20 @@ import javafx.scene.shape.Line;
 
 public class UILineConnector extends AUIElement<LineConnector>
 {
-	
+	/**
+	 * connected with the output channel, start coordinate 
+	 */
 	private DoubleProperty outX = new SimpleDoubleProperty(5), outY = new SimpleDoubleProperty(5);
 	
+	/**
+	 * connected with the input channel, end coordinate
+	 */
 	private DoubleProperty inX = new SimpleDoubleProperty(10), inY = new SimpleDoubleProperty(10);
 	
-	private Line line;
+	/**
+	 * always on screen when connection established
+	 */
+	private Line masterLine;
 	
 	private DropShadow ds;
 
@@ -31,20 +39,23 @@ public class UILineConnector extends AUIElement<LineConnector>
 		super(logicElement);
 		//TODO take the coords from logicElement
 		
-		line = new Line();
-		line.setStrokeWidth(3);
-		line.setStroke(Color.BLUE);
+		masterLine = new Line();
+		masterLine.setStrokeWidth(3);
+		masterLine.setStroke(Color.BLUE);
 		
 		//line.setFill(Color.web("#74aa7400"));
 		ds = new DropShadow();
 		ds.setOffsetY(0.1f);
 		ds.setColor(Color.web("#0000e6AA"));
-		line.setEffect(ds);
+		masterLine.setEffect(ds);
+		
+		
+		//TODO change?
 		outX.addListener(new ChangeListener<Number>(){
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				line.setStartX(newValue.doubleValue());
+				masterLine.setStartX(newValue.doubleValue());
 				
 			}
 			
@@ -54,7 +65,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				line.setStartY(newValue.doubleValue());
+				masterLine.setStartY(newValue.doubleValue());
 				
 			}
 			
@@ -64,7 +75,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				line.setEndX(newValue.doubleValue());
+				masterLine.setEndX(newValue.doubleValue());
 				
 			}
 			
@@ -74,13 +85,13 @@ public class UILineConnector extends AUIElement<LineConnector>
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				line.setEndY(newValue.doubleValue());
+				masterLine.setEndY(newValue.doubleValue());
 			}
 			
 		});
 		
 		
-		this.getChildren().add(line);
+		this.getChildren().add(masterLine);
 		
 	}
 
@@ -136,9 +147,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 
 	public void setOutputX(double outX) 
 	{
-		
 		this.outX.set(outX);
-		
 	}
 
 	public void setOutputY(double outY) {
@@ -187,12 +196,12 @@ public class UILineConnector extends AUIElement<LineConnector>
 		super.setSelected(isSelected);
 		if(this.isSelected)
 		{
-			line.setStroke(Color.CORAL);
+			masterLine.setStroke(Color.CORAL);
 			ds.setColor(Color.web("#992900AA"));
 		}
 		else
 		{
-			line.setStroke(Color.BLUE);
+			masterLine.setStroke(Color.BLUE);
 			ds.setColor(Color.web("#0000e6AA"));
 		}
 	}
@@ -254,75 +263,15 @@ public class UILineConnector extends AUIElement<LineConnector>
 	public boolean isOuterTolerance(Point2D mousePoint) 
 	{
 		
-		
-		
-		Point2D startPoint = new Point2D(outX.get(), outY.get());
-		Point2D endPoint = new Point2D(inX.get(), inY.get());
-		
-		System.out.println("startPoint " +  startPoint.getX() + " " + startPoint.getY());
-		System.out.println("endPoint " +    endPoint.getX() + " " + endPoint.getY());
-		System.out.println("Mouse point " + mousePoint.getX() + " " + mousePoint.getY());
-		
-		//need result y = mx + b
-		
-		//p1 => outY = m * outX + b
-		
-		//p2 => inY = m * outY + b
-		
-		//b1 => outY - (m * outX) = b
-		
-		//b2 => inY - (m * inX) = b
-		
-		//m ==> (inY - outY) / (inX - OutX)
-		
-		double m1 = (startPoint.getY() - endPoint.getY()) / (startPoint.getX() - endPoint.getX());
-		
-		System.out.println("m1 " + m1);
-		
-		//b ==> outY - (outX * m)
-		
-		double b = startPoint.getY() - (startPoint.getX() * m1);
-		
-		/* Orthogonale Gerade */
-		
-		System.out.println("b " + b);
-		//m1 * m2 = -1
-		
-		double m2 = -1d / m1;
-		
-		
-		//yO = m2 * x + b
-		
-		//mousePointY = m2 * mousePointX + b
-		
-		double bO = mousePoint.getY() - (m2 * mousePoint.getX());
-		
-		//jetzt gleichsetzen mit Funktionsgleichung
-		// m2*x + b0 = m1*x + b
-		
-		double x = (b - bO) / (m2 - m1);
-		
-		double y = m1 * x + b;
-		
-		System.out.println("Punkt auf gerade " + x + " " + y);
-		
-		//abstand zwischen den beiden punkten
-		
-		
-		double rangeBetweenPoints = Math.sqrt( Math.pow((mousePoint.getY() - y), 2) + Math.pow(( mousePoint.getX() - x), 2));
-		
-		
-		System.out.println("rangeBetweenPoints " + rangeBetweenPoints);
-		
-		
+		Point2D orthPoint = getOrthogonalPointOnLine(mousePoint);
+		double rangeBetweenPoints = Math.sqrt( Math.pow((mousePoint.getY() - orthPoint.getY()), 2) + Math.pow(( mousePoint.getX() - orthPoint.getX()), 2));
 		if(rangeBetweenPoints > 10)
 			return true;
-		
 		return false;
 	}
 
 	public void setDeleteColor() {
-		line.setStroke(Color.RED);
+		masterLine.setStroke(Color.RED);
 		ds.setColor(Color.web("#990000AA"));
 		isDeletedDesignated = true;
 	}
@@ -333,7 +282,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 	}
 
 	public void removeDeleteColor() {
-		line.setStroke(Color.CORAL);
+		masterLine.setStroke(Color.CORAL);
 		ds.setColor(Color.web("#992900AA"));
 		isDeletedDesignated = false;
 	}
@@ -353,6 +302,57 @@ public class UILineConnector extends AUIElement<LineConnector>
 	public void saveVariables()
 	{
 		// a line need not a save.
+	}
+
+
+	public Point2D getOrthogonalPointOnLine(Point2D mousePoint) 
+	{
+		//need the end and start of the line and build a fucntion
+		Point2D startPoint = new Point2D(outX.get(), outY.get());
+		Point2D endPoint = new Point2D(inX.get(), inY.get());
+		
+		//need result y = mx + b
+		
+		//p1 => outY = m * outX + b
+		
+		//p2 => inY = m * outY + b
+		
+		//b1 => outY - (m * outX) = b
+		
+		//b2 => inY - (m * inX) = b
+		
+		//m ==> (inY - outY) / (inX - OutX)
+		
+		double m1 = (startPoint.getY() - endPoint.getY()) / (startPoint.getX() - endPoint.getX());
+		
+		//System.out.println("m1 " + m1);
+		
+		//b ==> outY - (outX * m)
+		
+		double b = startPoint.getY() - (startPoint.getX() * m1);
+		
+		/* Orthogonale Gerade */
+		
+		//System.out.println("b " + b);
+		//m1 * m2 = -1
+		
+		double m2 = -1d / m1;
+		
+		
+		//yO = m2 * x + b
+		
+		//mousePointY = m2 * mousePointX + b
+		
+		double bO = mousePoint.getY() - (m2 * mousePoint.getX());
+		
+		//jetzt gleichsetzen mit Funktionsgleichung
+		// m2*x + b0 = m1*x + b
+		
+		double x = (b - bO) / (m2 - m1);
+		
+		double y = m1 * x + b;
+		
+		return new Point2D(x, y);
 	}
 
 }

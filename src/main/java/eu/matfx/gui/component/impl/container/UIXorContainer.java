@@ -8,7 +8,6 @@ public class UIXorContainer extends AUIInputOutputElement<XorContainer>
 
 	public UIXorContainer(XorContainer logicElement) {
 		super(logicElement);
-		// TODO Auto-generated constructor stub
 	}
 
 }

@@ -9,6 +9,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import eu.matfx.gui.component.AUIElement;
+import eu.matfx.gui.component.impl.UICircleLineConnector;
 import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.helper.GenericPair;
 import eu.matfx.gui.helper.SelectionRectangle;
@@ -24,6 +25,7 @@ import eu.matfx.logic.data.ADoubleInputOneOutputElement;
 import eu.matfx.logic.data.AInputOutputElement;
 import eu.matfx.logic.data.ALogicElement;
 import eu.matfx.logic.data.AOutputElement;
+import eu.matfx.logic.data.impl.CircleLineConnector;
 import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.database.SchemeDataStorage;
 import eu.matfx.logic.database.XMLAccess;
@@ -39,6 +41,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -75,6 +78,8 @@ public class ContentPane extends Pane
 	private HashMap<AUIElement<? extends ALogicElement>, GenericPair<ChangeListener<Number>, ChangeListener<Number>>> changeListenerMap;
 	
 	private Circle startRectangle = new Circle();
+	
+	private Point2D lastReceivedLineMousePoint = null;
 	
 	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command) 
 	{
@@ -133,7 +138,7 @@ public class ContentPane extends Pane
 
 			@Override
 			public void handle(KeyEvent event) {
-				//System.out.println("pressedKey:  " + event.getCode());
+			
 				
 			}
 			
@@ -141,8 +146,9 @@ public class ContentPane extends Pane
 		this.primaryStage.getScene().setOnKeyReleased(new EventHandler<KeyEvent>(){
 
 			@Override
-			public void handle(KeyEvent event) {
-				System.out.println("releasedKey:  " + event.getCode());
+			public void handle(KeyEvent event) 
+			{
+
 				switch(event.getCode())
 				{
 					//two possible keys to delete the selected ui components
@@ -150,9 +156,101 @@ public class ContentPane extends Pane
 					case DELETE:
 						deleteSelectedUIElements();
 						break;
+					case PLUS:
+						
+						//TODO das geht hier nicht
+						
+						
+						//globale boolean für selektion oder doch jedesmal die Suche anstossen?
+						for(int i = 0; i < getChildren().size(); i++)
+						{
+							//searching for selected line connector
+							if(getChildren().get(i) instanceof UILineConnector && ((UILineConnector)getChildren().get(i)).isSelected())
+							{
+								UILineConnector lineConnector = (UILineConnector)getChildren().get(i);
+								
+								//find the point on the line
+								if(lastReceivedLineMousePoint != null)
+								{
+									//calculate the point on the line (orthogonale function)
+									Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(lastReceivedLineMousePoint.getX(), lastReceivedLineMousePoint.getY()));
+									Point2D nearesPoint = lineConnector.getOrthogonalPointOnLine(transferCoord);
+		
+									Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+									CircleLineConnector circleLineConnector = new CircleLineConnector();
+									schemeObject.addElementAtMap(circleLineConnector);
+									
+									UICircleLineConnector uiCircle = new UICircleLineConnector((CircleLineConnector) schemeObject.getWorkflowMap().get(circleLineConnector.getIndex()));
+									uiCircle.moveComponent(nearesPoint.getX(), nearesPoint.getY());
+									//release from the to observe components
+								
+									//here is the problem with the second input
+									UILineInputConnector endConnector = (UILineInputConnector) getConnector(lineConnector.getLogicElement().getInputId());
+
+									//der wird weiterhin bei der linie verbleiben
+									//startConnector.removeUIOutputConnector();
+									//remove the ending point...this point will be establish at the new line
+									if(lineConnector.getLogicElement().getInputId().getRight() == 1)
+									{
+										((UILineSecondInputConnector)endConnector).removeUISecondInputConnector();
+									}
+									else
+										endConnector.removeUIInputConnector();
+							
+									
+									//divide the selected line 
+									//=> need a new line
+									LineConnector newLineConnector = new LineConnector();
+									schemeObject.addElementAtMap(newLineConnector);
+									//that line get the end container 
+									UILineConnector uiNewLineConnector = new UILineConnector((LineConnector) schemeObject.getWorkflowMap().get(newLineConnector.getIndex()));
+									
+									//add new ending point to the old line
+									uiCircle.getLogicElement().setMasteridInput(lineConnector.getLogicElement().getIndex());
+									//add new output id from the new line
+									uiCircle.getLogicElement().setMasteridOutput(uiNewLineConnector.getLogicElement().getIndex());
+									
+									uiNewLineConnector.getLogicElement().setMasteridInput(uiCircle.getLogicElement().getIndex());
+									uiNewLineConnector.getLogicElement().setMasteridOutput(((AUIElement)endConnector).getLogicElement().getIndex());
+									
+									//add the ending point to the new line
+									if(lineConnector.getLogicElement().getInputId().getRight() == 1)
+										((UILineSecondInputConnector)endConnector).setUISecondInputConnector(uiNewLineConnector);
+									//normal 
+									else
+									{
+										endConnector.setUIInputConnector(uiNewLineConnector);
+									}
+									
+									//add new observe object to the circle component
+									//output to new line
+									uiCircle.setUIOutputConnector(uiNewLineConnector);
+									//input from old line
+									System.out.println("line " + lineConnector);
+									uiCircle.setUIInputConnector(lineConnector);
+								
+									//previous: Start-Component -> Line -> End-Component
+									
+									//after change: Start-Component -> Line1 -> Circle -> Line2 -> End-Component
+									
+									addMouseListener(uiCircle);
+									addMouseListener(uiNewLineConnector); 
+			       					//add to content
+			                 		ContentPane.this.getChildren().add(uiCircle);
+			                 		ContentPane.this.getChildren().add(uiNewLineConnector);
+								}
+							}
+						}
+						break;
+						
+					case MINUS:
+					
+						break;
+					
 					default:
 						break;
 				}
+				
 			}
 		});
 		
@@ -500,6 +598,7 @@ public class ContentPane extends Pane
 	        				//line connector selected? to delete the line the user must select the line
 			        		if(node instanceof UILineConnector)
 			        		{
+			        			lastReceivedLineMousePoint = new Point2D(t.getSceneX(), t.getSceneY());
 			        			((UILineConnector)node).setSelected(true);
 			        		
 			        		}
@@ -627,6 +726,7 @@ public class ContentPane extends Pane
                	if(node instanceof UILineConnector)
         		{
                		
+               		
                		Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(t.getSceneX(), t.getSceneY()));
                		
                		if(((UILineConnector)node).isSelected())
@@ -634,11 +734,14 @@ public class ContentPane extends Pane
                			
                			if(((UILineConnector)node).isOuterTolerance(transferCoord))
                			{
+               				//outer tolerance no saving of mouse Point => PLUS Key event
+               				lastReceivedLineMousePoint = null;
                				//show delete color
                				((UILineConnector)node).setDeleteColor();
                			}
                			else
                			{
+               				lastReceivedLineMousePoint = new Point2D(t.getSceneX(), t.getSceneY());
                				//change to normal select color
                				((UILineConnector)node).removeDeleteColor();
                			}
@@ -951,11 +1054,9 @@ public class ContentPane extends Pane
                  			{
                  				
                  				outputConnector.setUIOutputConnector(newLine);
+                 				
                  				if(tempLine.getSubIndexInput() == 1)
-                 				{
                  					((UILineSecondInputConnector)inputConnector).setUISecondInputConnector(newLine);
-                 					
-                 				}
                  				//normal 
                  				else
                  					inputConnector.setUIInputConnector(newLine);

@@ -156,21 +156,7 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 			
 			
 			circleRight.getCenterCoordinate().getY_Property().addListener(changeListenerOutputY);
-			
-			//init of the outputconnector
-			
 		}
-		else
-		{
-			//TODO listener as member variable to delete them
-			//circleRight.getCenterCoordinate().getX_Property().dele
-			
-		}
-		
-		
-		
-		
-		
 	}
 	
 

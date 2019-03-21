@@ -4,6 +4,8 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+
+import eu.matfx.logic.data.impl.CircleLineConnector;
 import eu.matfx.logic.data.impl.FunctionElement;
 import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.data.impl.SensorElement;
@@ -22,7 +24,8 @@ import eu.matfx.logic.helper.LocationView;
  * @author m.goerlich
  *
  */
-@XmlSeeAlso({AndContainer.class, OrContainer.class, RSFlipFlopContainer.class, XorContainer.class, FunctionElement.class, LineConnector.class, SensorElement.class})
+@XmlSeeAlso({AndContainer.class, OrContainer.class, RSFlipFlopContainer.class, XorContainer.class, FunctionElement.class, 
+	LineConnector.class, SensorElement.class, CircleLineConnector.class})
 @XmlType(propOrder={"classDescription", "index", "locationView", "dimensionView"})
 public abstract class ALogicElement implements Serializable
 {
