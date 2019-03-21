@@ -105,8 +105,6 @@ public class UICircleLineConnector extends AUIElement<CircleLineConnector> imple
 
 	@Override
 	public void recalcualteCenterPoint() {
-	//	System.out.println("x " + this.getLayoutX() + " " + this.getLayoutY());
-		System.out.println("x " + this.getTranslateX() + " y " + this.getTranslateY());
 		centerCoordinate.setX(this.getTranslateX());
 		centerCoordinate.setY(this.getTranslateY());
 	}

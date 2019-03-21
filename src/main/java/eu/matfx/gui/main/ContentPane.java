@@ -171,6 +171,15 @@ public class ContentPane extends Pane
 								//find the point on the line
 								if(lastReceivedLineMousePoint != null)
 								{
+									
+
+			                 		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
+			                 		{
+			                 			System.out.println("Value " + entry.getValue().getLogicElement()  +" Index " + entry.getValue().getLogicElement().getIndex());
+			                 			
+			                 		}
+			                 		System.out.println("---------------------------------------------------");
+			                 		
 									//calculate the point on the line (orthogonale function)
 									Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(lastReceivedLineMousePoint.getX(), lastReceivedLineMousePoint.getY()));
 									Point2D nearesPoint = lineConnector.getOrthogonalPointOnLine(transferCoord);
@@ -184,11 +193,15 @@ public class ContentPane extends Pane
 									//release from the to observe components
 								
 									//here is the problem with the second input
-									System.out.println("was ist gesucht l " + lineConnector.getLogicElement().getInputId().getLeft());
-									System.out.println("was ist gesucht r " + lineConnector.getLogicElement().getInputId().getRight());
+									System.out.println("Input l " + lineConnector.getLogicElement().getInputId().getLeft());
+									System.out.println("Input r " + lineConnector.getLogicElement().getInputId().getRight());
 									
 									UILineInputConnector endConnector = (UILineInputConnector) getConnector(lineConnector.getLogicElement().getInputId());
 
+									System.out.println("Output l " + lineConnector.getLogicElement().getOutputId().getLeft());
+									System.out.println("Output r " + lineConnector.getLogicElement().getOutputId().getRight());
+									
+									
 									//der wird weiterhin bei der linie verbleiben
 									//startConnector.removeUIOutputConnector();
 									//remove the ending point...this point will be establish at the new line
@@ -207,14 +220,14 @@ public class ContentPane extends Pane
 									schemeObject.addElementAtMap(newLineConnector);
 									//that line get the end container 
 									UILineConnector uiNewLineConnector = new UILineConnector((LineConnector) schemeObject.getWorkflowMap().get(newLineConnector.getIndex()));
-									
+									System.out.println("newLineConnecotr " + uiNewLineConnector.getLogicElement().getIndex());
 									//add new ending point to the old line
 									uiCircle.getLogicElement().setMasteridInput(lineConnector.getLogicElement().getIndex());
 									//add new output id from the new line
 									uiCircle.getLogicElement().setMasteridOutput(uiNewLineConnector.getLogicElement().getIndex());
 									
-									uiNewLineConnector.getLogicElement().setMasteridInput(uiCircle.getLogicElement().getIndex());
-									uiNewLineConnector.getLogicElement().setMasteridOutput(((AUIElement)endConnector).getLogicElement().getIndex());
+									uiNewLineConnector.getLogicElement().setMasteridInput(((AUIElement)endConnector).getLogicElement().getIndex());
+									uiNewLineConnector.getLogicElement().setMasteridOutput(uiCircle.getLogicElement().getIndex());
 									
 									//add the ending point to the new line
 									if(lineConnector.getLogicElement().getInputId().getRight() == 1)
@@ -239,13 +252,25 @@ public class ContentPane extends Pane
 									addMouseListener(uiCircle);
 									addMouseListener(uiNewLineConnector); 
 									
-									System.out.println(" uiNewLineConnector " + uiNewLineConnector.getLogicElement().getInputId().getLeft());
+									System.out.println("Input l " + uiNewLineConnector.getLogicElement().getInputId().getLeft());
+									System.out.println("Input r " + uiNewLineConnector.getLogicElement().getInputId().getRight());
+									
+									System.out.println("Output l " + uiNewLineConnector.getLogicElement().getOutputId().getLeft());
+									System.out.println("Output r " + uiNewLineConnector.getLogicElement().getOutputId().getRight());
+							
+									
 			       					//add to content
 			                 		ContentPane.this.getChildren().add(uiCircle);
 			                 		ContentPane.this.getChildren().add(uiNewLineConnector);
 			                 		
 			                 		uiMap.put(uiCircle.getLogicElement().getIndex(), uiCircle);
 			                 		uiMap.put(uiNewLineConnector.getLogicElement().getIndex(), uiNewLineConnector);
+			                 		
+			                 		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
+			                 		{
+			                 			System.out.println("Value " + entry.getValue().getLogicElement()  +" Index " + entry.getValue().getLogicElement().getIndex());
+			                 			
+			                 		}
 								}
 							}
 						}
