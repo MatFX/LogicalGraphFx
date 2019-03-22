@@ -213,6 +213,10 @@ public class ContentPane extends Pane {
 								else {
 									endConnector.setUIInputConnector(uiNewLineConnector);
 								}
+								
+								//change the old inputConector of the logicElement
+								lineConnector.getLogicElement().setMasteridInput(uiCircle.getLogicElement().getIndex());
+								
 
 								// add new observe object to the circle
 								// component
@@ -236,17 +240,6 @@ public class ContentPane extends Pane {
 
 								uiMap.put(uiCircle.getLogicElement().getIndex(), uiCircle);
 								uiMap.put(uiNewLineConnector.getLogicElement().getIndex(), uiNewLineConnector);
-								/*
-								 * for(Entry<Integer, AUIElement<? extends
-								 * ALogicElement>> entry : uiMap.entrySet()) {
-								 * System.out.println("Value " +
-								 * entry.getValue().getLogicElement() +" Index "
-								 * +
-								 * entry.getValue().getLogicElement().getIndex()
-								 * );
-								 * 
-								 * }
-								 */
 							}
 						}
 					}
@@ -391,14 +384,16 @@ public class ContentPane extends Pane {
 				AUIElement<? extends ALogicElement> createdElement = AUIElement.getInstance(aLogicElement);
 				if (createdElement != null) {
 					// in the first draw no line connector!
-					if (!(createdElement instanceof UILineConnector)) {
-
+					if (!(createdElement instanceof UILineConnector)) 
+					{
+						
+						//System.out.println("addToView " + createdElement.getClass().toString());
+						
 						// TODO was ist mit größe und location?
 						ContentPane.this.getChildren().add(createdElement);
 
 						// TODO positioning
-						createdElement.moveComponent(aLogicElement.getLocationView().getX(),
-								aLogicElement.getLocationView().getY());
+						createdElement.moveComponent(aLogicElement.getLocationView().getX(), aLogicElement.getLocationView().getY());
 						createdElement.recalcualteCenterPoint();
 
 						addMouseListener(createdElement);
@@ -409,7 +404,8 @@ public class ContentPane extends Pane {
 			}
 
 			// with the second draw the line connector came on view
-			for (Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet()) {
+			for (Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet()) 
+			{
 				if (entry.getValue() instanceof UILineConnector) {
 					// we need two listener one for the output and one for the
 					// input
@@ -427,11 +423,17 @@ public class ContentPane extends Pane {
 						UILineInputConnector inputConnector = (UILineInputConnector) getConnector(
 								lineConnector.getInputId());
 
+						System.out.println("LineOutput "  + outputConnector.getClass().toString() + " " + lineConnector.getOutputId().getLeft());
+						System.out.println("LineInput "  + inputConnector.getClass().toString() + " " + lineConnector.getInputId().getLeft());
+						
 						outputConnector.setUIOutputConnector(connector);
 						// TODO not beautiful
-						if (lineConnector.getInputId().getRight() == 1) {
+						if (lineConnector.getInputId().getRight() == 1) 
+						{
 							((UILineSecondInputConnector) inputConnector).setUISecondInputConnector(connector);
-						} else {
+						} 
+						else 
+						{
 							inputConnector.setUIInputConnector(connector);
 						}
 					}

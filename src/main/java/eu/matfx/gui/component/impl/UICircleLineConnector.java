@@ -160,8 +160,10 @@ public class UICircleLineConnector extends AUIElement<CircleLineConnector> imple
 
 	@Override
 	public void removeUIOutputConnector() {
-		this.translateYProperty().removeListener(changeListenerOutputY);
-		this.translateXProperty().removeListener(changeListenerOutputX);
+		if(changeListenerOutputY != null)
+			this.translateYProperty().removeListener(changeListenerOutputY);
+		if(changeListenerOutputX != null)
+			this.translateXProperty().removeListener(changeListenerOutputX);
 		this.uiLineOutputConnector = null;
 	}
 
@@ -221,11 +223,14 @@ public class UICircleLineConnector extends AUIElement<CircleLineConnector> imple
 	}
 
 	@Override
-	public void removeUIInputConnector() {
-		this.translateYProperty().removeListener(changeListenerInputY);
-		this.translateXProperty().removeListener(changeListenerInputY);
+	public void removeUIInputConnector() 
+	{
+		if(changeListenerInputX != null)
+			this.translateXProperty().removeListener(changeListenerInputX);
+		if(changeListenerInputY != null)
+			this.translateYProperty().removeListener(changeListenerInputY);
 		this.uiLineInputConnector = null;
-		
+	
 	}
 	
 	public UILineConnector getUILineOutputConnector()
