@@ -21,6 +21,7 @@ import eu.matfx.logic.helper.LocationView;
 
 /**
  * Abstract logic element with member variable of all extended classes
+ * <br>It is the base class 
  * @author m.goerlich
  *
  */
