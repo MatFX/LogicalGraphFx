@@ -40,7 +40,7 @@ public class UILineConnector extends AUIElement<LineConnector>
 		//TODO take the coords from logicElement
 		
 		masterLine = new Line();
-		masterLine.setStrokeWidth(3);
+		masterLine.setStrokeWidth(4);
 		masterLine.setStroke(Color.BLUE);
 		
 		//line.setFill(Color.web("#74aa7400"));
@@ -209,7 +209,6 @@ public class UILineConnector extends AUIElement<LineConnector>
 	
 	public static void main (String[] args)
 	{
-		//
 		//Point2D mousePoint = new Point2D(4, 4);
 		//Point2D startPoint = new Point2D(2, 3);
 		//Point2D endPoint = new Point2D(5, 6);
