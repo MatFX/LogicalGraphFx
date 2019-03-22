@@ -151,7 +151,6 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	
 	public void setGroupedMovementX(double changedRectangleStartX)
 	{ 
-		System.out.println("aufruf grouped move x");
 		this.setTranslateX(changedRectangleStartX + movementCoords.getX());
 		this.recalcualteCenterPoint();
 	}

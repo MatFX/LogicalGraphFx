@@ -156,7 +156,8 @@ public class ContentPane extends Pane {
 							UILineConnector lineConnector = (UILineConnector) getChildren().get(i);
 
 							// find the point on the line
-							if (lastReceivedLineMousePoint != null) {
+							if (lastReceivedLineMousePoint != null) 
+							{
 								// calculate the point on the line (orthogonale
 								// function)
 								Point2D transferCoord = ContentPane.this.sceneToLocal(new Point2D(
@@ -801,7 +802,7 @@ public class ContentPane extends Pane {
 							}
 						}
 					}
-
+					System.out.println("is Component in Rect " + isComponentsInRect);
 					if (!isComponentsInRect) 
 					{
 						
