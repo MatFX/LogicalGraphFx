@@ -13,7 +13,18 @@ public class UISensorElement extends AUIOutputElement<SensorElement>
 		super(logicElement);
 	}
 
-
+	public void setGroupedMovementX(double changedRectangleStartX)
+	{ 
+		this.setTranslateX(changedRectangleStartX + movementCoords.getX());
+		this.recalcualteCenterPoint();
+	}
+	
+	public void setGroupedMovementY(double changedRectangleStartY)
+	{
+		this.setTranslateY(changedRectangleStartY + movementCoords.getY());
+		this.recalcualteCenterPoint();
+	}
+	
 
 
 }

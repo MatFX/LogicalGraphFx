@@ -27,7 +27,7 @@ public abstract class AUIElement<T extends ALogicElement> extends Group implemen
 	/**
 	 * gap coordinates (from rectangle to this x/y axis) when component is collected
 	 */
-	private Point2D movementCoords;
+	protected Point2D movementCoords;
 	
 	/* TODO later changeable? */
 	protected double w = 150, h = 150;
