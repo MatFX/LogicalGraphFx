@@ -109,9 +109,24 @@ public class ContentPane extends Pane {
 				switch (newValue) {
 				case SAVE_ACTIVE_SCHEME:
 					saveActiveScheme();
-
 					break;
-
+				case CREATED_NEW_SCHEME:
+					//Der Schemecontainer ist bereits erzeugt und in der Liste abgelegt
+					
+					//combobox wurde bereits bei der Schemebar angepasst
+					
+					//remove ui elements from the screen
+					for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
+					{
+						ContentPane.this.getChildren().remove(entry.getValue());
+						
+					}
+					//clear the uiMap
+					uiMap.clear();
+					break;
+				default:
+					System.out.println("COMMAND NOT IMPLEMENTED: " + newValue);
+					break;
 				}
 			}
 

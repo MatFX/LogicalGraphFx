@@ -58,6 +58,20 @@ public class CreationLogicSchemeBar extends HBox
 						schemeComboBox.setDisable(false);
 						command.set(ECommand.NO_COMMAND);
 						break;
+					case CREATED_NEW_SCHEME:
+						
+						//rebuild the combox and select the scheme on screen
+						SchemeList schemeList = SchemeDataStorage.getSchemeList();
+						//TODO need sort ...alphabetical?
+						List<Scheme> tempList = schemeList.getSchemeList();
+						
+						ObservableList<Scheme> selectionComboBox = 
+								FXCollections.observableArrayList(tempList);
+					
+						schemeComboBox.getItems().clear();
+						schemeComboBox.getItems().addAll(selectionComboBox);
+						schemeComboBox.getSelectionModel().select(schemeList.getActiveSchemeOnScreen());
+						break;
 				}
 				
 			}
@@ -145,7 +159,7 @@ public class CreationLogicSchemeBar extends HBox
 	protected void createNewScheme() {
 		
 		//bei einem neuem Schema als erstes nach dem Namen fragen
-		/*
+		
 		TextInputDialog dialog = new TextInputDialog("Bezeichnung");
 		
 		dialog.setTitle("Erzeuge Schema");
@@ -157,9 +171,18 @@ public class CreationLogicSchemeBar extends HBox
 		{
 			bezeichnung = result.get();
 		} 
-	
-	//	SchemeRootContainer schemaRootContainer = new SchemeRootContainer(bezeichnung);
-	//	TempDataStorage.setSchemeRootContainer(schemaRootContainer);
+		
+		Scheme newScheme = new Scheme();
+		newScheme.setDescriptionName(bezeichnung);
+		
+		SchemeDataStorage.addNewScheme(newScheme);
+		
+		
+		
+		
+	/*
+		SchemeRootContainer schemaRootContainer = new SchemeRootContainer(bezeichnung);
+		TempDataStorage.setSchemeRootContainer(schemaRootContainer);
 		
 		schemeComboBox.getItems().add(schemaRootContainer.getBezeichnung());
 		schemeComboBox.getSelectionModel().select(schemaRootContainer.getBezeichnung());
@@ -167,6 +190,8 @@ public class CreationLogicSchemeBar extends HBox
 		//hinweis an GUI, dass ein neuer Container erzeugt wurde
 		*/
 		command.set(ECommand.CREATED_NEW_SCHEME);
+		
+		
 	}
 
 	protected void deleteActiveScheme() 
