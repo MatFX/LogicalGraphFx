@@ -1,5 +1,9 @@
 package eu.matfx.logic.database;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import eu.matfx.logic.Scheme;
 import eu.matfx.logic.SchemeList;
 
 public class SchemeDataStorage 
@@ -28,6 +32,24 @@ public class SchemeDataStorage
 	{
 		return instance.schemeList;
 	}
+
+	/**
+	 * add new scheme to list, calculate the id and select it as setActiveSchemeOnScreen
+	 * @param newScheme
+	 */
+	public static void addNewScheme(Scheme newScheme) 
+	{
+		List<Scheme>schemeList = instance.schemeList.getSchemeList();
+		if(schemeList == null)
+			schemeList = new ArrayList<Scheme>();
+		
+		newScheme.setId(SchemeList.calculatedNextFreeId());
+		System.out.println("schema id ist: " + newScheme.getId());
+		schemeList.add(newScheme);
+		instance.schemeList.setActiveSchemeOnScreen(newScheme.getId());
+	}
+	
+	
 	
 	
 	

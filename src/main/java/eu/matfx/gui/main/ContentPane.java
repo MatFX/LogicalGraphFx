@@ -109,9 +109,25 @@ public class ContentPane extends Pane {
 				switch (newValue) {
 				case SAVE_ACTIVE_SCHEME:
 					saveActiveScheme();
-
+					command.set(ECommand.NO_COMMAND);
 					break;
-
+				case CREATED_NEW_SCHEME:
+					//Der Schemecontainer ist bereits erzeugt und in der Liste abgelegt
+					//combobox wurde bereits bei der Schemebar angepasst
+					removeContentAndCleanMap();
+					command.set(ECommand.NO_COMMAND);
+					break;
+				case ACTIVATED_SCHEME:
+					removeContentAndCleanMap();
+					//TODO rebuildContent with new scheme
+					rebuildView();
+					command.set(ECommand.NO_COMMAND);
+					break;
+				case NO_COMMAND:
+					break;
+				default:
+					System.out.println("COMMAND NOT IMPLEMENTED: " + newValue);
+					break;
 				}
 			}
 
@@ -286,6 +302,20 @@ public class ContentPane extends Pane {
 		}
 	}
 
+	protected void removeContentAndCleanMap() {
+
+		
+		//remove ui elements from the screen
+		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
+		{
+			ContentPane.this.getChildren().remove(entry.getValue());
+			
+		}
+		//clear the uiMap
+		uiMap.clear();
+		
+	}
+
 	/**
 	 * save the activate scheme from the view
 	 */
@@ -374,9 +404,9 @@ public class ContentPane extends Pane {
 		uiMap = new TreeMap<Integer, AUIElement<? extends ALogicElement>>();
 		ContentPane.this.setStyle("-fx-background-color: #5691b0;");
 
-		Scheme schemeObject = SchemeDataStorage.getSchemeList().getSchemeList()
-				.get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-
+		Scheme schemeObject = SchemeDataStorage.getSchemeList()
+				.getSchemeElement(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+		System.out.println("schemeObject " + schemeObject);
 		if (schemeObject != null) {
 			SortedMap<Integer, ALogicElement> workflowMap = schemeObject.getWorkflowMap();
 

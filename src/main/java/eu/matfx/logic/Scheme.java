@@ -24,13 +24,18 @@ import java.util.TreeMap;
  */
 @XmlRootElement(name = "Scheme")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder={"descriptionName", "workflowMap"})
+@XmlType(propOrder={"id", "descriptionName", "workflowMap"})
 public class Scheme implements Serializable {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5282704414480106497L;
+	
+	/**
+	 * eindeutige Bezeichnung für das Schema. Dieses wird dann bei dem zur Zeit aktivierten Schema hinterlegt.
+	 */
+	private int id;
 
 	public static final int START_INDEX = 0;
 	
@@ -179,6 +184,15 @@ public class Scheme implements Serializable {
 				return entry.getKey();
 		}
 		return Integer.MIN_VALUE;
+	}
+
+	public void setId(int id)
+	{
+		this.id = id;
+	}
+
+	public Integer getId() {
+		return id;
 	}
 	
 

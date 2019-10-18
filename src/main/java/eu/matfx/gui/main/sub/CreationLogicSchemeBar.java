@@ -7,7 +7,6 @@ import eu.matfx.gui.util.ECommand;
 import eu.matfx.logic.Scheme;
 import eu.matfx.logic.SchemeList;
 import eu.matfx.logic.database.SchemeDataStorage;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -30,6 +29,25 @@ public class CreationLogicSchemeBar extends HBox
 	
 	
 	private ComboBox<Scheme> schemeComboBox = null;
+	
+	/**
+	 * add and remove the changelistener when the combobox get new content
+	 */
+	private ChangeListener<Scheme> changeListener = new ChangeListener<Scheme>(){
+
+		@Override
+		public void changed(ObservableValue<? extends Scheme> observable, Scheme oldValue, Scheme newValue) 
+		{
+			if(!(oldValue.equals(newValue)) && oldValue != null)
+			{
+				//index ermitteln und diesen setzen
+				System.out.println("aufruf von setActvie");
+				SchemeDataStorage.getSchemeList().setActiveSchemeOnScreen(newValue);
+				activateScheme();
+			}
+		}
+		
+	};
 	
 	public CreationLogicSchemeBar(ObjectProperty<ECommand> command)
 	{
@@ -57,6 +75,34 @@ public class CreationLogicSchemeBar extends HBox
 						
 						schemeComboBox.setDisable(false);
 						command.set(ECommand.NO_COMMAND);
+						break;
+					case CREATED_NEW_SCHEME:
+						
+						schemeComboBox.valueProperty().removeListener(changeListener);
+						
+						//rebuild the combox and select the scheme on screen
+						SchemeList schemeList = SchemeDataStorage.getSchemeList();
+						//TODO need sort ...alphabetical?
+						List<Scheme> tempList = schemeList.getSchemeList();
+						
+						ObservableList<Scheme> selectionComboBox = 
+								FXCollections.observableArrayList(tempList);
+					
+						schemeComboBox.getItems().clear();
+						schemeComboBox.getItems().addAll(selectionComboBox);
+						if(schemeList.getActiveSchemeOnScreen() >= 0)
+						{
+							for(int i = 0; i < schemeComboBox.getItems().size(); i++)
+							{
+								if(schemeComboBox.getItems().get(i).getId() == schemeList.getActiveSchemeOnScreen())
+								{
+									schemeComboBox.getSelectionModel().select(i);
+									break;
+								}
+							}
+						}
+						schemeComboBox.valueProperty().addListener(changeListener);
+						
 						break;
 				}
 				
@@ -102,14 +148,22 @@ public class CreationLogicSchemeBar extends HBox
 		
 		//TODO zu beginn noch nicht befüllt
 		schemeComboBox = new ComboBox<Scheme>(selectionComboBox);
-		
 		if(schemeObject.getActiveSchemeOnScreen() >= 0)
 		{
-			schemeComboBox.getSelectionModel().select(schemeObject.getActiveSchemeOnScreen());
+			for(int i = 0; i < schemeComboBox.getItems().size(); i++)
+			{
+				if(schemeComboBox.getItems().get(i).getId() == schemeObject.getActiveSchemeOnScreen())
+				{
+					schemeComboBox.getSelectionModel().select(i);
+					break;
+				}
+			}
 		}
-		
-		
 		schemeComboBox.setMinWidth(150);
+		schemeComboBox.valueProperty().addListener(changeListener);
+		
+		
+		
 		
 		
 		TextField textField = new TextField();
@@ -145,7 +199,7 @@ public class CreationLogicSchemeBar extends HBox
 	protected void createNewScheme() {
 		
 		//bei einem neuem Schema als erstes nach dem Namen fragen
-		/*
+		
 		TextInputDialog dialog = new TextInputDialog("Bezeichnung");
 		
 		dialog.setTitle("Erzeuge Schema");
@@ -157,16 +211,16 @@ public class CreationLogicSchemeBar extends HBox
 		{
 			bezeichnung = result.get();
 		} 
-	
-	//	SchemeRootContainer schemaRootContainer = new SchemeRootContainer(bezeichnung);
-	//	TempDataStorage.setSchemeRootContainer(schemaRootContainer);
 		
-		schemeComboBox.getItems().add(schemaRootContainer.getBezeichnung());
-		schemeComboBox.getSelectionModel().select(schemaRootContainer.getBezeichnung());
-		schemeComboBox.setDisable(true);
-		//hinweis an GUI, dass ein neuer Container erzeugt wurde
-		*/
+		Scheme newScheme = new Scheme();
+		newScheme.setDescriptionName(bezeichnung);
+		
+		//zugehörige Id wird in Methode ermittelt.
+		SchemeDataStorage.addNewScheme(newScheme);
+	
 		command.set(ECommand.CREATED_NEW_SCHEME);
+		
+		
 	}
 
 	protected void deleteActiveScheme() 
@@ -185,5 +239,15 @@ public class CreationLogicSchemeBar extends HBox
 		command.set(ECommand.RESET_ACTIVE_SCHEME);
 		schemeComboBox.setDisable(false);
 	}
+	
+
+	/**
+	 * Anderes Schema wurde ausgewählt.
+	 */
+	protected void activateScheme() {
+		command.set(ECommand.ACTIVATED_SCHEME);
+		
+	}
+
 
 }

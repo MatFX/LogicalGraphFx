@@ -10,6 +10,7 @@ import eu.matfx.logic.data.impl.SensorElement;
 import eu.matfx.logic.data.impl.container.AndContainer;
 import eu.matfx.logic.data.impl.container.OrContainer;
 import eu.matfx.logic.data.impl.container.RSFlipFlopContainer;
+import eu.matfx.logic.database.SchemeDataStorage;
 import eu.matfx.logic.database.XMLAccess;
 
 public class SchemaTest {
@@ -17,7 +18,11 @@ public class SchemaTest {
 	@Test
 	public void testSchemeMap()
 	{
+		SchemeDataStorage.initSchemeDataStorage();
+		
+		
 		Scheme scheme = new Scheme();
+		scheme.setId(SchemeList.calculatedNextFreeId());
 		scheme.setDescriptionName("Test-Schema");
 		
 		scheme.addElementAtMap(new SensorElement());
@@ -64,8 +69,8 @@ public class SchemaTest {
 		SchemeList schemeList = new SchemeList();
 		
 		schemeList.getSchemeList().add(scheme);
+		schemeList.setActiveSchemeOnScreen(scheme.getId());
 		
-		schemeList.setActiveSchemeOnScreen(schemeList.getSchemeList().size()-1);
 		System.out.println("Test " + schemeList.getSchemeList().get(0).getWorkflowMap());
 		//write definied xml in file
 		XMLAccess.writeObjectToFile(schemeList);
