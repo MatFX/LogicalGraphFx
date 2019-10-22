@@ -41,7 +41,6 @@ public class CreationLogicSchemeBar extends HBox
 			if(!(oldValue.equals(newValue)) && oldValue != null)
 			{
 				//index ermitteln und diesen setzen
-				System.out.println("aufruf von setActvie");
 				SchemeDataStorage.getSchemeList().setActiveSchemeOnScreen(newValue);
 				activateScheme();
 			}
@@ -52,9 +51,6 @@ public class CreationLogicSchemeBar extends HBox
 	public CreationLogicSchemeBar(ObjectProperty<ECommand> command)
 	{
 		super(5);
-		
-		
-		
 		
 		this.setPadding(new Insets(3,3,3,3));
 		this.command = command;
@@ -67,38 +63,22 @@ public class CreationLogicSchemeBar extends HBox
 			{
 				switch(newValue)
 				{
-					case DELETED_SCHEME:
+					case DELETE_ACTIVE_SCHEME:
 						//TODO Neuaufbau der comboBox mit den schemas
 						//nicht so wie jetzt
 						
-						schemeComboBox.getItems().remove(0);
+						Scheme selectedItem = schemeComboBox.getSelectionModel().getSelectedItem();
 						
-						schemeComboBox.setDisable(false);
+						if(selectedItem != null)
+						{
+							SchemeDataStorage.removeScheme(selectedItem);
+						}
+						activateScheme();
+						rebuildComboBoxContent();
 						command.set(ECommand.NO_COMMAND);
 						break;
 					case CREATED_NEW_SCHEME:
-						//first remove 
-						schemeComboBox.valueProperty().removeListener(changeListener);
-						//rebuild the combox and select the scheme on screen
-						SchemeList schemeList = SchemeDataStorage.getSchemeList();
-						//TODO need sort ...alphabetical?
-						List<Scheme> tempList = schemeList.getSchemeList();
-						
-						ObservableList<Scheme> selectionComboBox = 
-								FXCollections.observableArrayList(tempList);
-					
-						schemeComboBox.getItems().clear();
-						schemeComboBox.getItems().addAll(selectionComboBox);
-						System.out.println("index " + schemeList.getActiveSchemeOnScreen());
-						for(int i = 0; i < schemeComboBox.getItems().size(); i++)
-						{
-							if(schemeComboBox.getItems().get(i).getId() == schemeList.getActiveSchemeOnScreen())
-							{
-								schemeComboBox.getSelectionModel().select(i);
-								break;
-							}
-						}
-						schemeComboBox.valueProperty().addListener(changeListener);
+						rebuildComboBoxContent();
 						break;
 				}
 				
@@ -192,6 +172,32 @@ public class CreationLogicSchemeBar extends HBox
 		
 	}
 
+	protected void rebuildComboBoxContent() {
+
+		//first remove 
+		schemeComboBox.valueProperty().removeListener(changeListener);
+		//rebuild the combox and select the scheme on screen
+		SchemeList schemeList = SchemeDataStorage.getSchemeList();
+		//TODO need sort ...alphabetical?
+		List<Scheme> tempList = schemeList.getSchemeList();
+		
+		ObservableList<Scheme> selectionComboBox = 
+				FXCollections.observableArrayList(tempList);
+	
+		schemeComboBox.getItems().clear();
+		schemeComboBox.getItems().addAll(selectionComboBox);
+		for(int i = 0; i < schemeComboBox.getItems().size(); i++)
+		{
+			if(schemeComboBox.getItems().get(i).getId() == schemeList.getActiveSchemeOnScreen())
+			{
+				schemeComboBox.getSelectionModel().select(i);
+				break;
+			}
+		}
+		schemeComboBox.valueProperty().addListener(changeListener);
+		
+	}
+
 	protected void createNewScheme() {
 		
 		//bei einem neuem Schema als erstes nach dem Namen fragen
@@ -242,7 +248,6 @@ public class CreationLogicSchemeBar extends HBox
 	 */
 	protected void activateScheme() {
 		command.set(ECommand.ACTIVATED_SCHEME);
-		
 	}
 
 

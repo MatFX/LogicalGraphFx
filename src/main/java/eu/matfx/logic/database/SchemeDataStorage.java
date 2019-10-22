@@ -44,9 +44,25 @@ public class SchemeDataStorage
 			schemeList = new ArrayList<Scheme>();
 		
 		newScheme.setId(SchemeList.calculatedNextFreeId());
-		System.out.println("schema id ist: " + newScheme.getId());
 		schemeList.add(newScheme);
 		instance.schemeList.setActiveSchemeOnScreen(newScheme.getId());
+	}
+
+	public static void removeScheme(Scheme selectedItem)
+	{
+		List<Scheme>schemeList = instance.schemeList.getSchemeList();
+		if(schemeList != null)
+		{
+			schemeList.remove(selectedItem);
+		}
+		
+		//Aenderung der Aktivierung; 
+		if(schemeList != null && schemeList.size() > 0)
+		{
+			//einen Index sich holen, damit dieser angezeigt werden kann.
+			int neuerAktivierterIndex = schemeList.get(0).getId();
+			instance.schemeList.setActiveSchemeOnScreen(neuerAktivierterIndex);
+		}
 	}
 	
 	
