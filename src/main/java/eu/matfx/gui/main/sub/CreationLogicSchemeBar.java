@@ -77,7 +77,8 @@ public class CreationLogicSchemeBar extends HBox
 						command.set(ECommand.NO_COMMAND);
 						break;
 					case CREATED_NEW_SCHEME:
-						
+						//first remove 
+						schemeComboBox.valueProperty().removeListener(changeListener);
 						//rebuild the combox and select the scheme on screen
 						SchemeList schemeList = SchemeDataStorage.getSchemeList();
 						//TODO need sort ...alphabetical?
@@ -88,7 +89,16 @@ public class CreationLogicSchemeBar extends HBox
 					
 						schemeComboBox.getItems().clear();
 						schemeComboBox.getItems().addAll(selectionComboBox);
-						schemeComboBox.getSelectionModel().select(schemeList.getActiveSchemeOnScreen());
+						System.out.println("index " + schemeList.getActiveSchemeOnScreen());
+						for(int i = 0; i < schemeComboBox.getItems().size(); i++)
+						{
+							if(schemeComboBox.getItems().get(i).getId() == schemeList.getActiveSchemeOnScreen())
+							{
+								schemeComboBox.getSelectionModel().select(i);
+								break;
+							}
+						}
+						schemeComboBox.valueProperty().addListener(changeListener);
 						break;
 				}
 				
