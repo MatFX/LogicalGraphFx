@@ -22,7 +22,7 @@ public class SchemaTest {
 		
 		
 		Scheme scheme = new Scheme();
-		scheme.setId(SchemeList.calculatedNextFreeId());
+		scheme.setId(SchemeListContainer.calculatedNextFreeId());
 		scheme.setDescriptionName("Test-Schema");
 		
 		scheme.addElementAtMap(new SensorElement());
@@ -66,7 +66,7 @@ public class SchemaTest {
 		int countedElements = scheme.getWorkflowMap().size();
 	
 		
-		SchemeList schemeList = new SchemeList();
+		SchemeListContainer schemeList = new SchemeListContainer();
 		
 		schemeList.getSchemeList().add(scheme);
 		schemeList.setActiveSchemeOnScreen(scheme.getId());
@@ -78,7 +78,7 @@ public class SchemaTest {
 		//abfrage ob vorhanden?
 		
 		
-		SchemeList readedSchemeList = (SchemeList) XMLAccess.readObjectFromFile(new SchemeList());
+		SchemeListContainer readedSchemeList = (SchemeListContainer) XMLAccess.readObjectFromFile(new SchemeListContainer());
 		
 		assertTrue("readed scheme list must be " + countedElements + " elements", (scheme.getWorkflowMap().size() == countedElements));
 		

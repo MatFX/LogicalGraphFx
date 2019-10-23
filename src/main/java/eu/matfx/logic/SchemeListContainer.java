@@ -20,7 +20,7 @@ import eu.matfx.logic.interfaces.IFileName;
 @XmlRootElement(name = "Schemelist")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder={"activeSchemeOnScreen", "schemeList"})
-public class SchemeList implements IFileName
+public class SchemeListContainer implements IFileName
 {
 	
 	public static int NO_ACTIVE_SCHEME_ON_SCREEN = Integer.MIN_VALUE;
@@ -43,7 +43,7 @@ public class SchemeList implements IFileName
 	 */
 	private int activeSchemeOnScreen = 0;
 	
-	public SchemeList()
+	public SchemeListContainer()
 	{
 		schemeList = new ArrayList<Scheme>();
 	}
@@ -104,7 +104,6 @@ public class SchemeList implements IFileName
 
 	public void setActiveSchemeOnScreen(Scheme newSelectedScheme)
 	{
-		System.out.println("newSelectedScheme " + newSelectedScheme.getId());
 		SchemeDataStorage.getSchemeList().setActiveSchemeOnScreen(newSelectedScheme.getId());
 	}
 	
@@ -115,7 +114,7 @@ public class SchemeList implements IFileName
 	public static int calculatedNextFreeId() 
 	{
 		//kleinste mögliche Wert initialisieren.
-		int nextId = SchemeList.MIN_ACTIVE_SCHEME_ID;
+		int nextId = SchemeListContainer.MIN_ACTIVE_SCHEME_ID;
 		
 		List<Scheme> tempList = SchemeDataStorage.getSchemeList().getSchemeList();
 		if(tempList == null || tempList.size() <= 0)

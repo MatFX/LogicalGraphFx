@@ -5,9 +5,10 @@ import java.util.Optional;
 
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.logic.Scheme;
-import eu.matfx.logic.SchemeList;
+import eu.matfx.logic.SchemeListContainer;
 import eu.matfx.logic.database.SchemeDataStorage;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -30,6 +31,8 @@ public class CreationLogicSchemeBar extends HBox
 	
 	private ComboBox<Scheme> schemeComboBox = null;
 	
+	private SimpleBooleanProperty notSaved;
+	
 	/**
 	 * add and remove the changelistener when the combobox get new content
 	 */
@@ -48,9 +51,10 @@ public class CreationLogicSchemeBar extends HBox
 		
 	};
 	
-	public CreationLogicSchemeBar(ObjectProperty<ECommand> command)
+	public CreationLogicSchemeBar(ObjectProperty<ECommand> command, SimpleBooleanProperty notSaved)
 	{
 		super(5);
+		this.notSaved = notSaved;
 		
 		this.setPadding(new Insets(3,3,3,3));
 		this.command = command;
@@ -79,6 +83,7 @@ public class CreationLogicSchemeBar extends HBox
 						break;
 					case CREATED_NEW_SCHEME:
 						rebuildComboBoxContent();
+					
 						break;
 				}
 				
@@ -108,12 +113,11 @@ public class CreationLogicSchemeBar extends HBox
 			@Override
 			public void handle(ActionEvent event) {
 				deleteActiveScheme();
-				
 			}
 			
 		});
 		
-		SchemeList schemeObject = SchemeDataStorage.getSchemeList();
+		SchemeListContainer schemeObject = SchemeDataStorage.getSchemeList();
 		//TODO need sort ...alphabetical?
 		List<Scheme> tempList = schemeObject.getSchemeList();
 		
@@ -151,6 +155,7 @@ public class CreationLogicSchemeBar extends HBox
 			public void handle(ActionEvent event) {
 				saveScheme();
 				
+				
 			}
 			
 		});
@@ -161,7 +166,7 @@ public class CreationLogicSchemeBar extends HBox
 			@Override
 			public void handle(ActionEvent event) {
 				resetScheme();
-				
+			
 			}
 
 			
@@ -177,7 +182,7 @@ public class CreationLogicSchemeBar extends HBox
 		//first remove 
 		schemeComboBox.valueProperty().removeListener(changeListener);
 		//rebuild the combox and select the scheme on screen
-		SchemeList schemeList = SchemeDataStorage.getSchemeList();
+		SchemeListContainer schemeList = SchemeDataStorage.getSchemeList();
 		//TODO need sort ...alphabetical?
 		List<Scheme> tempList = schemeList.getSchemeList();
 		
@@ -221,6 +226,7 @@ public class CreationLogicSchemeBar extends HBox
 		SchemeDataStorage.addNewScheme(newScheme);
 	
 		command.set(ECommand.CREATED_NEW_SCHEME);
+		notSaved.set(true);
 		
 		
 	}
@@ -229,17 +235,23 @@ public class CreationLogicSchemeBar extends HBox
 	{
 		//hinweis an GUI, dass ein neuer Container erzeugt wurde
 		command.set(ECommand.DELETE_ACTIVE_SCHEME);
+		notSaved.set(true);
+		
 	}
 
 	protected void saveScheme() 
 	{
+		//TODO ist schmarrn
 		command.set(ECommand.SAVE_ACTIVE_SCHEME);
+		notSaved.set(false);
 		
 	}
 
 	protected void resetScheme() {
 		command.set(ECommand.RESET_ACTIVE_SCHEME);
 		schemeComboBox.setDisable(false);
+		notSaved.set(false);
+		
 	}
 	
 

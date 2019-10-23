@@ -3,6 +3,7 @@ package eu.matfx.gui.main;
 import eu.matfx.gui.main.sub.CreationLogicSchemeBar;
 import eu.matfx.gui.util.ECommand;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
@@ -18,12 +19,12 @@ private Stage primaryStage;
 	
 	//private CreationTestField testFieldCreate;
 	
-	public TopPane(Stage stage, ObjectProperty<ECommand> command)
+	public TopPane(Stage stage, ObjectProperty<ECommand> command, SimpleBooleanProperty notSaved)
 	{
 		super();
 		this.setStyle("-fx-background-color: #3f687e;");
 		this.primaryStage = stage;
-		this.getChildren().addAll(getCreationLogicSchemeBar(command), new Separator());//, getCreationTestField(command));
+		this.getChildren().addAll(getCreationLogicSchemeBar(command, notSaved), new Separator());//, getCreationTestField(command));
 	}
 
 	/*
@@ -33,9 +34,9 @@ private Stage primaryStage;
 		return testFieldCreate;
 	}
 */
-	private Node getCreationLogicSchemeBar(ObjectProperty<ECommand> command) 
+	private Node getCreationLogicSchemeBar(ObjectProperty<ECommand> command, SimpleBooleanProperty notSaved) 
 	{
-		schemeBar = new CreationLogicSchemeBar(command);
+		schemeBar = new CreationLogicSchemeBar(command, notSaved);
 		return schemeBar;
 	}
 }
