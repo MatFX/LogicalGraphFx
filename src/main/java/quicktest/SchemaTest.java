@@ -2,7 +2,7 @@ package quicktest;
 
 
 import eu.matfx.logic.Scheme;
-import eu.matfx.logic.SchemeList;
+import eu.matfx.logic.SchemeListContainer;
 import eu.matfx.logic.data.impl.FunctionElement;
 import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.data.impl.SensorElement;
@@ -47,7 +47,7 @@ public class SchemaTest {
 		
 		
 		
-		SchemeList schemeList = new SchemeList();
+		SchemeListContainer schemeList = new SchemeListContainer();
 		
 		schemeList.getSchemeList().add(scheme);
 		
@@ -58,7 +58,7 @@ public class SchemaTest {
 		//abfrage ob vorhanden?
 		
 		
-		SchemeList readedSchemeList = (SchemeList) XMLAccess.readObjectFromFile(new SchemeList());
+		SchemeListContainer readedSchemeList = (SchemeListContainer) XMLAccess.readObjectFromFile(new SchemeListContainer());
 		
 		
 		

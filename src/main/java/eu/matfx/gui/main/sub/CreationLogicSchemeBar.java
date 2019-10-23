@@ -5,9 +5,10 @@ import java.util.Optional;
 
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.logic.Scheme;
-import eu.matfx.logic.SchemeList;
+import eu.matfx.logic.SchemeListContainer;
 import eu.matfx.logic.database.SchemeDataStorage;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -30,6 +31,8 @@ public class CreationLogicSchemeBar extends HBox
 	
 	private ComboBox<Scheme> schemeComboBox = null;
 	
+	private SimpleBooleanProperty notSaved;
+	
 	/**
 	 * add and remove the changelistener when the combobox get new content
 	 */
@@ -40,6 +43,8 @@ public class CreationLogicSchemeBar extends HBox
 		{
 			if(!(oldValue.equals(newValue)) && oldValue != null)
 			{
+				//vor Activate sicherung der aktuellen Darstellung auf Contentseite
+				
 				//index ermitteln und diesen setzen
 				SchemeDataStorage.getSchemeList().setActiveSchemeOnScreen(newValue);
 				activateScheme();
@@ -48,9 +53,10 @@ public class CreationLogicSchemeBar extends HBox
 		
 	};
 	
-	public CreationLogicSchemeBar(ObjectProperty<ECommand> command)
+	public CreationLogicSchemeBar(ObjectProperty<ECommand> command, SimpleBooleanProperty notSaved)
 	{
 		super(5);
+		this.notSaved = notSaved;
 		
 		this.setPadding(new Insets(3,3,3,3));
 		this.command = command;
@@ -79,6 +85,7 @@ public class CreationLogicSchemeBar extends HBox
 						break;
 					case CREATED_NEW_SCHEME:
 						rebuildComboBoxContent();
+					
 						break;
 				}
 				
@@ -96,9 +103,7 @@ public class CreationLogicSchemeBar extends HBox
 			@Override
 			public void handle(ActionEvent event) {
 				createNewScheme();
-				
 			}
-			
 		});
 		
 		
@@ -108,12 +113,11 @@ public class CreationLogicSchemeBar extends HBox
 			@Override
 			public void handle(ActionEvent event) {
 				deleteActiveScheme();
-				
 			}
 			
 		});
 		
-		SchemeList schemeObject = SchemeDataStorage.getSchemeList();
+		SchemeListContainer schemeObject = SchemeDataStorage.getSchemeList();
 		//TODO need sort ...alphabetical?
 		List<Scheme> tempList = schemeObject.getSchemeList();
 		
@@ -144,24 +148,26 @@ public class CreationLogicSchemeBar extends HBox
 		
 		TextField textField = new TextField();
 		
-		Button save = new Button("save scheme");
+		Button save = new Button("save configuration");
 		save.setOnAction(new EventHandler<ActionEvent>(){
 
 			@Override
 			public void handle(ActionEvent event) {
 				saveScheme();
 				
+				
 			}
 			
 		});
 		
-		Button reset = new Button("reset scheme");
+		Button reset = new Button("reset configuration");
 		reset.setOnAction(new EventHandler<ActionEvent>(){
 
 			@Override
 			public void handle(ActionEvent event) {
-				resetScheme();
-				
+				//drop the current xml and copy the tmp file as configuration
+				resetConfiguration();
+			
 			}
 
 			
@@ -177,7 +183,7 @@ public class CreationLogicSchemeBar extends HBox
 		//first remove 
 		schemeComboBox.valueProperty().removeListener(changeListener);
 		//rebuild the combox and select the scheme on screen
-		SchemeList schemeList = SchemeDataStorage.getSchemeList();
+		SchemeListContainer schemeList = SchemeDataStorage.getSchemeList();
 		//TODO need sort ...alphabetical?
 		List<Scheme> tempList = schemeList.getSchemeList();
 		
@@ -221,6 +227,7 @@ public class CreationLogicSchemeBar extends HBox
 		SchemeDataStorage.addNewScheme(newScheme);
 	
 		command.set(ECommand.CREATED_NEW_SCHEME);
+		notSaved.set(true);
 		
 		
 	}
@@ -229,17 +236,38 @@ public class CreationLogicSchemeBar extends HBox
 	{
 		//hinweis an GUI, dass ein neuer Container erzeugt wurde
 		command.set(ECommand.DELETE_ACTIVE_SCHEME);
+		notSaved.set(true);
+		
 	}
 
 	protected void saveScheme() 
 	{
-		command.set(ECommand.SAVE_ACTIVE_SCHEME);
+		//TODO ist schmarrn
+		command.set(ECommand.SAVE_CONFIGURATION);
+		notSaved.set(false);
 		
 	}
 
-	protected void resetScheme() {
-		command.set(ECommand.RESET_ACTIVE_SCHEME);
+	
+	/**
+	 * 
+	 */
+	protected void resetConfiguration()
+	{
+		//copy the tmp and drop the current xml
+		SchemeDataStorage.getInstance().resetFile();
+		//reload the xml
+		SchemeDataStorage.getInstance().reloadFile();
+		
+		//rebuild combox with selection of the active view
+		rebuildComboBoxContent();
+		
+		
+		
+		//inform the content view
+		command.set(ECommand.RESET_CONFIGURATION);
 		schemeComboBox.setDisable(false);
+		notSaved.set(false);
 	}
 	
 

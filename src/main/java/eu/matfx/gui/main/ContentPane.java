@@ -31,6 +31,7 @@ import eu.matfx.logic.database.SchemeDataStorage;
 import eu.matfx.logic.database.XMLAccess;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -43,6 +44,7 @@ import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -79,11 +81,13 @@ public class ContentPane extends Pane {
 	private Circle startRectangle = new Circle();
 
 	private Point2D lastReceivedLineMousePoint = null;
+	
+	private SimpleBooleanProperty notSaved;
 
-	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command) 
+	public ContentPane(Stage primaryStage, StringProperty statusText, DoubleProperty xCoords, DoubleProperty yCoords, ObjectProperty<ECommand> command, SimpleBooleanProperty notSaved) 
 	{
 		super();
-
+		this.notSaved = notSaved;
 		this.command = command;
 
 		/*
@@ -100,6 +104,8 @@ public class ContentPane extends Pane {
 		 * 
 		 * });
 		 */
+		
+		
 
 		this.command.addListener(new ChangeListener<ECommand>() {
 
@@ -107,19 +113,37 @@ public class ContentPane extends Pane {
 			public void changed(ObservableValue<? extends ECommand> observable, ECommand oldValue, ECommand newValue) {
 				
 				switch (newValue) {
-				case SAVE_ACTIVE_SCHEME:
-					saveActiveScheme();
+				case SAVE_CONFIGURATION:
+					saveCoordsFromActiveScheme();
+					XMLAccess.writeObjectToFile(SchemeDataStorage.getSchemeList());
+					//create new tmp file from the existing xml
+					SchemeDataStorage.getInstance().saveCurrentFile();
 					command.set(ECommand.NO_COMMAND);
 					break;
 				case CREATED_NEW_SCHEME:
 					//Der Schemecontainer ist bereits erzeugt und in der Liste abgelegt
 					//combobox wurde bereits bei der Schemebar angepasst
+
+					//save last active scheme
+					saveCoordsFromActiveScheme();
+					//remove last active scheme
 					removeContentAndCleanMap();
 					command.set(ECommand.NO_COMMAND);
 					break;
 				case ACTIVATED_SCHEME:
+					//first save the last view
+					saveCoordsFromActiveScheme();
+					//cleanmap
 					removeContentAndCleanMap();
 					//TODO rebuildContent with new scheme
+					rebuildView();
+					command.set(ECommand.NO_COMMAND);
+					break;
+				case RESET_CONFIGURATION:
+					
+					//clean view
+					removeContentAndCleanMap();
+					//rebuild the view
 					rebuildView();
 					command.set(ECommand.NO_COMMAND);
 					break;
@@ -159,6 +183,7 @@ public class ContentPane extends Pane {
 				case BACK_SPACE:
 				case DELETE:
 					deleteSelectedUIElements();
+					notSaved.set(true);
 					break;
 				case PLUS:
 
@@ -166,7 +191,8 @@ public class ContentPane extends Pane {
 
 					// globale boolean für selektion oder doch jedesmal die
 					// Suche anstossen?
-					for (int i = 0; i < getChildren().size(); i++) {
+					for (int i = 0; i < getChildren().size(); i++) 
+					{
 						// searching for selected line connector
 						if (getChildren().get(i) instanceof UILineConnector
 								&& ((UILineConnector) getChildren().get(i)).isSelected()) {
@@ -259,11 +285,13 @@ public class ContentPane extends Pane {
 								uiMap.put(uiNewLineConnector.getLogicElement().getIndex(), uiNewLineConnector);
 							}
 						}
+					
 					}
+					notSaved.set(true);
 					break;
 
 				case MINUS:
-
+					//TODO
 					break;
 
 				default:
@@ -304,32 +332,25 @@ public class ContentPane extends Pane {
 	}
 
 	protected void removeContentAndCleanMap() {
-
 		
 		//remove ui elements from the screen
 		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
 		{
 			ContentPane.this.getChildren().remove(entry.getValue());
-			
 		}
 		//clear the uiMap
 		uiMap.clear();
-		
 	}
 
 	/**
-	 * save the activate scheme from the view
+	 * save the coordinates of the different UI elements; it's not the saving to the xml file!
 	 */
-	protected void saveActiveScheme() {
+	public void saveCoordsFromActiveScheme() {
 		// iterate through the ui map and update the logicelements with coords
 		for (Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet()) {
 			entry.getValue().saveVariables();
 		}
-
-		XMLAccess.writeObjectToFile(SchemeDataStorage.getSchemeList());
-
-		// write the details in the xml file
-
+	
 	}
 
 	/**
@@ -672,6 +693,7 @@ public class ContentPane extends Pane {
 					}
 
 				}
+				notSaved.set(true);
 				break;
 			}
 			// navigator view
@@ -799,6 +821,7 @@ public class ContentPane extends Pane {
 					tempLine.setEndY(transferCoord.getY());
 				}
 			}
+			notSaved.set(true);
 		}
 
 	};
@@ -810,10 +833,12 @@ public class ContentPane extends Pane {
 			if (t.getSource() instanceof Canvas) 
 			{
 
-				if (selectionRect.isCatchedUIElements()) {
+				if (selectionRect.isCatchedUIElements()) 
+				{
 					// I think nothing to do
-
-				} else {
+				} 
+				else 
+				{
 					// no component selected, search for it
 
 					// beim loslassen muss geprüft werden ob in dem gezeicneten
@@ -884,7 +909,7 @@ public class ContentPane extends Pane {
 						// rectangle
 						ContentPane.this.getChildren().remove(selectionRect);
 					}
-
+					notSaved.set(true);
 				}
 			} 
 			else if (t.getSource() instanceof AUIElement)
@@ -970,6 +995,7 @@ public class ContentPane extends Pane {
               		{
               			uiNode.setSelected(false);
               		}
+					notSaved.set(true);
 				}
 				// release the colored frame and the select flag
 				else if (ContentPane.this.getScene().getCursor() == Cursor.MOVE)
@@ -1008,7 +1034,6 @@ public class ContentPane extends Pane {
 					if (node.isSelected()) {
 						node.setSelected(false);
 					}
-
 				} 
 				else if (ContentPane.this.getScene().getCursor() == Cursor.HAND) 
 				{
@@ -1135,6 +1160,7 @@ public class ContentPane extends Pane {
 					}
 					// remove from view
 					ContentPane.this.getChildren().remove(tempLine);
+					notSaved.set(true);
 				}
 			}
 			ContentPane.this.getScene().setCursor(Cursor.DEFAULT);

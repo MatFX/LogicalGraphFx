@@ -12,11 +12,23 @@ public enum ECommand
 	 * Command to create a new scheme on the main pane
 	 */
 	CREATED_NEW_SCHEME,
-	
+
+	/*
 	/**
 	 * delete the active scheme from the main pane (optional save ack)
-	 */
+	
 	RESET_ACTIVE_SCHEME, 
+	*/
+	
+	/**
+	 * Reset complete configuration
+	 */
+	RESET_CONFIGURATION,
+	
+	/**
+	 * write the objects to the xml and make a new tmp copy file
+	 */
+	SAVE_CONFIGURATION,
 	
 	/**
 	 * delete the active scheme from storage
@@ -29,9 +41,15 @@ public enum ECommand
 	DELETED_SCHEME,
 	
 	/**
-	 * Save active scheme
+	 * Save active scheme, as example change the scheme over the combobox
 	 */
-	SAVE_ACTIVE_SCHEME,
+	//SAVE_ACTIVE_SCHEME,
+	
+	/**
+	 * take the current xml file and create a new tmp backup
+	 */
+	SAVE_SCHEME_LIST,
+	
 	
 	/**
 	 * remark, that a active scheme on the main pane.
