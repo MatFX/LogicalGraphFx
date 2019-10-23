@@ -12,6 +12,7 @@ import eu.matfx.gui.main.TopPane;
 import eu.matfx.gui.main.WidthSceneChangeListener;
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.logic.database.SchemeDataStorage;
+import eu.matfx.logic.database.XMLAccess;
 import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -139,6 +140,8 @@ public class Editor extends Application
 			{
 				//sicherstellen, dass die aktuelle Sicht mit allen veränderten Koordinaten auch in der Map landet
 				panelsPane.saveCoordsFromActiveScheme();
+				XMLAccess.writeObjectToFile(SchemeDataStorage.getSchemeList());
+				
 			} 
 			else 
 			{
