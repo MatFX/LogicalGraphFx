@@ -124,11 +124,11 @@ public class CreationLogicSchemeBar extends HBox
 		
 		//TODO zu beginn noch nicht befüllt
 		schemeComboBox = new ComboBox<Scheme>(selectionComboBox);
-		if(schemeObject.getActiveSchemeOnScreen() >= 0)
+		if(schemeObject.getActiveSchemeOnScreenIndex() >= 0)
 		{
 			for(int i = 0; i < schemeComboBox.getItems().size(); i++)
 			{
-				if(schemeComboBox.getItems().get(i).getId() == schemeObject.getActiveSchemeOnScreen())
+				if(schemeComboBox.getItems().get(i).getId() == schemeObject.getActiveSchemeOnScreenIndex())
 				{
 					schemeComboBox.getSelectionModel().select(i);
 					break;
@@ -188,7 +188,7 @@ public class CreationLogicSchemeBar extends HBox
 		schemeComboBox.getItems().addAll(selectionComboBox);
 		for(int i = 0; i < schemeComboBox.getItems().size(); i++)
 		{
-			if(schemeComboBox.getItems().get(i).getId() == schemeList.getActiveSchemeOnScreen())
+			if(schemeComboBox.getItems().get(i).getId() == schemeList.getActiveSchemeOnScreenIndex())
 			{
 				schemeComboBox.getSelectionModel().select(i);
 				break;

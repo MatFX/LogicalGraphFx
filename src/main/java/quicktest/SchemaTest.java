@@ -1,6 +1,5 @@
 package quicktest;
 
-import static org.junit.Assert.assertTrue;
 
 import eu.matfx.logic.Scheme;
 import eu.matfx.logic.SchemeList;

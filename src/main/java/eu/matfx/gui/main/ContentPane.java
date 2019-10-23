@@ -105,7 +105,7 @@ public class ContentPane extends Pane {
 
 			@Override
 			public void changed(ObservableValue<? extends ECommand> observable, ECommand oldValue, ECommand newValue) {
-				System.out.println("COMMAND Listener " + newValue);
+				
 				switch (newValue) {
 				case SAVE_ACTIVE_SCHEME:
 					saveActiveScheme();
@@ -181,8 +181,7 @@ public class ContentPane extends Pane {
 										lastReceivedLineMousePoint.getX(), lastReceivedLineMousePoint.getY()));
 								Point2D nearesPoint = lineConnector.getOrthogonalPointOnLine(transferCoord);
 
-								Scheme schemeObject = SchemeDataStorage.getSchemeList().getSchemeList()
-										.get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 								CircleLineConnector circleLineConnector = new CircleLineConnector();
 								schemeObject.addElementAtMap(circleLineConnector);
 
@@ -296,7 +295,9 @@ public class ContentPane extends Pane {
 
 		});
 
-		if (SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen() >= 0) {
+		
+		
+		if (SchemeDataStorage.getSchemeList().getActiveSchemeOnScreenIndex() >= 0) {
 			// put scheme on screen
 			rebuildView();
 		}
@@ -384,8 +385,7 @@ public class ContentPane extends Pane {
 
 		if (toDeleteList.size() > 0) {
 
-			Scheme schemeObject = SchemeDataStorage.getSchemeList().getSchemeList()
-					.get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+			Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 
 			for (int i = 0; i < toDeleteList.size(); i++) {
 				// delete from the logic map
@@ -404,9 +404,9 @@ public class ContentPane extends Pane {
 		uiMap = new TreeMap<Integer, AUIElement<? extends ALogicElement>>();
 		ContentPane.this.setStyle("-fx-background-color: #5691b0;");
 
-		Scheme schemeObject = SchemeDataStorage.getSchemeList()
-				.getSchemeElement(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
-		System.out.println("schemeObject " + schemeObject);
+		Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
+		
+		
 		if (schemeObject != null) {
 			SortedMap<Integer, ALogicElement> workflowMap = schemeObject.getWorkflowMap();
 
@@ -634,8 +634,7 @@ public class ContentPane extends Pane {
 
 					} else if (node.isOutputArea(UtilFx.getPointFromEvent(t))) {
 						statusText.set("OutputArea erkannt");
-						Scheme schemeObject = SchemeDataStorage.getSchemeList().getSchemeList()
-								.get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+						Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 						// is the output channel occupied
 						if (node instanceof UILineOutputConnector) {
 							// check the output connection
@@ -706,6 +705,8 @@ public class ContentPane extends Pane {
 
 					double w = 1;
 					double h = 1;
+					System.out.println("selectionRect " + selectionRect);
+					System.out.println("transferCoord " + selectionRect);
 					if (selectionRect.getStartX() > transferCoord.getX()) {
 						// obacht hier startx anpassen
 						w = selectionRect.getStartX() - transferCoord.getX();
@@ -926,7 +927,7 @@ public class ContentPane extends Pane {
 		              			else
 		              				inputConnector.removeUIInputConnector();
 		              			
-		              			Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+		              			Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 		              			int indexFromMap = schemeObject.getIndexFromLogicElement(lineToDelete.getLogicElement());
 		              			if(indexFromMap >= 0)
 		              				schemeObject.deleteElementMap(indexFromMap);
@@ -950,7 +951,7 @@ public class ContentPane extends Pane {
 								circleConnector.removeUIInputConnector();
 								circleConnector.removeUIOutputConnector();
 								
-								Scheme schemeObject  = SchemeDataStorage.getSchemeList().getSchemeList().get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 		              			int indexFromMap = schemeObject.getIndexFromLogicElement(circleConnector.getLogicElement());
 		              			if(indexFromMap >= 0)
 		              				schemeObject.deleteElementMap(indexFromMap);
@@ -1029,8 +1030,7 @@ public class ContentPane extends Pane {
 							IConnectorArea iConnectorArea = (IConnectorArea) uiNode;
 
 							if (iConnectorArea.isInputArea(sceneCoords) && !uiLIneInputConnector.isUIInputOccupied()) {
-								Scheme schemeObject = SchemeDataStorage.getSchemeList().getSchemeList()
-										.get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 								int index = schemeObject
 										.getIndexFromLogicElement(((AUIElement) uiNode).getLogicElement());
 								if (index >= 0) {
@@ -1050,8 +1050,7 @@ public class ContentPane extends Pane {
 
 								if (iConnectorArea.isSecondInputArea(sceneCoords)
 										&& !uiLineSecondInputConnector.isUISecondInputOccupied()) {
-									Scheme schemeObject = SchemeDataStorage.getSchemeList().getSchemeList()
-											.get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+									Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 									int index = schemeObject
 											.getIndexFromLogicElement(((AUIElement) uiNode).getLogicElement());
 									if (index >= 0) {
@@ -1068,8 +1067,7 @@ public class ContentPane extends Pane {
 					if (found) {
 
 						// build new uiLine/logicline
-						Scheme schemeObject = SchemeDataStorage.getSchemeList().getSchemeList()
-								.get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+						Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 						LineConnector lineConnector = new LineConnector();
 						// add a new connector to the logical map; with the add
 						// the line will get the new index
@@ -1355,8 +1353,7 @@ public class ContentPane extends Pane {
 			
 			
 			
-			Scheme schemeObject = SchemeDataStorage.getSchemeList().getSchemeList()
-					.get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+			Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 			
 			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
 			if (indexFromMap >= 0)
@@ -1377,8 +1374,7 @@ public class ContentPane extends Pane {
 		else if(node instanceof UICircleLineConnector)
 		{
 			
-			Scheme schemeObject = SchemeDataStorage.getSchemeList().getSchemeList()
-					.get(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen());
+			Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 			
 			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
 			if (indexFromMap >= 0)

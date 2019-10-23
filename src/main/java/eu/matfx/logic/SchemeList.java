@@ -94,7 +94,7 @@ public class SchemeList implements IFileName
 		return temp.getAbsolutePath();
 	}
 
-	public int getActiveSchemeOnScreen() {
+	public int getActiveSchemeOnScreenIndex() {
 		return activeSchemeOnScreen;
 	}
 
@@ -164,6 +164,11 @@ public class SchemeList implements IFileName
 				return schemeList.get(i);
 		}
 		return null;
+	}
+
+	public Scheme getActiveSchemeOnScreen() 
+	{
+		return SchemeDataStorage.getSchemeList().getSchemeElement(SchemeDataStorage.getSchemeList().getActiveSchemeOnScreenIndex());
 	}
 
 }
