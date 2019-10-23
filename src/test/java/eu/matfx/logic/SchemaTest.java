@@ -33,11 +33,11 @@ public class SchemaTest {
 		AndContainer andContainer  = new AndContainer();
 		andContainer.setIndex(2);
 		
-		FunctionElement functionElement = new FunctionElement();
-		functionElement.setIndex(3);
+		//FunctionElement functionElement = new FunctionElement();
+		//functionElement.setIndex(3);
 		//add two Elements with a gap in map
 		scheme.putElementAtMap(andContainer.getIndex(), andContainer);
-		scheme.putElementAtMap(functionElement.getIndex(), functionElement);
+		//scheme.putElementAtMap(functionElement.getIndex(), functionElement);
 		
 		assertTrue("Schememap is empty at Index 1?", (scheme.getWorkflowMap().get(1) == null));
 		
@@ -49,6 +49,7 @@ public class SchemaTest {
 		scheme.putElementAtMap(lineConnect.getIndex(), lineConnect);
 		assertTrue("Schememap is not filled at Index 1?", (scheme.getWorkflowMap().get(1) != null));
 		
+		/*
 		//set at index 2 a new OrContainer the other elements muss be moved
 		OrContainer orContainer = new OrContainer();
 		orContainer.setIndex(2);
@@ -62,9 +63,9 @@ public class SchemaTest {
 		
 		RSFlipFlopContainer rsContainer = new RSFlipFlopContainer();
 		scheme.addElementAtMap(rsContainer);
-	
+		*/
 		int countedElements = scheme.getWorkflowMap().size();
-	
+		
 		
 		SchemeListContainer schemeList = new SchemeListContainer();
 		

@@ -8,6 +8,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import eu.matfx.gui.component.AUIElement;
+import eu.matfx.gui.component.AUIInputOutputElement;
+import eu.matfx.gui.component.AUIOutputElement;
 import eu.matfx.gui.component.impl.UICircleLineConnector;
 import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.helper.GenericPair;
@@ -178,6 +180,7 @@ public class ContentPane extends Pane {
 			@Override
 			public void handle(KeyEvent event) {
 
+				System.out.println("eventcode " + event.getCode());
 				switch (event.getCode()) {
 				// two possible keys to delete the selected ui components
 				case BACK_SPACE:
@@ -291,9 +294,80 @@ public class ContentPane extends Pane {
 					break;
 
 				case MINUS:
-					//TODO
+					System.out.println("MINUS  ");
+					for (int i = 0; i < getChildren().size(); i++) 
+					{
+						if(getChildren().get(i) instanceof UICircleLineConnector
+								&& ((UICircleLineConnector)getChildren().get(i)).isSelected())
+						{
+							
+							UICircleLineConnector circleToDelete = (UICircleLineConnector)getChildren().get(i);
+							
+							//neue endepunkte finden wenn dieser entfernt wird
+							
+							//inuptconnector need new ending point
+							UILineConnector inputConnector = circleToDelete.getUILineInputConnector();
+							
+							//output to delete, but I need the output cooordinate for the inputconnector
+							UILineConnector outputConnector = circleToDelete.getUILineOutputConnector();
+							
+							//the ending point it's called INPUT! name from the perspective of the logic container!
+							inputConnector.setInputX(outputConnector.getInputX());
+							inputConnector.setInputY(outputConnector.getInputY());
+							//now change the logic line element 
+							//TODO RS FlipFlop!
+							System.out.println("vorher " + inputConnector.getLogicElement().getOutputId().getLeft());
+							inputConnector.getLogicElement().setMasteridInput(outputConnector.getLogicElement().getInputId().getLeft());
+							System.out.println("nachher " + inputConnector.getLogicElement().getOutputId().getLeft());
+							
+							
+							
+							
+							
+							
+							//remove from the contentpane
+							ContentPane.this.getChildren().remove(circleToDelete);
+							ContentPane.this.getChildren().remove(outputConnector);
+							
+							uiMap.remove(circleToDelete.getLogicElement().getIndex());
+							uiMap.remove(outputConnector.getLogicElement().getIndex());
+							Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
+							//TODO weiß noch nicht wie das löschen erfolgt und ob die Indizes neu sortiert werden
+							//schemeObject.removeElementAtMap(circleToDelete.getLogicElement());
+							//schemeObject.removeElementAtMap(outputConnector.getLogicElement());
+							
+							//wenn endepunkte gefunden dann den selektierten entfernen mit verbindungslinien
+							
+							//connect the inputConnector with the UI from the logic or circle container
+							
+							
+							AUIElement newEndingInput = getEndingInputWithId(inputConnector.getLogicElement().getInputId());
+							
+							System.out.println("newEndingInput " + newEndingInput);
+							if(newEndingInput instanceof AUIInputOutputElement)
+							{
+								AUIInputOutputElement outElement = (AUIInputOutputElement)newEndingInput;
+								//TODO rsFlipFlop
+								outElement.setUIInputConnector(inputConnector);
+							}
+							else if(newEndingInput instanceof UICircleLineConnector)
+							{
+								UICircleLineConnector circleElement = (UICircleLineConnector)newEndingInput;
+								
+								circleElement.setUIOutputConnector(inputConnector);
+								
+							}
+						}
+						
+						
+						
+					}
+					
+					
+					//TODO zusätzlicher boolean bei dem die Veränderung festgehalten wird
+					//diesen dann hier setzen
+					notSaved.set(true);
 					break;
-
 				default:
 					break;
 				}
@@ -329,6 +403,24 @@ public class ContentPane extends Pane {
 			// put scheme on screen
 			rebuildView();
 		}
+	}
+
+	protected AUIElement getEndingInputWithId(GenericPair<Integer, Integer> inputId) 
+	{
+		//TODO RS FliFlop
+		for(int x = 0; x < this.getChildren().size(); x++)
+		{
+			if(this.getChildren().get(x) instanceof AUIElement)
+			{
+				AUIElement uiElement = (AUIElement) this.getChildren().get(x);
+				if(uiElement.getLogicElement().getIndex() == inputId.getLeft())
+				{
+					return uiElement;
+				}
+			}
+			
+		}
+		return null;
 	}
 
 	protected void removeContentAndCleanMap() {

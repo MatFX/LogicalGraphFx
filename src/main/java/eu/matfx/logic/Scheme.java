@@ -52,6 +52,12 @@ public class Scheme implements Serializable {
 		logicElement.setIndex(workflowMap.size());
 		workflowMap.put(logicElement.getIndex(), logicElement);
 	}
+	
+	public void removeElementAtMap(ALogicElement aLogicElement)
+	{
+		workflowMap.remove(aLogicElement);
+		workflowMap = restructureMap(workflowMap);
+	}
 
 	public void deleteElementMap(int index)
 	{

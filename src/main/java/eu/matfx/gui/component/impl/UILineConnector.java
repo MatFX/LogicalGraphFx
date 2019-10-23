@@ -15,12 +15,12 @@ import javafx.scene.shape.Line;
 public class UILineConnector extends AUIElement<LineConnector>
 {
 	/**
-	 * connected with the output channel, start coordinate 
+	 * connected with the output channel of the logic container, START coordinate from perspective line connector
 	 */
 	private DoubleProperty outX = new SimpleDoubleProperty(5), outY = new SimpleDoubleProperty(5);
 	
 	/**
-	 * connected with the input channel, end coordinate
+	 * connected with the input channel of the logic container, END coordinate from perspective line connector
 	 */
 	private DoubleProperty inX = new SimpleDoubleProperty(10), inY = new SimpleDoubleProperty(10);
 	
@@ -162,7 +162,26 @@ public class UILineConnector extends AUIElement<LineConnector>
 	
 	public void setInputY(double inY) {
 		this.inY.set(inY);
-		
+	}
+	
+	public double getOutputX()
+	{
+		return this.outX.doubleValue();
+	}
+	
+	public double getOutputY()
+	{
+		return this.outY.doubleValue();
+	}
+	
+	public double getInputX()
+	{
+		return this.inX.doubleValue();
+	}
+	
+	public double getInputY()
+	{
+		return this.inY.doubleValue();
 	}
 
 	@Override
