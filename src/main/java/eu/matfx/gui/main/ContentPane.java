@@ -332,7 +332,6 @@ public class ContentPane extends Pane {
 	}
 
 	protected void removeContentAndCleanMap() {
-		
 		//remove ui elements from the screen
 		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
 		{
@@ -350,7 +349,6 @@ public class ContentPane extends Pane {
 		for (Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet()) {
 			entry.getValue().saveVariables();
 		}
-	
 	}
 
 	/**

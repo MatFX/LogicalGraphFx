@@ -167,7 +167,6 @@ public class CreationLogicSchemeBar extends HBox
 			public void handle(ActionEvent event) {
 				//drop the current xml and copy the tmp file as configuration
 				resetConfiguration();
-			
 			}
 
 			
@@ -268,6 +267,7 @@ public class CreationLogicSchemeBar extends HBox
 		command.set(ECommand.RESET_CONFIGURATION);
 		schemeComboBox.setDisable(false);
 		notSaved.set(false);
+
 	}
 	
 

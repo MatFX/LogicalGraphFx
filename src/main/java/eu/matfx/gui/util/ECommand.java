@@ -50,7 +50,6 @@ public enum ECommand
 	 */
 	SAVE_SCHEME_LIST,
 	
-	
 	/**
 	 * remark, that a active scheme on the main pane.
 	 */
