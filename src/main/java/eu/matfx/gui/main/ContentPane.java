@@ -386,6 +386,9 @@ public class ContentPane extends Pane {
 						else if(!(getChildren().get(i) instanceof  UILineConnector) && (getChildren().get(i) instanceof  AUIElement) 
 								&& ((AUIElement)getChildren().get(i)).isSelected())
 						{
+							AUIElement toDeleteObject = (AUIElement)getChildren().get(i);
+							
+							
 							//beginning with the complexest element
 							if(getChildren().get(i) instanceof AUIDoubleInputOneOutputElement)
 							{
@@ -431,9 +434,9 @@ public class ContentPane extends Pane {
 							}
 							
 							Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-							schemeObject.removeElementAtMap(((AUIElement)getChildren().get(i)).getLogicElement());
-							ContentPane.this.getChildren().remove(((AUIElement)getChildren().get(i)));
-							uiMap.remove(((AUIElement)getChildren().get(i)).getLogicElement().getIndex());
+							schemeObject.removeElementAtMap(toDeleteObject.getLogicElement());
+							ContentPane.this.getChildren().remove(toDeleteObject);
+							uiMap.remove(toDeleteObject.getLogicElement().getIndex());
 						}
 					}
 					

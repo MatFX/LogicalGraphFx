@@ -11,6 +11,8 @@ import eu.matfx.logic.data.impl.FunctionElement;
 import eu.matfx.logic.data.impl.SensorElement;
 import eu.matfx.logic.data.impl.container.AndContainer;
 import eu.matfx.logic.data.impl.container.OrContainer;
+import eu.matfx.logic.data.impl.container.RSFlipFlopContainer;
+import eu.matfx.logic.data.impl.container.XorContainer;
 import eu.matfx.logic.database.SchemeDataStorage;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -185,7 +187,9 @@ public class CreationLogicSchemeBar extends HBox
 				FXCollections.observableArrayList(EBaseTemplate.SENSOR,
 						EBaseTemplate.FUNCTION,
 						EBaseTemplate.AND,
-						EBaseTemplate.OR);
+						EBaseTemplate.OR,
+						EBaseTemplate.XOR,
+						EBaseTemplate.RS_FLIP_FLOP);
 		templateBaseComboBox = new ComboBox<EBaseTemplate>(tempObsList);
 		
 		
@@ -219,6 +223,14 @@ public class CreationLogicSchemeBar extends HBox
 						case OR:
 							OrContainer orContainer = new OrContainer();
 							schemeObject.addElementAtList(orContainer);
+							break;
+						case XOR:
+							XorContainer xorContainer = new XorContainer();
+							schemeObject.addElementAtList(xorContainer);
+							break;
+						case RS_FLIP_FLOP:
+							RSFlipFlopContainer flipFlopContainer = new RSFlipFlopContainer();
+							schemeObject.addElementAtList(flipFlopContainer);
 							break;
 						default:
 							refreshView = false;

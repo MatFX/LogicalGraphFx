@@ -14,7 +14,11 @@ public enum EBaseTemplate
 	
 	AND("AND Container"),
 	
-	OR("OR Container");
+	OR("OR Container"),
+	
+	XOR("XOR Container"),
+	
+	RS_FLIP_FLOP("RS FlipFlop Container");
 	
 	private String description;
 	
