@@ -11,6 +11,7 @@ import eu.matfx.gui.component.AUIElement;
 import eu.matfx.gui.component.AUIInputOutputElement;
 import eu.matfx.gui.component.impl.UICircleLineConnector;
 import eu.matfx.gui.component.impl.UILineConnector;
+import eu.matfx.gui.component.impl.container.UIRSFlipFlopContainer;
 import eu.matfx.gui.helper.GenericPair;
 import eu.matfx.gui.helper.SelectionRectangle;
 import eu.matfx.gui.helper.TempLine;
@@ -28,6 +29,7 @@ import eu.matfx.logic.data.ALogicElement;
 import eu.matfx.logic.data.AOutputElement;
 import eu.matfx.logic.data.impl.CircleLineConnector;
 import eu.matfx.logic.data.impl.LineConnector;
+import eu.matfx.logic.data.impl.container.RSFlipFlopContainer;
 import eu.matfx.logic.database.SchemeDataStorage;
 import eu.matfx.logic.database.XMLAccess;
 import javafx.beans.property.DoubleProperty;
@@ -243,8 +245,12 @@ public class ContentPane extends Pane {
 								uiCircle.getLogicElement()
 										.setMasteridOutput(uiNewLineConnector.getLogicElement().getIndex());
 
+								//use the values from the old line connection
+								
 								uiNewLineConnector.getLogicElement()
-										.setMasteridInput(((AUIElement) endConnector).getLogicElement().getIndex());
+										.setMasteridInputWithSubindex(lineConnector.getLogicElement().getInputId().getLeft(), 
+												lineConnector.getLogicElement().getInputId().getRight());
+								
 								uiNewLineConnector.getLogicElement()
 										.setMasteridOutput(uiCircle.getLogicElement().getIndex());
 
@@ -312,7 +318,8 @@ public class ContentPane extends Pane {
 							inputConnector.setInputX(outputConnector.getInputX());
 							inputConnector.setInputY(outputConnector.getInputY());
 							//now change the logic line element 
-							//TODO RS FlipFlop!
+							//with subindex (rs flipflop)
+							System.out.println("outputConnector.getLogicElement().getInputId().getRight() " + outputConnector.getLogicElement().getInputId().getRight());
 							inputConnector.getLogicElement().setMasteridInputWithSubindex(outputConnector.getLogicElement().getInputId().getLeft(),
 									outputConnector.getLogicElement().getInputId().getRight());
 							
@@ -337,11 +344,26 @@ public class ContentPane extends Pane {
 							
 							AUIElement newEndingInput = getEndingInputWithId(inputConnector.getLogicElement().getInputId());
 							
+							
+							
+							
 							if(newEndingInput instanceof AUIInputOutputElement)
 							{
-								AUIInputOutputElement outElement = (AUIInputOutputElement)newEndingInput;
-								//TODO rsFlipFlop
-								outElement.setUIInputConnector(inputConnector);
+								if(inputConnector.getLogicElement().getInputId().getRight() >= 1 &&
+										newEndingInput instanceof UIRSFlipFlopContainer)
+								{
+									System.out.println("setze in flipflopConnector hoffe ich");
+									UIRSFlipFlopContainer flipFlopContainer = (UIRSFlipFlopContainer)newEndingInput;
+									flipFlopContainer.setUISecondInputConnector(inputConnector);
+									
+								}
+								else
+								{
+									AUIInputOutputElement outElement = (AUIInputOutputElement)newEndingInput;
+									//TODO rsFlipFlop
+									outElement.setUIInputConnector(inputConnector);
+								}
+								
 							}
 							else if(newEndingInput instanceof UICircleLineConnector)
 							{
@@ -350,11 +372,7 @@ public class ContentPane extends Pane {
 								
 							}
 						}
-						
-						
-						
 					}
-					
 					
 					//TODO zusätzlicher boolean bei dem die Veränderung festgehalten wird
 					//diesen dann hier setzen
@@ -593,7 +611,13 @@ public class ContentPane extends Pane {
 						// TODO not beautiful
 						if (lineConnector.getInputId().getRight() == 1) 
 						{
-							((UILineSecondInputConnector) inputConnector).setUISecondInputConnector(connector);
+							//unterscheidung für Komponenten mit zweiten Eingang!
+							if(inputConnector instanceof UILineSecondInputConnector)
+							{
+								((UILineSecondInputConnector) inputConnector).setUISecondInputConnector(connector);
+							}
+							else
+								inputConnector.setUIInputConnector(connector);
 						} 
 						else 
 						{
@@ -1058,7 +1082,7 @@ public class ContentPane extends Pane {
 		                 		
 		              			outputConnector.removeUIOutputConnector();
 		              			//TODO not the best idea
-		              			if(uiNode.getLogicElement().getInputId().getRight() == 1)
+		              			if(uiNode.getLogicElement().getInputId().getRight() == 1 && inputConnector instanceof UILineSecondInputConnector)
 		              			{
 		              				((UILineSecondInputConnector)inputConnector).removeUISecondInputConnector();
 		              			}
