@@ -396,6 +396,19 @@ public class ContentPane extends Pane {
 							if(getChildren().get(i) instanceof AUIInputOutputElement)
 							{
 								//TODO
+								//suche bis zum entsprechenden Endepunkt (Endepunkt kann nie circle oder line sein)
+								AUIInputOutputElement inputElement = (AUIInputOutputElement)getChildren().get(i);
+								List<AUIElement> connectionList = new ArrayList<AUIElement>();
+								connectionList = findInputElementWay(connectionList, inputElement.getLogicElement().getIndex());
+								System.out.println("connectionList " + connectionList.size());
+								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
+								for(int x = 0; x < connectionList.size(); x++)
+								{
+									ContentPane.this.getChildren().remove(((AUIElement)connectionList.get(x)));
+									uiMap.remove(((AUIElement)connectionList.get(x)).getLogicElement().getIndex());
+									schemeObject.removeElementAtMap(((AUIElement)connectionList.get(x)).getLogicElement());
+									
+								}
 							}
 							
 							if(getChildren().get(i) instanceof AUIOutputElement)
@@ -466,6 +479,42 @@ public class ContentPane extends Pane {
 			// put scheme on screen
 			rebuildView();
 		}
+	}
+	
+	/**
+	 * find the list to delete the connection way
+	 * @param index
+	 * @return
+	 */
+	protected List<AUIElement> findInputElementWay(List<AUIElement> returnList, int indexFromElement) 
+	{
+		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
+		{
+			System.out.println("ui " + entry.getValue());
+			if(entry.getValue() instanceof UILineConnector)
+			{
+				UILineConnector uiLineConnector = (UILineConnector)entry.getValue();
+				System.out.println("val: " + uiLineConnector.getLogicElement().getInputId().getLeft());
+				//attention we need the inputid
+				if(uiLineConnector.getLogicElement().getInputId().getLeft() == indexFromElement)
+				{
+					returnList.add(uiLineConnector);
+					return returnList = findInputElementWay(returnList, uiLineConnector.getLogicElement().getIndex());
+				}
+			}
+			else if(entry.getValue() instanceof UICircleLineConnector)
+			{
+				UICircleLineConnector circleConnector = (UICircleLineConnector)entry.getValue();
+				//attention at circle we need the output (its a component not a line)
+				if(circleConnector.getLogicElement().getOutputId().getLeft() == indexFromElement)
+				{
+					returnList.add(circleConnector);
+					return returnList = findInputElementWay(returnList, circleConnector.getLogicElement().getIndex());
+				}
+				
+			}
+		}
+		return returnList;
 	}
 
 	/**
