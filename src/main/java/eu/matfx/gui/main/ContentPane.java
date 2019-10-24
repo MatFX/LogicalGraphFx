@@ -7,8 +7,10 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import eu.matfx.gui.component.AUIDoubleInputOneOutputElement;
 import eu.matfx.gui.component.AUIElement;
 import eu.matfx.gui.component.AUIInputOutputElement;
+import eu.matfx.gui.component.AUIOutputElement;
 import eu.matfx.gui.component.impl.UICircleLineConnector;
 import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.component.impl.container.UIRSFlipFlopContainer;
@@ -378,8 +380,52 @@ public class ContentPane extends Pane {
 								circleElement.setUIInputConnector(inputConnector);
 								
 							}
+							break;
+						}
+						//alle base templates ohne LineConnector
+						else if(!(getChildren().get(i) instanceof  UILineConnector) && (getChildren().get(i) instanceof  AUIElement) 
+								&& ((AUIElement)getChildren().get(i)).isSelected())
+						{
+							//beginning with the complexest element
+							if(getChildren().get(i) instanceof AUIDoubleInputOneOutputElement)
+							{
+								//TODO
+								
+							}
+							
+							if(getChildren().get(i) instanceof AUIInputOutputElement)
+							{
+								//TODO
+							}
+							
+							if(getChildren().get(i) instanceof AUIOutputElement)
+							{
+								//TODO
+								//suche bis zum entsprechenden Endepunkt (Endepunkt kann nie circle oder line sein)
+								AUIOutputElement outputElement = (AUIOutputElement)getChildren().get(i);
+								List<AUIElement> connectionList = new ArrayList<AUIElement>();
+								connectionList = findOutputElementWay(connectionList, outputElement.getLogicElement().getIndex());
+								System.out.println("connectionList " + connectionList.size());
+								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
+								for(int x = 0; x < connectionList.size(); x++)
+								{
+									ContentPane.this.getChildren().remove(((AUIElement)connectionList.get(x)));
+									uiMap.remove(((AUIElement)connectionList.get(x)).getLogicElement().getIndex());
+									schemeObject.removeElementAtMap(((AUIElement)connectionList.get(x)).getLogicElement());
+									
+								}
+								
+							}
+							
+							Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
+							schemeObject.removeElementAtMap(((AUIElement)getChildren().get(i)).getLogicElement());
+							ContentPane.this.getChildren().remove(((AUIElement)getChildren().get(i)));
+							uiMap.remove(((AUIElement)getChildren().get(i)).getLogicElement().getIndex());
 						}
 					}
+					
+					//Cursor wieder auf normal
+					ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
 					
 					//TODO zusätzlicher boolean bei dem die Veränderung festgehalten wird
 					//diesen dann hier setzen
@@ -420,6 +466,42 @@ public class ContentPane extends Pane {
 			// put scheme on screen
 			rebuildView();
 		}
+	}
+
+	/**
+	 * find the list to delete the connection way
+	 * @param index
+	 * @return
+	 */
+	protected List<AUIElement> findOutputElementWay(List<AUIElement> returnList, int indexFromElement) 
+	{
+		for(Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet())
+		{
+			System.out.println("ui " + entry.getValue());
+			if(entry.getValue() instanceof UILineConnector)
+			{
+				UILineConnector uiLineConnector = (UILineConnector)entry.getValue();
+				System.out.println("val: " + uiLineConnector.getLogicElement().getInputId().getLeft());
+				//attention we need the outputid
+				if(uiLineConnector.getLogicElement().getOutputId().getLeft() == indexFromElement)
+				{
+					returnList.add(uiLineConnector);
+					return returnList = findOutputElementWay(returnList, uiLineConnector.getLogicElement().getIndex());
+				}
+			}
+			else if(entry.getValue() instanceof UICircleLineConnector)
+			{
+				UICircleLineConnector circleConnector = (UICircleLineConnector)entry.getValue();
+				//attention at circle we need the input (its a component not a line)
+				if(circleConnector.getLogicElement().getInputId().getLeft() == indexFromElement)
+				{
+					returnList.add(circleConnector);
+					return returnList = findOutputElementWay(returnList, circleConnector.getLogicElement().getIndex());
+				}
+				
+			}
+		}
+		return returnList;
 	}
 
 	protected AUIElement getEndingInputWithId(GenericPair<Integer, Integer> inputId) 
