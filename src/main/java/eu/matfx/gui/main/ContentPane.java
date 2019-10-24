@@ -150,6 +150,14 @@ public class ContentPane extends Pane {
 					break;
 				case NO_COMMAND:
 					break;
+				case ADD_NEW_BASE_TEMPLATE:
+					//save the current coords from the active scheme
+					saveCoordsFromActiveScheme();
+					//cleanmap
+					removeContentAndCleanMap();
+					rebuildView();
+					command.set(ECommand.NO_COMMAND);
+					break;
 				default:
 					System.out.println("COMMAND NOT IMPLEMENTED: " + newValue);
 					break;

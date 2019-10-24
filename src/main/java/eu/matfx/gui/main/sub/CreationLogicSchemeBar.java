@@ -3,9 +3,14 @@ package eu.matfx.gui.main.sub;
 import java.util.List;
 import java.util.Optional;
 
+import eu.matfx.gui.util.EBaseTemplate;
 import eu.matfx.gui.util.ECommand;
 import eu.matfx.logic.Scheme;
 import eu.matfx.logic.SchemeListContainer;
+import eu.matfx.logic.data.impl.FunctionElement;
+import eu.matfx.logic.data.impl.SensorElement;
+import eu.matfx.logic.data.impl.container.AndContainer;
+import eu.matfx.logic.data.impl.container.OrContainer;
 import eu.matfx.logic.database.SchemeDataStorage;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -32,6 +37,8 @@ public class CreationLogicSchemeBar extends HBox
 	private ComboBox<Scheme> schemeComboBox = null;
 	
 	private SimpleBooleanProperty notSaved;
+	
+	private ComboBox<EBaseTemplate> templateBaseComboBox;
 	
 	/**
 	 * add and remove the changelistener when the combobox get new content
@@ -172,8 +179,62 @@ public class CreationLogicSchemeBar extends HBox
 			
 		});
 		
+	
+		//erstmal nur die wichtigsten
+		ObservableList<EBaseTemplate> tempObsList = 
+				FXCollections.observableArrayList(EBaseTemplate.SENSOR,
+						EBaseTemplate.FUNCTION,
+						EBaseTemplate.AND,
+						EBaseTemplate.OR);
+		templateBaseComboBox = new ComboBox<EBaseTemplate>(tempObsList);
 		
-		this.getChildren().addAll(newButton, deleteButton, schemeComboBox, textField, save, reset);
+		
+		Button addTemplate = new Button("Add template");
+		addTemplate.setOnAction(new EventHandler<ActionEvent>(){
+
+			@Override
+			public void handle(ActionEvent arg0) 
+			{
+				//template add
+				EBaseTemplate selectedValue = templateBaseComboBox.getSelectionModel().getSelectedItem();
+				Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
+				if(schemeObject != null)
+				{
+					boolean refreshView = true;
+					switch(selectedValue)
+					{
+						case SENSOR:
+							SensorElement sensorElement = new SensorElement();
+							schemeObject.addElementAtList(sensorElement);
+							//creae
+							break;
+						case FUNCTION:
+							FunctionElement functionElement = new FunctionElement();
+							schemeObject.addElementAtList(functionElement);
+							break;
+						case AND:
+							AndContainer andContainer = new AndContainer();
+							schemeObject.addElementAtList(andContainer);
+							break;
+						case OR:
+							OrContainer orContainer = new OrContainer();
+							schemeObject.addElementAtList(orContainer);
+							break;
+						default:
+							refreshView = false;
+							break;
+					}
+					if(refreshView)
+					{
+						command.set(ECommand.ADD_NEW_BASE_TEMPLATE);
+						notSaved.set(true);
+					}
+				}
+			}
+			
+		});
+		
+		this.getChildren().addAll(newButton, deleteButton, schemeComboBox, textField, save, reset, templateBaseComboBox, addTemplate);
 		
 	}
 

@@ -3,12 +3,9 @@ package eu.matfx.logic;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-
-import eu.matfx.logic.data.impl.FunctionElement;
 import eu.matfx.logic.data.impl.LineConnector;
 import eu.matfx.logic.data.impl.SensorElement;
 import eu.matfx.logic.data.impl.container.AndContainer;
-import eu.matfx.logic.data.impl.container.OrContainer;
 import eu.matfx.logic.data.impl.container.RSFlipFlopContainer;
 import eu.matfx.logic.database.SchemeDataStorage;
 import eu.matfx.logic.database.XMLAccess;

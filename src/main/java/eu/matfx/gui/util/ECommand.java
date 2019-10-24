@@ -44,6 +44,11 @@ public enum ECommand
 	 */
 	ACTIVATED_SCHEME,
 	
+	/**
+	 * when user add a new base template to the active scheme
+	 */
+	ADD_NEW_BASE_TEMPLATE,
+	
 	//TODO raus ist nur übergangsweise
 	CREATE_NEW_INDEX,
 	
