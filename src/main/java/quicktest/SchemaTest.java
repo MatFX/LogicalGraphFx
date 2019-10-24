@@ -19,31 +19,31 @@ public class SchemaTest {
 		Scheme scheme = new Scheme();
 		scheme.setDescriptionName("Test-Schema");
 		
-		scheme.addElementAtMap(new SensorElement());
+		scheme.addElementAtList(new SensorElement());
 		
 		
 		
 		AndContainer andContainer  = new AndContainer();
-		andContainer.setIndex(2);
+		//andContainer.setIndex(2);
 		
 		FunctionElement functionElement = new FunctionElement();
-		functionElement.setIndex(3);
+		//functionElement.setIndex(3);
 		//add two Elements with a gap in map
-		scheme.putElementAtMap(andContainer.getIndex(), andContainer);
-		scheme.putElementAtMap(functionElement.getIndex(), functionElement);
+		scheme.addElementAtList(andContainer);
+		scheme.addElementAtList(functionElement);
 		
 		
 		LineConnector lineConnect = new LineConnector();
-		lineConnect.setIndex(1);
+	//	lineConnect.setIndex(1);
 		lineConnect.setMasteridOutput(0);
 		lineConnect.setMasteridInput(2);
 		
-		scheme.putElementAtMap(lineConnect.getIndex(), lineConnect);
+		scheme.addElementAtList( lineConnect);
 		
 		//set at index 2 a new OrContainer the other elements muss be moved
 		OrContainer orContainer = new OrContainer();
-		orContainer.setIndex(2);
-		scheme.putElementAtMap(orContainer.getIndex(),  orContainer);
+		//orContainer.setIndex(2);
+		scheme.addElementAtList( orContainer);
 		
 		
 		

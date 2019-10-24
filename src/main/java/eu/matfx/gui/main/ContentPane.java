@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import eu.matfx.gui.component.AUIElement;
 import eu.matfx.gui.component.AUIInputOutputElement;
-import eu.matfx.gui.component.AUIOutputElement;
 import eu.matfx.gui.component.impl.UICircleLineConnector;
 import eu.matfx.gui.component.impl.UILineConnector;
 import eu.matfx.gui.helper.GenericPair;
@@ -46,7 +45,6 @@ import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -137,7 +135,6 @@ public class ContentPane extends Pane {
 					saveCoordsFromActiveScheme();
 					//cleanmap
 					removeContentAndCleanMap();
-					//TODO rebuildContent with new scheme
 					rebuildView();
 					command.set(ECommand.NO_COMMAND);
 					break;
@@ -212,11 +209,11 @@ public class ContentPane extends Pane {
 
 								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 								CircleLineConnector circleLineConnector = new CircleLineConnector();
-								schemeObject.addElementAtMap(circleLineConnector);
+								schemeObject.addElementAtList(circleLineConnector);
 
 								UICircleLineConnector uiCircle = new UICircleLineConnector(
-										(CircleLineConnector) schemeObject.getWorkflowMap()
-												.get(circleLineConnector.getIndex()));
+										(CircleLineConnector) schemeObject.getElementWithId(circleLineConnector.getIndex()));
+										
 								uiCircle.moveComponent(nearesPoint.getX(), nearesPoint.getY());
 								// release from the to observe components
 
@@ -236,10 +233,10 @@ public class ContentPane extends Pane {
 								// divide the selected line
 								// => need a new line
 								LineConnector newLineConnector = new LineConnector();
-								schemeObject.addElementAtMap(newLineConnector);
+								schemeObject.addElementAtList(newLineConnector);
 								// that line get the end container
 								UILineConnector uiNewLineConnector = new UILineConnector(
-										(LineConnector) schemeObject.getWorkflowMap().get(newLineConnector.getIndex()));
+										(LineConnector) schemeObject.getElementWithId(newLineConnector.getIndex()));
 								// add new ending point to the old line
 								uiCircle.getLogicElement().setMasteridInput(lineConnector.getLogicElement().getIndex());
 								// add new output id from the new line
@@ -294,7 +291,7 @@ public class ContentPane extends Pane {
 					break;
 
 				case MINUS:
-					System.out.println("MINUS  ");
+					
 					for (int i = 0; i < getChildren().size(); i++) 
 					{
 						if(getChildren().get(i) instanceof UICircleLineConnector
@@ -316,14 +313,8 @@ public class ContentPane extends Pane {
 							inputConnector.setInputY(outputConnector.getInputY());
 							//now change the logic line element 
 							//TODO RS FlipFlop!
-							System.out.println("vorher " + inputConnector.getLogicElement().getOutputId().getLeft());
-							inputConnector.getLogicElement().setMasteridInput(outputConnector.getLogicElement().getInputId().getLeft());
-							System.out.println("nachher " + inputConnector.getLogicElement().getOutputId().getLeft());
-							
-							
-							
-							
-							
+							inputConnector.getLogicElement().setMasteridInputWithSubindex(outputConnector.getLogicElement().getInputId().getLeft(),
+									outputConnector.getLogicElement().getInputId().getRight());
 							
 							//remove from the contentpane
 							ContentPane.this.getChildren().remove(circleToDelete);
@@ -332,6 +323,9 @@ public class ContentPane extends Pane {
 							uiMap.remove(circleToDelete.getLogicElement().getIndex());
 							uiMap.remove(outputConnector.getLogicElement().getIndex());
 							Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
+							
+							schemeObject.removeElementAtMap(circleToDelete.getLogicElement());
+							schemeObject.removeElementAtMap(outputConnector.getLogicElement());
 							//TODO weiß noch nicht wie das löschen erfolgt und ob die Indizes neu sortiert werden
 							//schemeObject.removeElementAtMap(circleToDelete.getLogicElement());
 							//schemeObject.removeElementAtMap(outputConnector.getLogicElement());
@@ -343,7 +337,6 @@ public class ContentPane extends Pane {
 							
 							AUIElement newEndingInput = getEndingInputWithId(inputConnector.getLogicElement().getInputId());
 							
-							System.out.println("newEndingInput " + newEndingInput);
 							if(newEndingInput instanceof AUIInputOutputElement)
 							{
 								AUIInputOutputElement outElement = (AUIInputOutputElement)newEndingInput;
@@ -353,8 +346,7 @@ public class ContentPane extends Pane {
 							else if(newEndingInput instanceof UICircleLineConnector)
 							{
 								UICircleLineConnector circleElement = (UICircleLineConnector)newEndingInput;
-								
-								circleElement.setUIOutputConnector(inputConnector);
+								circleElement.setUIInputConnector(inputConnector);
 								
 							}
 						}
@@ -519,6 +511,37 @@ public class ContentPane extends Pane {
 		
 		
 		if (schemeObject != null) {
+			
+			List<ALogicElement> sortedList = schemeObject.getSortedList();
+			Iterator<ALogicElement> it = sortedList.iterator();
+			while(it.hasNext())
+			{
+				ALogicElement aLogicElement = it.next();
+				
+				AUIElement<? extends ALogicElement> createdElement = AUIElement.getInstance(aLogicElement);
+				if (createdElement != null) {
+					// in the first draw no line connector!
+					if (!(createdElement instanceof UILineConnector)) 
+					{
+						
+						//System.out.println("addToView " + createdElement.getClass().toString());
+						
+						// TODO was ist mit größe und location?
+						ContentPane.this.getChildren().add(createdElement);
+
+						// TODO positioning
+						createdElement.moveComponent(aLogicElement.getLocationView().getX(), aLogicElement.getLocationView().getY());
+						createdElement.recalcualteCenterPoint();
+
+						addMouseListener(createdElement);
+
+					}
+					uiMap.put(aLogicElement.getIndex(), createdElement);
+				}
+			}
+			
+			
+			/*
 			SortedMap<Integer, ALogicElement> workflowMap = schemeObject.getWorkflowMap();
 
 			for (Entry<Integer, ALogicElement> entry : workflowMap.entrySet()) {
@@ -544,7 +567,7 @@ public class ContentPane extends Pane {
 					}
 					uiMap.put(entry.getKey(), createdElement);
 				}
-			}
+			}*/
 
 			// with the second draw the line connector came on view
 			for (Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet()) 
@@ -1044,6 +1067,7 @@ public class ContentPane extends Pane {
 		              			
 		              			Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
 		              			int indexFromMap = schemeObject.getIndexFromLogicElement(lineToDelete.getLogicElement());
+		              		
 		              			if(indexFromMap >= 0)
 		              				schemeObject.deleteElementMap(indexFromMap);
 		              			
@@ -1186,10 +1210,10 @@ public class ContentPane extends Pane {
 						LineConnector lineConnector = new LineConnector();
 						// add a new connector to the logical map; with the add
 						// the line will get the new index
-						schemeObject.addElementAtMap(lineConnector);
+						schemeObject.addElementAtList(lineConnector);
 
 						UILineConnector newLine = new UILineConnector(
-								(LineConnector) schemeObject.getWorkflowMap().get(lineConnector.getIndex()));
+								(LineConnector) schemeObject.getElementWithId(lineConnector.getIndex()));
 
 						newLine.setOutputX(tempLine.getStartX());
 						newLine.setOutputY(tempLine.getStartY());
