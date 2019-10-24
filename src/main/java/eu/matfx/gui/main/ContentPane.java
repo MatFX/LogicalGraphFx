@@ -352,7 +352,6 @@ public class ContentPane extends Pane {
 								if(inputConnector.getLogicElement().getInputId().getRight() >= 1 &&
 										newEndingInput instanceof UIRSFlipFlopContainer)
 								{
-									System.out.println("setze in flipflopConnector hoffe ich");
 									UIRSFlipFlopContainer flipFlopContainer = (UIRSFlipFlopContainer)newEndingInput;
 									flipFlopContainer.setUISecondInputConnector(inputConnector);
 									
@@ -558,35 +557,6 @@ public class ContentPane extends Pane {
 				}
 			}
 			
-			
-			/*
-			SortedMap<Integer, ALogicElement> workflowMap = schemeObject.getWorkflowMap();
-
-			for (Entry<Integer, ALogicElement> entry : workflowMap.entrySet()) {
-				ALogicElement aLogicElement = entry.getValue();
-
-				AUIElement<? extends ALogicElement> createdElement = AUIElement.getInstance(aLogicElement);
-				if (createdElement != null) {
-					// in the first draw no line connector!
-					if (!(createdElement instanceof UILineConnector)) 
-					{
-						
-						//System.out.println("addToView " + createdElement.getClass().toString());
-						
-						// TODO was ist mit größe und location?
-						ContentPane.this.getChildren().add(createdElement);
-
-						// TODO positioning
-						createdElement.moveComponent(aLogicElement.getLocationView().getX(), aLogicElement.getLocationView().getY());
-						createdElement.recalcualteCenterPoint();
-
-						addMouseListener(createdElement);
-
-					}
-					uiMap.put(entry.getKey(), createdElement);
-				}
-			}*/
-
 			// with the second draw the line connector came on view
 			for (Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet()) 
 			{

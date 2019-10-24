@@ -13,12 +13,6 @@ public enum ECommand
 	 */
 	CREATED_NEW_SCHEME,
 
-	/*
-	/**
-	 * delete the active scheme from the main pane (optional save ack)
-	
-	RESET_ACTIVE_SCHEME, 
-	*/
 	
 	/**
 	 * Reset complete configuration
@@ -39,11 +33,6 @@ public enum ECommand
 	 * remark that the user deleted the active scheme
 	 */
 	DELETED_SCHEME,
-	
-	/**
-	 * Save active scheme, as example change the scheme over the combobox
-	 */
-	//SAVE_ACTIVE_SCHEME,
 	
 	/**
 	 * take the current xml file and create a new tmp backup

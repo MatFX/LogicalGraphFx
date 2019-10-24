@@ -56,13 +56,6 @@ public class SelectionRectangle extends Rectangle
 		this.movementCoords = new Point2D(transferCoord.getX() - this.getLayoutX(), transferCoord.getY() - this.getLayoutY());
 	}
 	
-	/* TODO raus
-	public Point2D getMovementStartCoords()
-	{
-		return movementCoords;
-	}
-	*/
-	
 	public void setMovementRectangle(Point2D transferCoord, double maxW, double maxH)
 	{
 		double newX = transferCoord.getX() - movementCoords.getX();
