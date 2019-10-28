@@ -10,4 +10,6 @@ public interface UILineInputConnector
 	public boolean isUIInputOccupied();
 	
 	public void removeUIInputConnector();
+	
+	public boolean isUIInputOccupied(int withIndex);
 }

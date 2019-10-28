@@ -252,4 +252,18 @@ public class UICircleLineConnector extends AUIElement<CircleLineConnector> imple
 			ds.setColor(Color.web("#304f30"));
 	}
 
+	//TODO prüfen ob überhaupt benötigt
+	@Override
+	public boolean isUIInputOccupied(int withIndex) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	//TODO prüfen ob überhaupt benötigt
+	@Override
+	public boolean isUIOutputOccupied(int withIndex) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

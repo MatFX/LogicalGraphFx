@@ -109,11 +109,16 @@ public class Scheme implements Serializable {
 	
 	public int getIndexFromLogicElement(ALogicElement logicElement)
 	{
+		
 		for(int i = 0; i < workflowList.size(); i++)
 		{
+			
 			if(workflowList.get(i).getIndex() == logicElement.getIndex())
+			{
 				return i;
+			}
 		}
+		System.out.println("logicElement NotFound " + logicElement.getIndex());
 		return Integer.MIN_VALUE;
 	}
 

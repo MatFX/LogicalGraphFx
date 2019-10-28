@@ -9,5 +9,7 @@ public interface UILineOutputConnector
 	public boolean isUIOutputOccupied();
 	
 	public void removeUIOutputConnector();
+	
+	public boolean isUIOutputOccupied(int withIndex);
 
 }

@@ -142,4 +142,18 @@ public abstract class AUIInputOutputElement<T extends ALogicElement> extends AUI
 	}
 
 
+	@Override
+	public boolean isUIInputOccupied(int withIndex) 
+	{
+		//prüfung nur wenn auch belegt ist
+		if(isUIInputOccupied())
+		{
+			if(uiLineInputConnector.getLogicElement().getIndex() == withIndex)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

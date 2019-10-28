@@ -14,4 +14,11 @@ public interface UILineSecondInputConnector extends UILineInputConnector
 	public boolean isUISecondInputOccupied();
 	
 	public void removeUISecondInputConnector();
+	
+	/**
+	 * is the input occupied with the logic elemtn of param index
+	 * @param withIndex
+	 * @return
+	 */
+	public boolean isUISecondInputOccupied(int withIndex);
 }

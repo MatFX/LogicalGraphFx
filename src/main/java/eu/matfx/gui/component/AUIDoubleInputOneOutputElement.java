@@ -102,4 +102,20 @@ public abstract class AUIDoubleInputOneOutputElement<T extends ALogicElement> ex
 		super.recalcualteCenterPoint();
 		circleLeftSecond.recalcualteCenterPoint();
 	}
+	
+
+	@Override
+	public boolean isUISecondInputOccupied(int withIndex) 
+	{
+		//prüfung nur wenn auch belegt ist
+		if(isUISecondInputOccupied())
+		{
+			if(ulineConnectorSecondInput.getLogicElement().getIndex() == withIndex)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

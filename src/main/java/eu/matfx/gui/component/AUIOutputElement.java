@@ -216,6 +216,20 @@ public abstract class AUIOutputElement<T extends ALogicElement> extends AUIEleme
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public boolean isUIOutputOccupied(int withIndex) 
+	{
+		//prüfung nur wenn auch belegt ist
+		if(isUIOutputOccupied())
+		{
+			if(uiLineOutputConnector.getLogicElement().getIndex() == withIndex)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
 	
 	
