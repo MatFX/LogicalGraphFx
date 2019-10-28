@@ -655,7 +655,7 @@ public class ContentPane extends Pane {
 					{
 						//wir müssen uns komplett den Weg durchhaneln bis zu einer richtigen Komponente
 						AUIElement toDeleteObject = entry.getValue();
-						
+						System.out.println("toDeleteObject " + toDeleteObject);
 						//vor festhalten ob Ein oder Ausgang betroffen ist.
 						
 						//es müssen alle ein und ausgänge betrachtet werden, denn es kann ja in der Mitte aus einem Diagramm
@@ -665,6 +665,7 @@ public class ContentPane extends Pane {
 						//beginning with the complexest element
 						if(entry.getValue() instanceof AUIDoubleInputOneOutputElement)
 						{
+							System.out.println("gehe hier rein");
 							//TODO
 							AUIDoubleInputOneOutputElement inputElement = (AUIDoubleInputOneOutputElement)toDeleteObject;
 							List<AUIElement> connectionList = new ArrayList<AUIElement>();
@@ -677,11 +678,6 @@ public class ContentPane extends Pane {
 							
 							if(tempList.size() > 0)
 							{
-								/* TODO REORG
-								UILineConnector lastUlineConnector =  (UILineConnector) tempList.get(tempList.size()-1);
-								AUIOutputElement baseTemplate = (AUIOutputElement) uiMap.get(lastUlineConnector.getLogicElement().getOutputId().getLeft());
-								baseTemplate.removeUIOutputConnector();
-								*/
 								toDeleteList.addAll(tempList);
 							}
 							
@@ -689,6 +685,7 @@ public class ContentPane extends Pane {
 						}
 						if(entry.getValue() instanceof AUIInputOutputElement)
 						{
+							System.out.println("gehe hier oder rein");
 							//TODO
 							//suche bis zum entsprechenden Endepunkt (Endepunkt kann nie circle oder line sein)
 							AUIInputOutputElement inputElement = (AUIInputOutputElement)toDeleteObject;
@@ -703,11 +700,6 @@ public class ContentPane extends Pane {
 							
 							if(tempList.size() > 0)
 							{
-								/* TODO REORG
-								UILineConnector lastUlineConnector =  (UILineConnector) tempList.get(tempList.size()-1);
-								AUIOutputElement baseTemplate = (AUIOutputElement) uiMap.get(lastUlineConnector.getLogicElement().getOutputId().getLeft());
-								baseTemplate.removeUIOutputConnector();
-								*/
 								toDeleteList.addAll(tempList);
 								
 							}
@@ -715,6 +707,7 @@ public class ContentPane extends Pane {
 						//delete the way from output to input
 						if(entry.getValue() instanceof AUIOutputElement)
 						{
+							System.out.println(" oder zum schluss rein");
 							//TODO
 							//suche bis zum entsprechenden Endepunkt (Endepunkt kann nie circle oder line sein)
 							AUIOutputElement outputElement = (AUIOutputElement)toDeleteObject;
@@ -729,24 +722,12 @@ public class ContentPane extends Pane {
 							
 							if(tempList.size() > 0)
 							{
-								/* TODO REORG
-								UILineConnector lastUlineConnector =  (UILineConnector) tempList.get(tempList.size()-1);
-								AUIInputOutputElement baseTemplate = (AUIInputOutputElement) uiMap.get(lastUlineConnector.getLogicElement().getInputId().getLeft());
-								//it is possible the element has two inputs
-								//check the Input1
-								if(lastUlineConnector.getLogicElement().getInputId().getRight() == 0)
-								{
-									baseTemplate.removeUIInputConnector();
-								}
-								else if(lastUlineConnector.getLogicElement().getInputId().getRight() == 1
-										&&  baseTemplate instanceof AUIDoubleInputOneOutputElement)
-								{
-									((AUIDoubleInputOneOutputElement)baseTemplate).removeUISecondInputConnector();
-								}*/
 								toDeleteList.addAll(tempList);
 							}
 							
 						}
+						
+						
 					}
 					// Now the founded element
 					toDeleteList.add(entry.getValue());
