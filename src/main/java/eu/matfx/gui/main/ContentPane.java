@@ -198,9 +198,6 @@ public class ContentPane extends Pane {
 					ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
 					break;
 				case PLUS:
-
-					// TODO das geht hier nicht
-
 					// globale boolean für selektion oder doch jedesmal die
 					// Suche anstossen?
 					for (int i = 0; i < getChildren().size(); i++) 
@@ -249,14 +246,6 @@ public class ContentPane extends Pane {
 								// that line get the end container
 								UILineConnector uiNewLineConnector = new UILineConnector(
 										(LineConnector) schemeObject.getElementWithId(newLineConnector.getIndex()));
-								//TODO circle remove
-								// add new ending point to the old line
-								//uiCircle.getLogicElement().setMasteridInput(lineConnector.getLogicElement().getIndex());
-								// add new output id from the new line
-								//uiCircle.getLogicElement()
-								//		.setMasteridOutput(uiNewLineConnector.getLogicElement().getIndex());
-
-								//use the values from the old line connection
 								
 								uiNewLineConnector.getLogicElement()
 										.setMasteridInputWithSubindex(lineConnector.getLogicElement().getInputId().getLeft(), 
@@ -369,7 +358,6 @@ public class ContentPane extends Pane {
 								else
 								{
 									AUIInputOutputElement outElement = (AUIInputOutputElement)newEndingInput;
-									//TODO rsFlipFlop
 									outElement.setUIInputConnector(inputConnector);
 								}
 								
@@ -556,11 +544,7 @@ public class ContentPane extends Pane {
 					//von dem Start toDeleteObject den kompletten Weg durchnudeln
 					//und der deleteListe anhängen
 					
-					if(entry.getValue() instanceof AUIDoubleInputOneOutputElement)
-					{
-						AUIDoubleInputOneOutputElement doubleInputElement = (AUIDoubleInputOneOutputElement)toDeleteObject;
-					}
-					
+					//Berücksichtigung dass zwei Eingänge belegt sein können.
 					if(entry.getValue() instanceof AUIInputOutputElement)
 					{
 						tempList = new ArrayList<AUIElement<? extends ALogicElement>>();
@@ -575,22 +559,15 @@ public class ContentPane extends Pane {
 								if(tempConnector.getLogicElement().isMasterIdInput(inputElement.getLogicElement().getIndex()))
 								{
 									uiLine = tempConnector;
-									break;
-									
+									if(uiLine != null)
+									{
+										findInputElementWay(tempList, uiLine);
+										for(int z = 0; z < tempList.size(); z++)
+											toDeleteList.add(tempList.get(z));
+									}
 								}
-								
-								
 							}
 						}
-						if(uiLine != null)
-						{
-							findInputElementWay(tempList, uiLine);
-						
-							for(int z = 0; z < tempList.size(); z++)
-								toDeleteList.add(tempList.get(z));
-						}
-						
-						
 					}
 					
 					
@@ -771,9 +748,6 @@ public class ContentPane extends Pane {
 					// in the first draw no line connector!
 					if (!(createdElement instanceof UILineConnector)) 
 					{
-						
-						
-						
 						// TODO was ist mit größe und location?
 						ContentPane.this.getChildren().add(createdElement);
 
@@ -1266,16 +1240,6 @@ public class ContentPane extends Pane {
 						
 						List<AUIElement<? extends ALogicElement>> tempList = new ArrayList<AUIElement<? extends ALogicElement>>();
 						
-						//first get the complete path from the line (all circle and all lines)
-						
-						int firstOutputIndex = getFirstOutputIndex(node, tempList);
-						
-						
-						//System.exit(0);
-						//now to the last element
-						int lastInputIndex = getLastInputIndex(node, tempList);
-						//first delete all circleConnector
-						
 						Iterator<AUIElement<? extends ALogicElement>> iterator = tempList.iterator();
 						while(iterator.hasNext())
 						{
@@ -1288,7 +1252,8 @@ public class ContentPane extends Pane {
 		              			UILineInputConnector inputConnector = (UILineInputConnector) getConnector(lineToDelete.getLogicElement().getInputId());
 		                 		
 		              			outputConnector.removeUIOutputConnector();
-		              			//TODO not the best idea
+		              		
+		              			//remove when second input established
 		              			if(uiNode.getLogicElement().getInputId().getRight() == 1 && inputConnector instanceof UILineSecondInputConnector)
 		              			{
 		              				((UILineSecondInputConnector)inputConnector).removeUISecondInputConnector();
@@ -1297,11 +1262,7 @@ public class ContentPane extends Pane {
 		              				inputConnector.removeUIInputConnector();
 		              			
 		              			Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-		              			//int indexFromMap = schemeObject.getIndexFromLogicElement(lineToDelete.getLogicElement());
-		              		
-		              			//if(indexFromMap >= 0)
-		              				schemeObject.removeElementAtMap(lineToDelete.getLogicElement());
-		              			
+		              			schemeObject.removeElementAtMap(lineToDelete.getLogicElement());
 		              			deleteUINodeFromView(lineToDelete);
 								
 								
@@ -1322,10 +1283,7 @@ public class ContentPane extends Pane {
 								circleConnector.removeUIOutputConnector();
 								
 								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-		              			//int indexFromMap = schemeObject.getIndexFromLogicElement(circleConnector.getLogicElement());
-		              			//if(indexFromMap >= 0)
-		              				schemeObject.removeElementAtMap(circleConnector.getLogicElement());
-		              			
+		              			schemeObject.removeElementAtMap(circleConnector.getLogicElement());
 		              			deleteUINodeFromView(circleConnector);
 								
 							}
@@ -1343,7 +1301,6 @@ public class ContentPane extends Pane {
 				// release the colored frame and the select flag
 				else if (ContentPane.this.getScene().getCursor() == Cursor.MOVE)
 				{
-					System.out.println("move cursor");
 					// it must be checked that the movement goes outside the
 					// definied frame
 					
