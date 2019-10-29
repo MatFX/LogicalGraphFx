@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 import eu.matfx.logic.data.AConnectorElement;
+import eu.matfx.logic.data.ALogicElement;
 
 
 /**
@@ -13,7 +14,7 @@ import eu.matfx.logic.data.AConnectorElement;
  */
 @XmlType(name = "CircleLineConnector")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CircleLineConnector extends AConnectorElement
+public class CircleLineConnector extends ALogicElement//extends AConnectorElement
 {
 
 	/**

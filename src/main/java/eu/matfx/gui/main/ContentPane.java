@@ -251,11 +251,12 @@ public class ContentPane extends Pane {
 								// that line get the end container
 								UILineConnector uiNewLineConnector = new UILineConnector(
 										(LineConnector) schemeObject.getElementWithId(newLineConnector.getIndex()));
+								//TODO circle remove
 								// add new ending point to the old line
-								uiCircle.getLogicElement().setMasteridInput(lineConnector.getLogicElement().getIndex());
+								//uiCircle.getLogicElement().setMasteridInput(lineConnector.getLogicElement().getIndex());
 								// add new output id from the new line
-								uiCircle.getLogicElement()
-										.setMasteridOutput(uiNewLineConnector.getLogicElement().getIndex());
+								//uiCircle.getLogicElement()
+								//		.setMasteridOutput(uiNewLineConnector.getLogicElement().getIndex());
 
 								//use the values from the old line connection
 								
@@ -531,6 +532,7 @@ public class ContentPane extends Pane {
 					return returnList = findInputElementWay(returnList, uiLineConnector.getLogicElement().getIndex());
 				}
 			}
+			/* TODO Circle
 			else if(entry.getValue() instanceof UICircleLineConnector)
 			{
 				UICircleLineConnector circleConnector = (UICircleLineConnector)entry.getValue();
@@ -542,7 +544,7 @@ public class ContentPane extends Pane {
 					return returnList = findInputElementWay(returnList, circleConnector.getLogicElement().getIndex());
 				}
 				
-			}
+			}*/
 		}
 		return returnList;
 	}
@@ -566,6 +568,7 @@ public class ContentPane extends Pane {
 					return returnList = findOutputElementWay(returnList, uiLineConnector.getLogicElement().getIndex());
 				}
 			}
+			/* TODO circle
 			else if(entry.getValue() instanceof UICircleLineConnector)
 			{
 				UICircleLineConnector circleConnector = (UICircleLineConnector)entry.getValue();
@@ -576,7 +579,7 @@ public class ContentPane extends Pane {
 					return returnList = findOutputElementWay(returnList, circleConnector.getLogicElement().getIndex());
 				}
 				
-			}
+			}*/
 		}
 		return returnList;
 	}
@@ -1247,6 +1250,7 @@ public class ContentPane extends Pane {
 
 		@Override
 		public void handle(MouseEvent t) {
+			System.out.println("mouseReleased " + t.getSource());
 			if (t.getSource() instanceof Canvas) 
 			{
 
@@ -1331,22 +1335,29 @@ public class ContentPane extends Pane {
 			} 
 			else if (t.getSource() instanceof AUIElement)
 			{
+				
 				@SuppressWarnings("unchecked")
 				AUIElement<? extends ALogicElement> node = (AUIElement<? extends ALogicElement>) t.getSource();
 				
 				if (node instanceof UILineConnector) 
 				{
+					
 					UILineConnector uiNode = ((UILineConnector) node);
 					if(uiNode.isDeletedDesignated())
               		{
+						
 						List<AUIElement<? extends ALogicElement>> tempList = new ArrayList<AUIElement<? extends ALogicElement>>();
 						
 						//first get the complete path from the line (all circle and all lines)
 						
 						int firstOutputIndex = getFirstOutputIndex(node, tempList);
+						System.out.println("firstOutputIndex " + firstOutputIndex);
+						
+						
+						//System.exit(0);
 						//now to the last element
 						int lastInputIndex = getLastInputIndex(node, tempList);
-						
+						System.out.println("lastInputIndex " + lastInputIndex);
 						//first delete all circleConnector
 						
 						Iterator<AUIElement<? extends ALogicElement>> iterator = tempList.iterator();
@@ -1614,6 +1625,7 @@ public class ContentPane extends Pane {
 		{
 			if(!nodeToDeleteList.contains(node))
 				nodeToDeleteList.add(node);
+			
 			int inputid = ((UILineConnector)node).getLogicElement().getInputId().getLeft();
 			AUIElement<?> element = this.findElement(inputid);
 			if(element != null)
@@ -1626,18 +1638,22 @@ public class ContentPane extends Pane {
 		}
 		else if(node instanceof UICircleLineConnector)
 		{
+			//es wurde ein Kreis mit dem Index gefunden
 			if(!nodeToDeleteList.contains(node))
 				nodeToDeleteList.add(node);
-			//at circle we need the input to find the next line Connector
-			int outputid = ((UICircleLineConnector)node).getLogicElement().getOutputId().getLeft();
-			AUIElement<?> element = this.findElement(outputid);
+			
+			//der Kreis enthält aber keine Verbindungsinformationen mehr
+			//sondern wir benötigen die nächste Komponente 
+			
+			//find InputIndex Element with ID of the Circle
+			//von dem Circle den nächsten Input suchen mit der circle ID
+			AUIElement<?> element = this.findOutputElement(((UICircleLineConnector)node).getLogicElement().getIndex());
 			if(element != null)
 			{
-			
-				return getFirstOutputIndex(element,nodeToDeleteList);
+				return getLastInputIndex(element, nodeToDeleteList);
 			}
 			else
-				return outputid;
+				return ((UICircleLineConnector)node).getLogicElement().getIndex();
 		}
 		return node.getLogicElement().getIndex();
 	}
@@ -1669,15 +1685,15 @@ public class ContentPane extends Pane {
 		{
 			if(!nodeToDeleteList.contains(node))
 				nodeToDeleteList.add(node);
-			//at circle we need the input to find the next line Connector
-			int inputid = ((UICircleLineConnector)node).getLogicElement().getInputId().getLeft();
-			AUIElement<?> element = this.findElement(inputid);
+			
+			//backward searching to the next output
+			AUIElement<?> element = this.findInputElement(((UICircleLineConnector)node).getLogicElement().getIndex());
 			if(element != null)
 			{
 				return getFirstOutputIndex(element, nodeToDeleteList);
 			}
 			else
-				return inputid;
+				return ((UICircleLineConnector)node).getLogicElement().getIndex();
 		}
 		return node.getLogicElement().getIndex();
 	}
@@ -1692,6 +1708,72 @@ public class ContentPane extends Pane {
 		
 		return null;
 	}
+	
+	/**
+	 * sucht nach einem Element, dass den Parameter im Input beinhaltet
+	 * @param idOfInput
+	 * @return
+	 */
+	private AUIElement<?> findInputElement(int idOfInput)
+	{
+		for(Entry<Integer, AUIElement<?>> entry : uiMap.entrySet())
+		{
+//			if(entry.getValue() instanceof AUIDoubleInputOneOutputElement)
+//			{
+//				AUIDoubleInputOneOutputElement doubleInput = (AUIDoubleInputOneOutputElement)entry.getValue();
+//				if(doubleInput.isUISecondInputOccupied(idOfInput))
+//					return doubleInput;
+//			}
+//			
+//			
+//			if(entry.getValue() instanceof AUIInputOutputElement)
+//			{
+//				AUIInputOutputElement input = (AUIInputOutputElement)entry.getValue();
+//				if(input.isUIInputOccupied(idOfInput))
+//					return input;
+//			}
+			
+			if(entry.getValue() instanceof UILineConnector)
+			{
+				UILineConnector uiLineConnector = (UILineConnector)entry.getValue();
+				System.out.println("uILineConnecot " + uiLineConnector.getLogicElement().getInputId().getLeft());
+				System.out.println("idOfInput " + idOfInput);
+				if(uiLineConnector.getLogicElement().isMasterIdInput(idOfInput))
+					return uiLineConnector;
+			}
+			
+			
+		}
+		return null;
+	}
+	
+	/**
+	 * sucht nach einem Element, dass den Parameter im Input beinhaltet
+	 * @param idOfInput
+	 * @return
+	 */
+	private AUIElement<?> findOutputElement(int idOfOutput)
+	{
+		for(Entry<Integer, AUIElement<?>> entry : uiMap.entrySet())
+		{
+//			if(entry.getValue() instanceof AUIOutputElement)
+//			{
+//				AUIOutputElement output = (AUIOutputElement)entry.getValue();
+//				if(output.isUIOutputOccupied(idOfOutput))
+//					return output;
+//			}
+			
+
+			if(entry.getValue() instanceof UILineConnector)
+			{
+				UILineConnector uiLineConnector = (UILineConnector)entry.getValue();
+				if(uiLineConnector.getLogicElement().isMasterIdOutput(idOfOutput))
+					return uiLineConnector;
+			}
+		}
+		return null;
+	}
+	
 
 	/**
 	 * a ui component is in the area of a user definied frame
