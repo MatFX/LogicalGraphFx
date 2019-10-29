@@ -107,6 +107,7 @@ public class Scheme implements Serializable {
 		return this.getDescriptionName();
 	}
 	
+	
 	public int getIndexFromLogicElement(ALogicElement logicElement)
 	{
 		

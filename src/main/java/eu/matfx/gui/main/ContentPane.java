@@ -634,40 +634,15 @@ public class ContentPane extends Pane {
 	 * delete all selecte ui elements from the view.
 	 */
 	protected void deleteSelectedUIElements() {
-		System.out.println("deleteSelectedUIElements ");
 		LinkedHashSet<AUIElement<? extends ALogicElement>> toDeleteList = new LinkedHashSet<AUIElement<? extends ALogicElement>>();
 		// find alle ui element without the line connectors
 		for (Entry<Integer, AUIElement<? extends ALogicElement>> entry : uiMap.entrySet()) {
 			//no delete at the Line (deletable over mouse move) and circle (only delete when is collected; deletable over MINUS)
-			System.out.println("isCollected " + entry.getValue().isCollected());
 			if ((entry.getValue() instanceof UICircleLineConnector && entry.getValue().isCollected()) || !(entry.getValue() instanceof UILineConnector)) 
 			{
 				if (entry.getValue().isSelected() || entry.getValue().isCollected()) 
 				{
 					System.out.println("entry eingang");
-					/*
-					boolean foundLine = false;
-					// any connection with other element established
-					for (Entry<Integer, AUIElement<? extends ALogicElement>> secondCheck : uiMap.entrySet()) {
-						if (secondCheck.getValue() instanceof UILineConnector) {
-							UILineConnector uiLineConnector = (UILineConnector) secondCheck.getValue();
-							if (!uiLineConnector.getLogicElement().isOutputEmpty() && uiLineConnector.getLogicElement()
-									.isMasterIdOutput(entry.getValue().getLogicElement().getIndex())) {
-								toDeleteList.add(secondCheck.getValue());
-								foundLine = true;
-							} else if (!uiLineConnector.getLogicElement().isInputEmpty() && uiLineConnector
-									.getLogicElement().isMasterIdInput(entry.getValue().getLogicElement().getIndex())) {
-								toDeleteList.add(secondCheck.getValue());
-								foundLine = true;
-							}
-							// no break after found it is possible that the ui
-							// combinend with two different lines
-						}
-
-					}*/
-					//Bei gefundener Linie muss bis zur richtigen Komponente aufgelöst werden.
-					//if (foundLine) 
-					//{
 						
 					List<AUIElement<? extends ALogicElement>> tempList = new ArrayList<AUIElement<? extends ALogicElement>>();
 					//wir müssen uns komplett den Weg durchhaneln bis zu einer richtigen Komponente
@@ -742,6 +717,65 @@ public class ContentPane extends Pane {
 							for(int z = 0; z < tempList.size(); z++)
 								toDeleteList.add(tempList.get(z));
 						}
+					}
+					
+					if(entry.getValue() instanceof UICircleLineConnector)
+					{
+						UICircleLineConnector uiCircle = (UICircleLineConnector)entry.getValue();
+						int myIndex = uiCircle.getLogicElement().getIndex();
+						
+						UILineConnector uiLine = null;
+						for (Entry<Integer, AUIElement<? extends ALogicElement>> secondCheck : uiMap.entrySet()) 
+						{
+							if (secondCheck.getValue() instanceof UILineConnector)
+							{
+								UILineConnector tempConnector = (UILineConnector)secondCheck.getValue();
+								if(tempConnector.getLogicElement().isMasterIdInput(myIndex))
+								{
+									uiLine = tempConnector;
+									break;
+									
+								}
+								
+								
+							}
+						}
+						System.out.println("uiLine " + uiLine);
+						if(uiLine != null)
+						{
+							findInputElementWay(tempList, uiLine);
+							System.out.println("tempList " + tempList.size());
+						
+							for(int z = 0; z < tempList.size(); z++)
+								toDeleteList.add(tempList.get(z));
+						}
+						
+						uiLine = null;
+						
+						for (Entry<Integer, AUIElement<? extends ALogicElement>> secondCheck : uiMap.entrySet()) 
+						{
+							if (secondCheck.getValue() instanceof UILineConnector)
+							{
+								UILineConnector tempConnector = (UILineConnector)secondCheck.getValue();
+								if(tempConnector.getLogicElement().isMasterIdOutput(myIndex))
+								{
+									uiLine = tempConnector;
+									break;
+								}
+							}
+						}
+						System.out.println("uiLIne output " + uiLine);
+						if(uiLine != null)
+						{
+							findOutputElementWay(tempList, uiLine);
+							System.out.println("tempList " + tempList.size());
+
+							for(int z = 0; z < tempList.size(); z++)
+								toDeleteList.add(tempList.get(z));
+						}
+						
+						
+						
 					}
 						
 						
@@ -1256,7 +1290,8 @@ public class ContentPane extends Pane {
 
 		@Override
 		public void handle(MouseEvent t) {
-			System.out.println("mouseReleased " + t.getSource());
+			
+			
 			if (t.getSource() instanceof Canvas) 
 			{
 
@@ -1344,11 +1379,11 @@ public class ContentPane extends Pane {
 				
 				@SuppressWarnings("unchecked")
 				AUIElement<? extends ALogicElement> node = (AUIElement<? extends ALogicElement>) t.getSource();
-				
+				System.out.println("node " + node.toString());
 				if (node instanceof UILineConnector) 
 				{
-					
 					UILineConnector uiNode = ((UILineConnector) node);
+					System.out.println("uiNode " + uiNode.isDeletedDesignated());
 					if(uiNode.isDeletedDesignated())
               		{
 						
@@ -1418,8 +1453,6 @@ public class ContentPane extends Pane {
 		              			
 		              			deleteUINodeFromView(indexFromMap);
 								
-								
-								
 							}
 							
 							
@@ -1435,6 +1468,7 @@ public class ContentPane extends Pane {
 				// release the colored frame and the select flag
 				else if (ContentPane.this.getScene().getCursor() == Cursor.MOVE)
 				{
+					System.out.println("move cursor");
 					// it must be checked that the movement goes outside the
 					// definied frame
 					
@@ -1525,6 +1559,7 @@ public class ContentPane extends Pane {
 						}
 					}
 
+					System.out.println("found " + found);
 					if (found) {
 
 						// build new uiLine/logicline
@@ -1549,16 +1584,20 @@ public class ContentPane extends Pane {
 						// input and output ui component
 						// no question about the pickup of the value
 
+						System.out.println("oConn " + tempLine.getOutputIndex());
+						
 						// TODO subindex must be in tempLine
 						UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(
 								new GenericPair<Integer, Integer>(tempLine.getOutputIndex(), 0));
-
+						System.out.println("outputConnector " + outputConnector);
 											
+						System.out.println("inputConn " + tempLine.getInputIndex());
+					
 						// here is the problem with the second input
 						UILineInputConnector inputConnector = (UILineInputConnector) getConnector(
 								(new GenericPair<Integer, Integer>(tempLine.getInputIndex(),
 										tempLine.getSubIndexInput())));
-
+						System.out.println("inputConnector " + inputConnector);
 						if (outputConnector != null && inputConnector != null) {
 
 							// fill now the id to the logic elements
