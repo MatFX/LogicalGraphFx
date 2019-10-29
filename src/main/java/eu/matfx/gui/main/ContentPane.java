@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
-
 import java.util.TreeMap;
 
 import eu.matfx.gui.component.AUIDoubleInputOneOutputElement;
@@ -32,7 +31,6 @@ import eu.matfx.logic.data.ALogicElement;
 import eu.matfx.logic.data.AOutputElement;
 import eu.matfx.logic.data.impl.CircleLineConnector;
 import eu.matfx.logic.data.impl.LineConnector;
-
 import eu.matfx.logic.database.SchemeDataStorage;
 import eu.matfx.logic.database.XMLAccess;
 import javafx.beans.property.DoubleProperty;
@@ -383,97 +381,11 @@ public class ContentPane extends Pane {
 								
 							}
 							break;
-						}/* TODO raus
-						//alle base templates ohne LineConnector
-						else if(!(getChildren().get(i) instanceof  UILineConnector) && (getChildren().get(i) instanceof  AUIElement) 
-								&& ((AUIElement)getChildren().get(i)).isSelected())
-						{
-							
-							LinkedHashSet<AUIElement<? extends ALogicElement>> toDeleteList = new LinkedHashSet<AUIElement<? extends ALogicElement>>();
-							
-							
-							AUIElement toDeleteObject = (AUIElement)getChildren().get(i);
-							//beginning with the complexest element
-							if(toDeleteObject instanceof AUIDoubleInputOneOutputElement)
-							{
-								//TODO
-								AUIDoubleInputOneOutputElement inputElement = (AUIDoubleInputOneOutputElement)toDeleteObject;
-								List<AUIElement> connectionList = new ArrayList<AUIElement>();
-								connectionList = findInputElementWay(connectionList, inputElement.getLogicElement().getIndex());
-							
-								for(int x = 0; x < connectionList.size(); x++)
-								{
-									toDeleteList.add(((AUIElement)connectionList.get(x)));
-								}
-							}
-
-							
-							if(toDeleteObject instanceof AUIInputOutputElement)
-							{
-								//TODO
-								//suche bis zum entsprechenden Endepunkt (Endepunkt kann nie circle oder line sein)
-								AUIInputOutputElement inputElement = (AUIInputOutputElement)getChildren().get(i);
-								List<AUIElement> connectionList = new ArrayList<AUIElement>();
-								connectionList = findInputElementWay(connectionList, inputElement.getLogicElement().getIndex());
-								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-								for(int x = 0; x < connectionList.size(); x++)
-								{
-									toDeleteList.add(connectionList.get(x));
-								}
-								
-							}
-							
-							if(toDeleteObject instanceof AUIOutputElement)
-							{
-								//TODO
-								//suche bis zum entsprechenden Endepunkt (Endepunkt kann nie circle oder line sein)
-								AUIOutputElement outputElement = (AUIOutputElement)getChildren().get(i);
-								List<AUIElement> connectionList = new ArrayList<AUIElement>();
-								connectionList = findOutputElementWay(connectionList, outputElement.getLogicElement().getIndex());
-								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-								for(int x = 0; x < connectionList.size(); x++)
-								{
-									toDeleteList.add(connectionList.get(x));
-								}
-								
-							}
-							toDeleteList.add(toDeleteObject);
-							
-							if (toDeleteList.size() > 0) {
-
-								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-								Iterator<AUIElement<? extends ALogicElement>> it = toDeleteList.iterator();
-								while(it.hasNext())
-								{
-									AUIElement element = it.next();
-									
-									int indexFromMap = schemeObject.getIndexFromLogicElement(element.getLogicElement());
-									if (indexFromMap >= 0)
-										schemeObject.deleteElementMap(indexFromMap);
-									// now the ui side
-									deleteUINodeFromView(indexFromMap);
-								}
-								
-								//reorganize the ui map and release the connection
-								it  = toDeleteList.iterator();
-								while (it.hasNext())
-								{
-									AUIElement aUIElement = it.next();
-									//dieser Index darf nirgendwo mehr vorkommen
-									int indexKomponent = aUIElement.getLogicElement().getIndex();
-									releaseConnection(indexKomponent);
-								}
-							}
-							
-							
-						}*/
+						}
 					}
 					
 					//Cursor wieder auf normal
 					ContentPane.this.getScene().setCursor(Cursor.DEFAULT);
-					
-					//TODO zusätzlicher boolean bei dem die Veränderung festgehalten wird
-					//diesen dann hier setzen
 					notSaved.set(true);
 					break;
 				default:
@@ -524,10 +436,8 @@ public class ContentPane extends Pane {
 		
 		if(node instanceof UILineConnector)
 		{
-			System.out.println("node " + node.getLogicElement().getIndex());
 			if(!nodeToDeleteList.contains(node))
 			{
-				System.out.println("füge node hinzug");
 				nodeToDeleteList.add(node);
 			}
 			int outputid = ((UILineConnector)node).getLogicElement().getOutputId().getLeft();
@@ -561,15 +471,13 @@ public class ContentPane extends Pane {
 	 */
 	protected List<AUIElement<? extends ALogicElement>> findOutputElementWay(List<AUIElement<? extends ALogicElement>> nodeToDeleteList, AUIElement<? extends ALogicElement> node) 
 	{
-		System.out.println("nodeOutput Methodenanfang " + node.getLogicElement().getIndex());
 		if(node instanceof UILineConnector)
 		{
 			if(!nodeToDeleteList.contains(node))
 				nodeToDeleteList.add(node);
 			int outputId = ((UILineConnector)node).getLogicElement().getInputId().getLeft();
-			System.out.println("outputId bei id " + outputId);
+	
 			AUIElement<?> element = this.findElement(outputId);
-			System.out.println("was ist das nächste " + element.toString());
 			if(element != null)
 			{
 				
@@ -583,7 +491,6 @@ public class ContentPane extends Pane {
 			
 			//backward searching to the next output
 			AUIElement<?> element = this.findOutputElement(((UICircleLineConnector)node).getLogicElement().getIndex());
-			System.out.println("element bei circle " + element);
 			if(element != null)
 			{
 				return findOutputElementWay(nodeToDeleteList, element);
@@ -642,7 +549,6 @@ public class ContentPane extends Pane {
 			{
 				if (entry.getValue().isSelected() || entry.getValue().isCollected()) 
 				{
-					System.out.println("entry eingang");
 						
 					List<AUIElement<? extends ALogicElement>> tempList = new ArrayList<AUIElement<? extends ALogicElement>>();
 					//wir müssen uns komplett den Weg durchhaneln bis zu einer richtigen Komponente
@@ -676,11 +582,9 @@ public class ContentPane extends Pane {
 								
 							}
 						}
-						System.out.println("uiLine " + uiLine);
 						if(uiLine != null)
 						{
 							findInputElementWay(tempList, uiLine);
-							System.out.println("tempList " + tempList.size());
 						
 							for(int z = 0; z < tempList.size(); z++)
 								toDeleteList.add(tempList.get(z));
@@ -708,12 +612,10 @@ public class ContentPane extends Pane {
 								}
 							}
 						}
-						System.out.println("uiLIne output " + uiLine);
 						if(uiLine != null)
 						{
 							findOutputElementWay(tempList, uiLine);
-							System.out.println("tempList " + tempList.size());
-
+			
 							for(int z = 0; z < tempList.size(); z++)
 								toDeleteList.add(tempList.get(z));
 						}
@@ -740,11 +642,9 @@ public class ContentPane extends Pane {
 								
 							}
 						}
-						System.out.println("uiLine " + uiLine);
 						if(uiLine != null)
 						{
 							findInputElementWay(tempList, uiLine);
-							System.out.println("tempList " + tempList.size());
 						
 							for(int z = 0; z < tempList.size(); z++)
 								toDeleteList.add(tempList.get(z));
@@ -764,12 +664,10 @@ public class ContentPane extends Pane {
 								}
 							}
 						}
-						System.out.println("uiLIne output " + uiLine);
 						if(uiLine != null)
 						{
 							findOutputElementWay(tempList, uiLine);
-							System.out.println("tempList " + tempList.size());
-
+					
 							for(int z = 0; z < tempList.size(); z++)
 								toDeleteList.add(tempList.get(z));
 						}
@@ -777,9 +675,6 @@ public class ContentPane extends Pane {
 						
 						
 					}
-						
-						
-					//}
 					// Now the founded element
 					toDeleteList.add(entry.getValue());
 				}
@@ -795,13 +690,7 @@ public class ContentPane extends Pane {
 			while (it.hasNext())
 			{
 				AUIElement element = it.next();
-				int indexFromMap = schemeObject.getIndexFromLogicElement(element.getLogicElement());
-				if (indexFromMap >= 0)
-				{
-					System.out.println("entferne " + element.getLogicElement().getIndex());
-					schemeObject.deleteElementMap(indexFromMap);
-				}
-				
+				schemeObject.removeElementAtMap(element.getLogicElement());
 				// now the ui side
 				deleteUINodeFromView(element);
 				
@@ -857,18 +746,8 @@ public class ContentPane extends Pane {
 					outputElement.removeUIOutputConnector();
 					
 				}
-				
-				
 			}
-			
-			
-			
-			
-			
-			
 		}
-		
-		
 	}
 
 	private void rebuildView() {
@@ -1379,11 +1258,9 @@ public class ContentPane extends Pane {
 				
 				@SuppressWarnings("unchecked")
 				AUIElement<? extends ALogicElement> node = (AUIElement<? extends ALogicElement>) t.getSource();
-				System.out.println("node " + node.toString());
 				if (node instanceof UILineConnector) 
 				{
 					UILineConnector uiNode = ((UILineConnector) node);
-					System.out.println("uiNode " + uiNode.isDeletedDesignated());
 					if(uiNode.isDeletedDesignated())
               		{
 						
@@ -1392,13 +1269,11 @@ public class ContentPane extends Pane {
 						//first get the complete path from the line (all circle and all lines)
 						
 						int firstOutputIndex = getFirstOutputIndex(node, tempList);
-						System.out.println("firstOutputIndex " + firstOutputIndex);
 						
 						
 						//System.exit(0);
 						//now to the last element
 						int lastInputIndex = getLastInputIndex(node, tempList);
-						System.out.println("lastInputIndex " + lastInputIndex);
 						//first delete all circleConnector
 						
 						Iterator<AUIElement<? extends ALogicElement>> iterator = tempList.iterator();
@@ -1422,12 +1297,12 @@ public class ContentPane extends Pane {
 		              				inputConnector.removeUIInputConnector();
 		              			
 		              			Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-		              			int indexFromMap = schemeObject.getIndexFromLogicElement(lineToDelete.getLogicElement());
+		              			//int indexFromMap = schemeObject.getIndexFromLogicElement(lineToDelete.getLogicElement());
 		              		
-		              			if(indexFromMap >= 0)
-		              				schemeObject.deleteElementMap(indexFromMap);
+		              			//if(indexFromMap >= 0)
+		              				schemeObject.removeElementAtMap(lineToDelete.getLogicElement());
 		              			
-		              			deleteUINodeFromView(indexFromMap);
+		              			deleteUINodeFromView(lineToDelete);
 								
 								
 								
@@ -1447,11 +1322,11 @@ public class ContentPane extends Pane {
 								circleConnector.removeUIOutputConnector();
 								
 								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-		              			int indexFromMap = schemeObject.getIndexFromLogicElement(circleConnector.getLogicElement());
-		              			if(indexFromMap >= 0)
-		              				schemeObject.deleteElementMap(indexFromMap);
+		              			//int indexFromMap = schemeObject.getIndexFromLogicElement(circleConnector.getLogicElement());
+		              			//if(indexFromMap >= 0)
+		              				schemeObject.removeElementAtMap(circleConnector.getLogicElement());
 		              			
-		              			deleteUINodeFromView(indexFromMap);
+		              			deleteUINodeFromView(circleConnector);
 								
 							}
 							
@@ -1525,12 +1400,8 @@ public class ContentPane extends Pane {
 
 							if (iConnectorArea.isInputArea(sceneCoords) && !uiLIneInputConnector.isUIInputOccupied()) {
 								Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-								int index = schemeObject
-										.getIndexFromLogicElement(((AUIElement) uiNode).getLogicElement());
-								if (index >= 0) {
-									tempLine.setInputIndex(index);
-									found = true;
-								}
+								tempLine.setInputIndex(((AUIElement) uiNode).getLogicElement().getIndex());
+								found = true;
 								break;
 							}
 						}
@@ -1545,21 +1416,16 @@ public class ContentPane extends Pane {
 								if (iConnectorArea.isSecondInputArea(sceneCoords)
 										&& !uiLineSecondInputConnector.isUISecondInputOccupied()) {
 									Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-									int index = schemeObject
-											.getIndexFromLogicElement(((AUIElement) uiNode).getLogicElement());
-									if (index >= 0) {
-										
-										tempLine.setInputIndex(index);
-										tempLine.setSubIndexInput(1);
-										found = true;
-									}
+									tempLine.setInputIndex(((AUIElement) uiNode).getLogicElement().getIndex());
+									tempLine.setSubIndexInput(1);
+									found = true;
 									break;
 								}
 							}
 						}
 					}
 
-					System.out.println("found " + found);
+					
 					if (found) {
 
 						// build new uiLine/logicline
@@ -1584,20 +1450,17 @@ public class ContentPane extends Pane {
 						// input and output ui component
 						// no question about the pickup of the value
 
-						System.out.println("oConn " + tempLine.getOutputIndex());
 						
 						// TODO subindex must be in tempLine
 						UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(
 								new GenericPair<Integer, Integer>(tempLine.getOutputIndex(), 0));
-						System.out.println("outputConnector " + outputConnector);
-											
-						System.out.println("inputConn " + tempLine.getInputIndex());
+
+
 					
 						// here is the problem with the second input
 						UILineInputConnector inputConnector = (UILineInputConnector) getConnector(
 								(new GenericPair<Integer, Integer>(tempLine.getInputIndex(),
 										tempLine.getSubIndexInput())));
-						System.out.println("inputConnector " + inputConnector);
 						if (outputConnector != null && inputConnector != null) {
 
 							// fill now the id to the logic elements
@@ -1763,21 +1626,6 @@ public class ContentPane extends Pane {
 	{
 		for(Entry<Integer, AUIElement<?>> entry : uiMap.entrySet())
 		{
-//			if(entry.getValue() instanceof AUIDoubleInputOneOutputElement)
-//			{
-//				AUIDoubleInputOneOutputElement doubleInput = (AUIDoubleInputOneOutputElement)entry.getValue();
-//				if(doubleInput.isUISecondInputOccupied(idOfInput))
-//					return doubleInput;
-//			}
-//			
-//			
-//			if(entry.getValue() instanceof AUIInputOutputElement)
-//			{
-//				AUIInputOutputElement input = (AUIInputOutputElement)entry.getValue();
-//				if(input.isUIInputOccupied(idOfInput))
-//					return input;
-//			}
-			
 			if(entry.getValue() instanceof UILineConnector)
 			{
 				UILineConnector uiLineConnector = (UILineConnector)entry.getValue();
@@ -1799,14 +1647,6 @@ public class ContentPane extends Pane {
 	{
 		for(Entry<Integer, AUIElement<?>> entry : uiMap.entrySet())
 		{
-//			if(entry.getValue() instanceof AUIOutputElement)
-//			{
-//				AUIOutputElement output = (AUIOutputElement)entry.getValue();
-//				if(output.isUIOutputOccupied(idOfOutput))
-//					return output;
-//			}
-			
-
 			if(entry.getValue() instanceof UILineConnector)
 			{
 				UILineConnector uiLineConnector = (UILineConnector)entry.getValue();
@@ -1904,70 +1744,5 @@ public class ContentPane extends Pane {
 	}
 
 
-	/**
-	 * remove the complete path from one logic element to the target. (remove all lines or circle)
-	 * @param uiNode
-	 */
-	private void removeLineConnection(AUIElement<?> node)
-	{
-		List<AUIElement<?>> elementList = new ArrayList<AUIElement<?>>();
-		
-		if(node instanceof UILineConnector)
-		{
-
-			UILineConnector uiNode = (UILineConnector)node;
-			
-			UILineOutputConnector outputConnector = (UILineOutputConnector) getConnector(uiNode.getLogicElement().getOutputId());
-			
-			
-			UILineInputConnector inputConnector = (UILineInputConnector) getConnector(uiNode.getLogicElement().getInputId());
-
-			
-			
-			
-			outputConnector.removeUIOutputConnector();
-			// TODO not the best idea
-			if 
-			(uiNode.getLogicElement().getInputId().getRight() == 1) 
-			{
-				((UILineSecondInputConnector) inputConnector).removeUISecondInputConnector();
-			} 
-			else
-				inputConnector.removeUIInputConnector();
-
-			
-			
-			
-			
-			
-			Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-			
-			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
-			if (indexFromMap >= 0)
-				schemeObject.deleteElementMap(indexFromMap);
-
-			if(outputConnector instanceof UICircleLineConnector || outputConnector instanceof UILineConnector)
-			{
-				removeLineConnection((AUIElement<?>) outputConnector);
-			}
-			
-			if(inputConnector instanceof UICircleLineConnector || inputConnector instanceof UILineConnector)
-			{
-				removeLineConnection((AUIElement<?>) outputConnector);
-			}
-			
-			deleteUINodeFromView(indexFromMap);
-		}
-		else if(node instanceof UICircleLineConnector)
-		{
-			
-			Scheme schemeObject = SchemeDataStorage.getSchemeList().getActiveSchemeOnScreen();
-			
-			int indexFromMap = schemeObject.getIndexFromLogicElement(node.getLogicElement());
-			if (indexFromMap >= 0)
-				schemeObject.deleteElementMap(indexFromMap);
-			deleteUINodeFromView(indexFromMap);
-		}
-	}
 
 }

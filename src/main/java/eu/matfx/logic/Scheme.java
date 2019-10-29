@@ -107,7 +107,7 @@ public class Scheme implements Serializable {
 		return this.getDescriptionName();
 	}
 	
-	
+	/*
 	public int getIndexFromLogicElement(ALogicElement logicElement)
 	{
 		
@@ -121,7 +121,7 @@ public class Scheme implements Serializable {
 		}
 		System.out.println("logicElement NotFound " + logicElement.getIndex());
 		return Integer.MIN_VALUE;
-	}
+	}*/
 
 	public void setId(int id)
 	{
