@@ -17,7 +17,7 @@ public class Test {
 	    uniqueList.add("Value1"); 
 	    System.err.println(uniqueList); // should contain only one element
 
-	    
+	    //
 	    
 	    cursorList.add("Element1"); 
 	    cursorList.add("Element2"); 
